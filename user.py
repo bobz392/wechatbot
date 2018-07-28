@@ -1,6 +1,7 @@
 #coding=utf-8
 
-from sqlalchemy import Column, String, ForeignKey, DateTime, Integer, BigInteger
+from sqlalchemy import Column, String, ForeignKey,\
+    DateTime, Integer, BigInteger, Boolean
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import and_, func, create_engine
@@ -19,6 +20,7 @@ class User(Base):
     name = Column(String(50), primary_key=True)
     email = Column(String(40), unique=True)
     password = Column(String(40))
+    sender = Column(Boolean, default=False)
 
     @staticmethod
     def create_user(name, email=None, password=None):
@@ -54,6 +56,46 @@ class User(Base):
         return msg
 
     @staticmethod
+    def sender_set_to(sender):
+        """设置当前的 sender 为
+
+        Arguments:
+            sender {[string]} -- 当前的发送者的名字，也是即将被设置为邮件发送者
+
+        Returns:
+            [string] -- 设置的相关信息返回
+        """
+        maybe_sender = session.query(User).filter(User.name==sender).first()
+        if maybe_sender:
+            current_sender = session.query(User).filter(User.sender==True).first()
+            msg = u''
+            if current_sender:
+                if current_sender.name == maybe_sender.name:
+                    return u'你他mb的设置个毛啊，本来就是你'
+                else:
+                    current_sender.sender = False
+                    msg += u'发送者 %s 已经被取消\n' % current_sender.name
+            maybe_sender.sender = True
+            msg += u'发送者 %s 已经被设置' % maybe_sender.name
+            session.commit()
+            return msg
+        else:
+            return u'都没注册信息，发送 nmb'
+
+    @staticmethod
+    def show_sender():
+        """ 查询当前的邮件发送者是谁
+        
+        Returns:
+            [string] -- 返回发送者的名字信息
+        """
+        user = session.query(User).filter(User.sender==True).first()
+        if user:
+            return u'当前发送者为 %s' % user.name
+        else:
+            return u'当前未设置发送者'
+
+    @staticmethod
     def delete_user(name):
         user = session.query(User).filter(User.name==name).first()
         if user:
@@ -71,7 +113,9 @@ class User(Base):
             name {[string]} -- 查询的用户名，用户名在数据库中是唯一的，并且为微信名
         """
         user = session.query(User).filter(User.name==name).first()
-        return u'叫 %s 的用户存在，邮箱为 %s' % (name, user.email) if user else u'叫 %s 的用户不存在' % name
+        return u'叫 %s 的用户存在，邮箱为 %s，%s' % \
+            (name, user.email, u'是发送者' if user.sender else u'不是发送者') \
+            if user else u'叫 %s 的用户不存在' % name
 
     def __repr__(self):
         return '%s(%s)' % (self.name, self.email)
@@ -117,5 +161,6 @@ class Message(Base):
             s += 'id = %s, message = %s\n' % (m.id, m.message)
         
         return  u'今日无%s的记录' % sender if len(s) <= 0 else s       
+    
 
 Base.metadata.create_all(engine)

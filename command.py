@@ -22,7 +22,7 @@ class Command(object):
             '-updateuser': ['password', 'email'],
             '-sender': ['setme'],
             '-note': ['content'],
-            '-send': ['force'],
+            '-sendmail': ['force'],
             '-help': ['-help'],
             '-delete': ['delete']
         }
@@ -30,9 +30,9 @@ class Command(object):
         self.user_path = '-user'
         self.updateuser_path = '-updateuser'
         self.sender_path = '-sender'
-        self.note_path = '-note'
-        self.send_path = '-send'
         self.delete_path = '-delete'
+        self.note_path = '-note'
+        self.sendmail_path = '-sendmail'
         self.current_users = {}
 
     def vaild(self, text):
@@ -59,9 +59,29 @@ class Command(object):
             message = self.update_user(text, sender)
         elif o.path == self.delete_path:
             message = self.delete_user(sender)
+        elif o.path == self.sender_path:
+            message = self.email_sender(text, sender)
         else:
             message = None
         return message
+
+
+    def email_sender(self, text, sender):
+        """当前的邮件发送者的一些查询信息
+
+        Arguments:
+            text {[string]} -- url 当前的邮件发送者是查询还是设置
+            sender {[string]} -- 当前的信息发送者是谁
+        """
+        o = urlparse(text)
+        msg = None
+        if o.query == 'setme':
+            print('set who call')
+            msg = User.sender_set_to(sender)
+        else:
+            print('sender show call')
+            msg = User.show_sender()
+        return msg
 
     def delete_user(self, sender):
         """删除指定的用户
@@ -87,7 +107,6 @@ class Command(object):
             text {string} -- url 用户信息字符串
             sender {string} -- 发送者是谁，这个为不可变的name
         """
-        print('in update or create user')
         o = urlparse(text)
         query = o.query
         if query == '':
@@ -124,8 +143,8 @@ class Command(object):
         elif submodule == 'note':
             helper = u'当前用户的日志查询 & 设置\n\nExample: \n\t\t-note （## 仅仅查询）\n\t\t-note?[content] （## 更新为当前的用户日志）'
                 
-        elif submodule == 'send':
-            helper = u'发送日志\n\nExample: \n\t\t-send \n\t\t-send?force  （## 强制发送，用户列表存在的会被设置为空日志）\n\t\t-send?force=[msg] （## 强制发送，用户列表存在的会被设置为 msg 指定的内容）'
+        elif submodule == 'sendmail':
+            helper = u'发送日志\n\nExample: \n\t\t-sendmail \n\t\t-sendmail?force  （## 强制发送，用户列表存在的会被设置为空日志）\n\t\t-sendmail?force=[msg] （## 强制发送，用户列表存在的会被设置为 msg 指定的内容）'
 
         return helper
 
