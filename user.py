@@ -31,12 +31,9 @@ class User(Base):
             email {[string]} -- 263邮箱 (default: {None})
             password {[string]} -- 263邮箱密码 (default: {None})
         """
-        print('start search')
         user = session.query(User).filter(User.name==name).first()
         msg = u'创建或者更新异常'
-        print(user)
         if user:
-            print('user exist')
             if email:
                 user.email = email
             if password:
@@ -50,7 +47,7 @@ class User(Base):
                 user = User(name=name, email=email, password=password)    
                 session.add(user)
                 session.commit()
-                if m in session:
+                if user in session:
                     msg = u'用户 %s 创建成功' % name
                 else:
                     msg = u'用户 %s 创建失败' % name

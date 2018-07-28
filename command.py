@@ -99,7 +99,7 @@ class Command(object):
             try:
                 return User.create_user(sender, qs['email'], qs['password'])
             except:
-                return "Unexpected error:"#, sys.exc_info()[0]
+                return "Unexpected error:", sys.exc_info()[0]
 
     def helper_message(self, text):
         """ 辅助消息的文字返回
