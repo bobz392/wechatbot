@@ -123,7 +123,7 @@ class User(Base):
         """
         users = session.query(User).all()
         all_notes = {}
-        for u in users:
+        for u in users:a
             print('user = %s' % u.name)
             messages = Message.query_today_message(u.name).all()
             print('has %d message' % len(messages))
@@ -141,7 +141,7 @@ class Message(Base):
     id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
     sender = Column(String(50), ForeignKey('user.name'))
     message = Column(String(200))
-    date_create = Column(DateTime, default=datetime.utcnow)
+    date_create = Column(DateTime, default=datetime.now)
 
     @staticmethod
     def add_message(sender, message):
@@ -167,7 +167,7 @@ class Message(Base):
 
     @staticmethod
     def query_today_message(sender):
-        now = datetime.utcnow()
+        now = datetime.now()
         today = datetime(now.year, now.month, now.day, \
                 hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
         return session.query(Message) \
@@ -175,9 +175,6 @@ class Message(Base):
 
     @staticmethod
     def today_message(sender):
-        now = datetime.utcnow()
-        today = datetime(now.year, now.month, now.day, \
-                hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
         s = ''
         for m in Message.query_today_message(sender):
             s += 'id = %s, message = %s\n' % (m.id, m.message)
