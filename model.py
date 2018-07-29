@@ -19,11 +19,12 @@ class User(Base):
 
     name = Column(String(50), primary_key=True)
     email = Column(String(40), unique=True)
+    realname = Column(String(10))
     password = Column(String(40))
     sender = Column(Boolean, default=False)
 
     @staticmethod
-    def create_user(name, email=None, password=None):
+    def create_user(name, email=None, password=None, realname=None):
         """创建一个 user 如果必要的话，如果当前 user 已经存在，那么会更新不为空的信息。
         
         Arguments:
@@ -32,6 +33,7 @@ class User(Base):
         Keyword Arguments:
             email {[string]} -- 263邮箱 (default: {None})
             password {[string]} -- 263邮箱密码 (default: {None})
+            realname {[string]} -- 真实的名字，如果这里为 None 会拆分邮箱前缀 (default: {None})
         """
         user = session.query(User).filter(User.name == name).first()
         msg = u'创建或者更新异常'
@@ -40,13 +42,18 @@ class User(Base):
                 user.email = email
             if password:
                 user.password = password
+            if realname:
+                user.realname = realname
             session.commit()
             msg = u'更新成功'
         else:
             if email == None or password == None:
                 msg = u'邮箱和密码不能为空'
             else:
-                user = User(name=name, email=email, password=password)    
+                emailnames = email.split('@')
+                emailname = emailnames[0] if len(emailnames) >= 1 else email
+                realname = realname if realname is not None else emailname
+                user = User(name=name, email=email, password=password, realname=realname)    
                 session.add(user)
                 session.commit()
                 if user in session:
@@ -124,10 +131,10 @@ class User(Base):
         users = session.query(User).all()
         all_notes = {}
         for u in users:
-            print('user = %s' % u.name)
+            print('user = %s, realname = %s' % (u.name, u.realname))
             messages = Message.query_today_message(u.name).all()
             print('has %d message' % len(messages))
-            all_notes[u.name] = messages
+            all_notes[u.realname] = messages
         return all_notes
 
     def __repr__(self):

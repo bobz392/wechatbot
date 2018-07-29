@@ -20,7 +20,7 @@ class Command(object):
         """
         self.commands = {
             '-user': ['-'],
-            '-updateuser': ['password', 'email'],
+            '-updateuser': ['password', 'email', 'realname'],
             '-sender': ['setme'],
             '-note': ['message', 'id'],
             '-sendmail': ['force'],
@@ -51,7 +51,7 @@ class Command(object):
     def analysis(self, text, sender):
         parse = urlparse(text)
         path = parse.path
-        message = u'命令不存在'
+        message = None
         print('path = %s' % path)
         if path == self.help_path:
             message = self.helper_message(text)
@@ -120,13 +120,13 @@ class Command(object):
         if query == '':
             return u'瞎更你mb'
         else:
-            print('start qs')
             qs = self.parse_query_2_dict(query)
-            print('end qs')
-            try:
-                return User.create_user(sender, qs['email'], qs['password'])
-            except:
-                return "Unexpected error:", sys.exc_info()[0]
+            return User.create_user(sender, qs.get('email', None), \
+                        qs.get('password', None), qs.get('realname', None))
+            # try:
+            #     return User.create_user(sender, qs['email'], qs['password'])
+            # except:
+            #     return "Unexpected error:", sys.exc_info()[0]
 
     def note_config(self, text, sender):
         """ 日志相关的逻辑

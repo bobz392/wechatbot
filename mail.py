@@ -107,10 +107,11 @@ class Mail(object):
         mail_pass="1397160zb"  
         
         sender = 'zhoubo@sunlands.com'
-        receivers = ['zhoubo@sunlands.com', 'huangyaqing@sunlands.com', 'zhourui@sunland.org.cn', 'yf-luonao@sunlands.com']  
+        # , 'huangyaqing@sunlands.com', 'zhourui@sunland.org.cn', 'yf-luonao@sunlands.com'
+        receivers = ['zhoubo@sunlands.com']  
         #  'huangyaqing@sunlands.com
         message = MIMEText(new_body, 'html', 'utf-8')
-        message['From'] = Header(mail_user, 'utf-8')
+        message['From'] = Header(sender)
         message['To'] = Header(','.join(receivers)) 
         
         message['Subject'] = Header('【今日站报】尚研-员工平台组-iOS', 'utf-8')
@@ -127,8 +128,7 @@ class Mail(object):
         except smtplib.SMTPException:
             print('邮件发送失败')
             return u'邮件发送失败'
-        finally:
-            smtp.quit()
+            
                 
 
 

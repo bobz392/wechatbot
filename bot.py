@@ -18,7 +18,7 @@ def job():
     print('do job')
     friend_keeplive.send('i am alive')
 
-schedule.every(15).to(25).seconds.do(job)
+schedule.every(15).to(25).minutes.do(job)
 
 @bot_alex.register(group, TEXT)
 def just_print(msg):
