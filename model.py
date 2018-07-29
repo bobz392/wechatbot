@@ -5,7 +5,7 @@ from sqlalchemy import Column, String, ForeignKey,\
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import and_, func, create_engine
-import datetime
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -33,7 +33,7 @@ class User(Base):
             email {[string]} -- 263邮箱 (default: {None})
             password {[string]} -- 263邮箱密码 (default: {None})
         """
-        user = session.query(User).filter(User.name==name).first()
+        user = session.query(User).filter(User.name == name).first()
         msg = u'创建或者更新异常'
         if user:
             if email:
@@ -65,9 +65,9 @@ class User(Base):
         Returns:
             [string] -- 设置的相关信息返回
         """
-        maybe_sender = session.query(User).filter(User.name==sender).first()
+        maybe_sender = session.query(User).filter(User.name == sender).first()
         if maybe_sender:
-            current_sender = session.query(User).filter(User.sender==True).first()
+            current_sender = session.query(User).filter(User.sender == True).first()
             msg = u''
             if current_sender:
                 if current_sender.name == maybe_sender.name:
@@ -89,7 +89,7 @@ class User(Base):
         Returns:
             [string] -- 返回发送者的名字信息
         """
-        user = session.query(User).filter(User.sender==True).first()
+        user = session.query(User).filter(User.sender == True).first()
         if user:
             return u'当前发送者为 %s' % user.name
         else:
@@ -97,7 +97,7 @@ class User(Base):
 
     @staticmethod
     def delete_user(name):
-        user = session.query(User).filter(User.name==name).first()
+        user = session.query(User).filter(User.name == name).first()
         if user:
             session.delete(user)
             session.commit()
@@ -112,10 +112,23 @@ class User(Base):
         Arguments:
             name {[string]} -- 查询的用户名，用户名在数据库中是唯一的，并且为微信名
         """
-        user = session.query(User).filter(User.name==name).first()
+        user = session.query(User).filter(User.name == name).first()
         return u'叫 %s 的用户存在，邮箱为 %s，%s' % \
             (name, user.email, u'是发送者' if user.sender else u'不是发送者') \
             if user else u'叫 %s 的用户不存在' % name
+
+    @staticmethod
+    def all_user_note():
+        """返回今天所有人的记录
+        """
+        users = session.query(User).all()
+        all_notes = {}
+        for u in users:
+            print('user = %s' % u.name)
+            messages = Message.query_today_message(u.name).all()
+            print('has %d message' % len(messages))
+            all_notes[u.name] = messages
+        return all_notes
 
     def __repr__(self):
         return '%s(%s)' % (self.name, self.email)
@@ -128,7 +141,7 @@ class Message(Base):
     id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
     sender = Column(String(50), ForeignKey('user.name'))
     message = Column(String(200))
-    date_create = Column(DateTime, default=datetime.datetime.utcnow)
+    date_create = Column(DateTime, default=datetime.utcnow)
 
     @staticmethod
     def add_message(sender, message):
@@ -153,14 +166,22 @@ class Message(Base):
             return u'记录更新成功，id 为 %s' % m.id
 
     @staticmethod
-    def show_message(sender):
-        today = func.DATE(Message.date_create) == datetime.date.today()
+    def query_today_message(sender):
+        now = datetime.utcnow()
+        today = datetime(now.year, now.month, now.day, \
+                hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+        return session.query(Message) \
+                .filter(and_(Message.sender == sender, Message.date_create > today))
+
+    @staticmethod
+    def today_message(sender):
+        now = datetime.utcnow()
+        today = datetime(now.year, now.month, now.day, \
+                hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
         s = ''
-        for m in session.query(Message) \
-                .filter(and_(Message.sender == sender, today)):
+        for m in Message.query_today_message(sender):
             s += 'id = %s, message = %s\n' % (m.id, m.message)
         
         return  u'今日无%s的记录' % sender if len(s) <= 0 else s       
-    
 
 Base.metadata.create_all(engine)

@@ -1,7 +1,8 @@
 #coding=utf-8
 
 from urlparse import urlparse, parse_qs
-from user import User, Message
+from model import User, Message
+from mail import Mail
 import sys
 
 class Command(object):
@@ -18,13 +19,13 @@ class Command(object):
             ]
         """
         self.commands = {
-            '-user': ['name', 'password', 'email'],
+            '-user': ['-'],
             '-updateuser': ['password', 'email'],
             '-sender': ['setme'],
-            '-note': ['content'],
+            '-note': ['message', 'id'],
             '-sendmail': ['force'],
-            '-help': ['-help'],
-            '-delete': ['delete']
+            '-help': ['-'],
+            '-delete': ['-']
         }
         self.help_path = '-help'
         self.user_path = '-user'
@@ -33,7 +34,6 @@ class Command(object):
         self.delete_path = '-delete'
         self.note_path = '-note'
         self.sendmail_path = '-sendmail'
-        self.current_users = {}
 
     def vaild(self, text):
         """ 当前的 command 是否是合格的格式
@@ -44,27 +44,31 @@ class Command(object):
         Returns:
             {[bool]} -- 是否是需要解析的格式
         """
-        o = urlparse(text)
+        parse = urlparse(text)
         return text.startswith('-')  and \
-            self.commands[o.path] is not None
+            self.commands[parse.path] is not None
 
     def analysis(self, text, sender):
-        o = urlparse(text)
-        message = None
-        if o.path == self.help_path:
+        parse = urlparse(text)
+        path = parse.path
+        message = u'命令不存在'
+        print('path = %s' % path)
+        if path == self.help_path:
             message = self.helper_message(text)
-        elif o.path == self.user_path:
+        elif path == self.user_path:
             message = self.query_user(sender)
-        elif o.path == self.updateuser_path:
+        elif path == self.updateuser_path:
             message = self.update_user(text, sender)
-        elif o.path == self.delete_path:
+        elif path == self.delete_path:
             message = self.delete_user(sender)
-        elif o.path == self.sender_path:
+        elif path == self.sender_path:
             message = self.email_sender(text, sender)
-        else:
-            message = None
-        return message
+        elif path == self.note_path:
+            message = self.note_config(text, sender)
+        elif path == self.sendmail_path:
+            message = self.sendmail(text, sender)
 
+        return message
 
     def email_sender(self, text, sender):
         """当前的邮件发送者的一些查询信息
@@ -73,9 +77,9 @@ class Command(object):
             text {[string]} -- url 当前的邮件发送者是查询还是设置
             sender {[string]} -- 当前的信息发送者是谁
         """
-        o = urlparse(text)
+        parse = urlparse(text)
         msg = None
-        if o.query == 'setme':
+        if parse.query == 'setme':
             print('set who call')
             msg = User.sender_set_to(sender)
         else:
@@ -99,6 +103,10 @@ class Command(object):
         """
         return User.user_exist(sender)
 
+    def parse_query_2_dict(self, query): 
+        return dict( (k, v if len(v)>1 else v[0]) \
+                for k, v in parse_qs(query).iteritems())
+
     def update_user(self, text, sender):
         """ 更新一个用户。
         当用户不存在的时候创建新用户，否则直接更新信息
@@ -107,27 +115,57 @@ class Command(object):
             text {string} -- url 用户信息字符串
             sender {string} -- 发送者是谁，这个为不可变的name
         """
-        o = urlparse(text)
-        query = o.query
+        parse = urlparse(text)
+        query = parse.query
         if query == '':
             return u'瞎更你mb'
         else:
             print('start qs')
-            qs = dict( (k, v if len(v)>1 else v[0]) for k, v in parse_qs(query).iteritems())
+            qs = self.parse_query_2_dict(query)
             print('end qs')
             try:
                 return User.create_user(sender, qs['email'], qs['password'])
             except:
                 return "Unexpected error:", sys.exc_info()[0]
 
+    def note_config(self, text, sender):
+        """ 日志相关的逻辑
+        
+        Arguments:
+            text {string} -- url 日志信息字符串
+            sender {string} -- 发送者是谁，这个为不可变的name
+        """
+        parse = urlparse(text)
+        query = parse.query
+        qs = self.parse_query_2_dict(query)
+        if qs.has_key('message') and qs.has_key('id'):
+            return Message.update_message(qs['id'], sender, qs['message'])
+        elif qs.has_key('message'):
+            return Message.add_message(sender, qs['message'])
+        else:
+            print('message today')
+            return Message.today_message(sender)
+            
+    def sendmail(self, text, sender):
+        print('send mail!!!!')
+        """发送邮件的
+        
+        Arguments:
+            text {[string]} -- url 日志信息字符串
+            sender {[string]} -- 由谁发出的发送邮件指令
+        """
+        infos = User.all_user_note()
+        mail = Mail()
+        return mail.build_html(infos)
+
     def helper_message(self, text):
         """ 辅助消息的文字返回
 
         -help?[submodule]
         """
-        o = urlparse(text)
+        parse = urlparse(text)
         helper = None
-        submodule = o.query
+        submodule = parse.query
         if submodule == '':
             helper = u'user       当前的用户信息查询\nupdateuser 更新当前用户的信息\nsender     当前邮件的发送者查询 & 设置\nnote       当前用户的日志查询 & 设置\nsend       发送日志\n\n输入 -help?[submodule]查询子命令详细以及使用方式'
             
@@ -141,7 +179,7 @@ class Command(object):
             helper = u'当前邮件的发送者的查询 & 设置\n\nExample:\n\t\t-sender （## 仅仅查询）\n\t\t-sender?setme （## 更新为当前的用户发送）'
 
         elif submodule == 'note':
-            helper = u'当前用户的日志查询 & 设置\n\nExample: \n\t\t-note （## 仅仅查询）\n\t\t-note?[content] （## 更新为当前的用户日志）'
+            helper = u'当前用户的日志查询 & 设置\n\nExample: \n\t\t-note （## 仅仅查询今天的日志）\n\t\t-note?[id & message] （## 更新当前的用户日志，可以选择更新指定 id 的日志，如不指定则直接创建新日志）'
                 
         elif submodule == 'sendmail':
             helper = u'发送日志\n\nExample: \n\t\t-sendmail \n\t\t-sendmail?force  （## 强制发送，用户列表存在的会被设置为空日志）\n\t\t-sendmail?force=[msg] （## 强制发送，用户列表存在的会被设置为 msg 指定的内容）'
