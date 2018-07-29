@@ -123,7 +123,7 @@ class User(Base):
         """
         users = session.query(User).all()
         all_notes = {}
-        for u in users:a
+        for u in users:
             print('user = %s' % u.name)
             messages = Message.query_today_message(u.name).all()
             print('has %d message' % len(messages))
