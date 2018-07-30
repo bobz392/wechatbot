@@ -10,7 +10,7 @@ command = Command()
 
 group_name = 'iOS group'
 group = ensure_one(bot_alex.groups().search(group_name))
-group.update_group(True)
+# group.update_group(True)
 
 friend_keeplive = ensure_one(bot_alex.friends().search('bot'))
 

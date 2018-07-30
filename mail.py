@@ -10,7 +10,6 @@ from model import Message
 class Mail(object):
     
     def __init__(self, *args, **kwargs):
-        
         self.replacement = u'[!~~~!]'
         self.name_replacement = u'[!~!~!~!]'
         self.color_replacement = u'[~~~~~~~]'
@@ -124,10 +123,10 @@ class Mail(object):
             smtpObj.login(mail_user, mail_pass)  
             smtpObj.sendmail(sender, receivers, message.as_string())
             print('邮件发送成功')
-            return u'邮件发送成功'
+            return u'邮件发送成功\n'
         except smtplib.SMTPException:
             print('邮件发送失败')
-            return u'邮件发送失败'
+            return u'邮件发送失败\n'
             
                 
 

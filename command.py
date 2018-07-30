@@ -3,6 +3,7 @@
 from urlparse import urlparse, parse_qs
 from model import User, Message
 from mail import Mail
+from chandao import Chandao
 import sys
 
 class Command(object):
@@ -25,7 +26,8 @@ class Command(object):
             '-note': ['message', 'id'],
             '-sendmail': ['force'],
             '-help': ['-'],
-            '-delete': ['-']
+            '-delete': ['-'],
+            '-chandao': ['-'],
         }
         self.help_path = '-help'
         self.user_path = '-user'
@@ -34,6 +36,7 @@ class Command(object):
         self.delete_path = '-delete'
         self.note_path = '-note'
         self.sendmail_path = '-sendmail'
+        self.chandao_path = '-chandao'
 
     def vaild(self, text):
         """ 当前的 command 是否是合格的格式
@@ -64,9 +67,11 @@ class Command(object):
         elif path == self.sender_path:
             message = self.email_sender(text, sender)
         elif path == self.note_path:
-            message = self.note_config(text, sender)
+            message = self.note_command(text, sender)
         elif path == self.sendmail_path:
             message = self.sendmail(text, sender)
+        elif path == self.chandao_path:
+            message = self.chandao_command(text, sender)
 
         return message
 
@@ -128,7 +133,7 @@ class Command(object):
             # except:
             #     return "Unexpected error:", sys.exc_info()[0]
 
-    def note_config(self, text, sender):
+    def note_command(self, text, sender):
         """ 日志相关的逻辑
         
         Arguments:
@@ -154,9 +159,40 @@ class Command(object):
             text {[string]} -- url 日志信息字符串
             sender {[string]} -- 由谁发出的发送邮件指令
         """
-        infos = User.all_user_note()
-        mail = Mail()
-        return mail.build_html(infos)
+        msg = None
+        if User.is_sender(sender):
+            mail = Mail()
+            infos = User.all_user_note()
+            msg = mail.build_html(infos)
+
+            for u in User.all_users():
+                cd = Chandao(u.name)
+                status = cd.send_chandao()
+                msg += '%s\n' % status
+        else:
+            msg = u'%s 你不是邮件发送者' % sender
+        return msg
+
+    def chandao_command(self, text, sender):
+        """ 禅道相关的命令解析
+        
+        Arguments:
+            text {[string]} -- 禅道相关的命令的url
+            sender {[string]} -- 谁发起的禅道命令
+        """
+        parse = urlparse(text)
+        query = parse.query
+
+        if query == 'check':
+            return User.user_chandao_info(sender)
+        else: 
+            qs = self.parse_query_2_dict(query)
+            return User.update_chandao(sender, za=qs.get('za', None), \
+                  session_id=qs.get('sid', None), object_id=qs.get('oid', None))
+
+        # c = Chandao(sender)
+        # message = c.send_chandao()
+
 
     def helper_message(self, text):
         """ 辅助消息的文字返回
@@ -167,7 +203,7 @@ class Command(object):
         helper = None
         submodule = parse.query
         if submodule == '':
-            helper = u'user       当前的用户信息查询\nupdateuser 更新当前用户的信息\nsender     当前邮件的发送者查询 & 设置\nnote       当前用户的日志查询 & 设置\nsendmail       发送日志\n\n输入 -help?[submodule]查询子命令详细以及使用方式'
+            helper = u'user       当前的用户信息查询\nupdateuser 更新当前用户的信息\nsender     当前邮件的发送者查询 & 设置\nnote       当前用户的日志查询 & 设置\nsendmail       发送日志\nchandao      禅道相关\n\n输入 -help?[submodule]查询子命令详细以及使用方式'
             
         elif submodule == 'user':
             helper = u"当前的用户信息查询\n\nExample:\n\t\t-user（## 用户名是不可变的为当前用户的微信名，如果改名了会导致用户失效）\n"
@@ -183,6 +219,9 @@ class Command(object):
                 
         elif submodule == 'sendmail':
             helper = u'发送日志\n\nExample: \n\t\t-sendmail \n\t\t-sendmail?force  （## 强制发送，用户列表存在的会被设置为空日志）\n\t\t-sendmail?force=[msg] （## 强制发送，用户列表存在的会被设置为 msg 指定的内容）'
+
+        elif submodule == 'chandao':
+            helper = u'禅道相关\n\nExample: \n\t\t-chandao?check （## 检查当前用户禅道信息）\n\t\t-chandao?za=[za]&sid=[sid]&oid=[oid]  （##需要设置禅道的 za session id 从 cookie 中获取，以及更新到的 object id 从任务页面获取）'
 
         return helper
 

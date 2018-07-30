@@ -23,6 +23,47 @@ class User(Base):
     password = Column(String(40))
     sender = Column(Boolean, default=False)
 
+    # 禅道的 cookie 锁需要的东西，用户自己配置
+    chandao_za = Column(String(40), default=None)
+    chandao_session_id = Column(String(40), default=None)
+    chandao_object_id = Column(String(40), default=None)
+
+    @staticmethod
+    def all_users():
+        return session.query(User).all()
+
+    @staticmethod
+    def query_user(name):
+        return session.query(User).filter(User.name == name).first()
+
+    @staticmethod
+    def user_chandao_info(name):
+        user = User.query_user(name)
+        msg = None
+        if user:
+            msg = u'用户 %s\nza： %s\nsession id： %s\nobject id：%s' \
+                % (name, user.chandao_za, user.chandao_session_id, user.chandao_object_id)
+        else:
+            msg = u'都没注册信息，查询 nmb'
+        return msg
+
+    @staticmethod
+    def update_chandao(name, za=None, session_id=None, object_id=None):
+        user = User.query_user(name)
+        msg = None
+        if user:
+            if za:
+                user.chandao_za = za
+            if session_id:
+                user.chandao_session_id = session_id
+            if object_id:
+                user.chandao_object_id = object_id
+            session.commit()
+            msg = u'禅道信息更新成功'
+        else:
+            msg = u'都没注册信息，查询 nmb'
+        return msg
+
     @staticmethod
     def create_user(name, email=None, password=None, realname=None):
         """创建一个 user 如果必要的话，如果当前 user 已经存在，那么会更新不为空的信息。
@@ -35,7 +76,7 @@ class User(Base):
             password {[string]} -- 263邮箱密码 (default: {None})
             realname {[string]} -- 真实的名字，如果这里为 None 会拆分邮箱前缀 (default: {None})
         """
-        user = session.query(User).filter(User.name == name).first()
+        user = User.query_user(name)
         msg = u'创建或者更新异常'
         if user:
             if email:
@@ -63,16 +104,29 @@ class User(Base):
         return msg
 
     @staticmethod
-    def sender_set_to(sender):
-        """设置当前的 sender 为
+    def is_sender(name):
+        """ 指定的用户是不是邮件发送者
+        
+        Arguments:
+            sender {[string]} -- 当前消息发送者的名字
+        """
+        user = User.query_user(name)
+        if user:
+            return user.sender
+        else:
+            return False
+
+    @staticmethod
+    def sender_set_to(name):
+        """设置当前的 sender 为 name 的 user
 
         Arguments:
-            sender {[string]} -- 当前的发送者的名字，也是即将被设置为邮件发送者
+            name {[string]} -- 当前的发送者的名字，也是即将被设置为邮件发送者
 
         Returns:
             [string] -- 设置的相关信息返回
         """
-        maybe_sender = session.query(User).filter(User.name == sender).first()
+        maybe_sender = User.query_user(name)
         if maybe_sender:
             current_sender = session.query(User).filter(User.sender == True).first()
             msg = u''
@@ -104,7 +158,7 @@ class User(Base):
 
     @staticmethod
     def delete_user(name):
-        user = session.query(User).filter(User.name == name).first()
+        user = User.query_user(name)
         if user:
             session.delete(user)
             session.commit()
@@ -119,7 +173,7 @@ class User(Base):
         Arguments:
             name {[string]} -- 查询的用户名，用户名在数据库中是唯一的，并且为微信名
         """
-        user = session.query(User).filter(User.name == name).first()
+        user = User.query_user(name)
         return u'叫 %s 的用户存在，邮箱为 %s，%s' % \
             (name, user.email, u'是发送者' if user.sender else u'不是发送者') \
             if user else u'叫 %s 的用户不存在' % name
@@ -137,7 +191,7 @@ class User(Base):
             all_notes[u.realname] = messages
         return all_notes
 
-    def __repr__(self):
+    def __str__(self):
         return '%s(%s)' % (self.name, self.email)
         
 
