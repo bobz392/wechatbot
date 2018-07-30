@@ -174,8 +174,8 @@ class User(Base):
             name {[string]} -- 查询的用户名，用户名在数据库中是唯一的，并且为微信名
         """
         user = User.query_user(name)
-        return u'叫 %s 的用户存在，邮箱为 %s，%s' % \
-            (name, user.email, u'是发送者' if user.sender else u'不是发送者') \
+        return u'叫 %s(%s) 的用户存在，邮箱为 %s，%s' % \
+            (name, user.realname, user.email, u'是发送者' if user.sender else u'不是发送者') \
             if user else u'叫 %s 的用户不存在' % name
 
     @staticmethod

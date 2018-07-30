@@ -75,7 +75,7 @@ class Mail(object):
         </div>
         ''' 
 
-    def build_html(self, info):
+    def build_daily_report_html(self, info, sender='zhoubo@sunlands.com', pwd='qwerty123'):
         trs = u''
         user_idx = 0
         for user, messages in info.items():
@@ -102,13 +102,9 @@ class Mail(object):
         new_body = new_body.replace(self.replacement, trs)
 
         mail_host="smtp.263.net"
-        mail_user="zhoubo@sunlands.com"   
-        mail_pass="qwerty123"  
-        
-        sender = 'zhoubo@sunlands.com'
-        # 
-        receivers = ['zhoubo@sunlands.com', 'huangyaqing@sunlands.com', 'zhourui@sunland.org.cn', 'yf-luonao@sunlands.com']  
-        #  'huangyaqing@sunlands.com
+
+        receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']  
+# 'zhoubo@sunlands.com', 'huangyaqing@sunlands.com', 'zhourui@sunland.org.cn', 'yf-luonao@sunlands.com'
         message = MIMEText(new_body, 'html', 'utf-8')
         message['From'] = Header(sender)
         message['To'] = Header(','.join(receivers)) 
@@ -120,7 +116,7 @@ class Mail(object):
         try:
             smtpObj.debuglevel = 4
             smtpObj.connect(mail_host, 25)   #465
-            smtpObj.login(mail_user, mail_pass)  
+            smtpObj.login(sender, pwd)  
             smtpObj.sendmail(sender, receivers, message.as_string())
             print('邮件发送成功')
             return u'邮件发送成功\n'
