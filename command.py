@@ -163,7 +163,7 @@ class Command(object):
         if User.is_sender(sender):
             mail = Mail()
             infos = User.all_user_note()
-            msg = mail.build_html(infos)
+            msg = mail.build_daily_report_html(infos)
 
             for u in User.all_users():
                 cd = Chandao(u.name)
