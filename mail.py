@@ -104,11 +104,11 @@ class Mail(object):
 
         mail_host="smtp.263.net"
         mail_user="zhoubo@sunlands.com"   
-        mail_pass="1397160zb"  
+        mail_pass="qwerty123"  
         
         sender = 'zhoubo@sunlands.com'
-        # , 'huangyaqing@sunlands.com', 'zhourui@sunland.org.cn', 'yf-luonao@sunlands.com'
-        receivers = ['zhoubo@sunlands.com']  
+        # 
+        receivers = ['zhoubo@sunlands.com', 'huangyaqing@sunlands.com', 'zhourui@sunland.org.cn', 'yf-luonao@sunlands.com']  
         #  'huangyaqing@sunlands.com
         message = MIMEText(new_body, 'html', 'utf-8')
         message['From'] = Header(sender)
