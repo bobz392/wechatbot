@@ -55,17 +55,25 @@ class Chandao(object):
                 work += u'%s、%s；' % (idx + 1, msg.message)
 
         if len(work) <= 0:
-            return u'%s 今天的日志不存在'
+            return u'%s 今天的日志不存在' % self.sender
         else:            
             payload = self.create_payload(user, work)
             cookies = self.create_cookie(user)
             url = 'http://pm.shangdejigou.cn/effort-createForObject-task-%s.html?onlybody=yes' % user.chandao_object_id
             r = requests.post(url, data=payload, cookies=cookies)
+            content = r.content
             print('chandao send status %s', r)
-            if r.status_code == 200:
+            print('content = %s' % r.content)
+            if r.status_code == 200 and '<script>self.location=\'/user-login' not in content:
                 return u'%s 禅道发送完成' % user.name
             else:
-                return u'%s 禅道发送失败' % user.name
+                return u'%s 禅道发送失败, %s' % (user.name, content)
+
+    
+    def chandao_login(self):
+        url = 'http://pm.shangdejigou.cn/user-login.html'
+        # login_payload = 
+        # requests.post(url, )
 
     def create_payload(self, user, work):
         """禅道请求的 post 中所携带的 payload 拼接

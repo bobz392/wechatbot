@@ -23,10 +23,9 @@ class User(Base):
     password = Column(String(40))
     sender = Column(Boolean, default=False)
 
-    # 禅道的 cookie 锁需要的东西，用户自己配置
-    chandao_za = Column(String(40), default=None)
-    chandao_session_id = Column(String(40), default=None)
     chandao_object_id = Column(String(40), default=None)
+    chandao_name = Column(String(40), default=None)
+    chandao_password = Column(String(40), default=None)
 
     @staticmethod
     def all_users():
