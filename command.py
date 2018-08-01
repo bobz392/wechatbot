@@ -187,11 +187,11 @@ class Command(object):
             return User.user_chandao_info(sender)
         elif query == 'send':
             c = Chandao(sender)
-            return c.send_chandao()
+            return c.send()
         else: 
             qs = self.parse_query_2_dict(query)
-            return User.update_chandao(sender, za=qs.get('za', None), \
-                  session_id=qs.get('sid', None), object_id=qs.get('oid', None))
+            return User.update_chandao(sender, za=qs.get('name', None), \
+                  session_id=qs.get('password', None), object_id=qs.get('oid', None))
 
     def helper_message(self, text):
         """ 辅助消息的文字返回
@@ -220,7 +220,7 @@ class Command(object):
             helper = u'发送日志\n\nExample: \n\t\t-sendmail \n\t\t-sendmail?force  （## 强制发送，用户列表存在的会被设置为空日志）\n\t\t-sendmail?force=[msg] （## 强制发送，用户列表存在的会被设置为 msg 指定的内容）'
 
         elif submodule == 'chandao':
-            helper = u'禅道相关\n\nExample: \n\t\t-chandao?check （## 检查当前用户禅道信息）\n\t\t-chandao?send  (## 手动发送当前用户的禅道)\n\t\t-chandao?za=[za]&sid=[sid]&oid=[oid]  （##需要设置禅道的 za session id 从 cookie 中获取，以及更新到的 object id 从任务页面获取）'
+            helper = u'禅道相关\n\nExample: \n\t\t-chandao?check （## 检查当前用户禅道信息）\n\t\t-chandao?send  (## 手动发送当前用户的禅道)\n\t\t-chandao?name=[name]&password=[password]&oid=[oid]  （##需要设置禅道的用户名&密码，以及更新到的 object id 从任务页面获取）'
 
         return helper
 

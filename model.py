@@ -47,14 +47,14 @@ class User(Base):
         return msg
 
     @staticmethod
-    def update_chandao(name, za=None, session_id=None, object_id=None):
+    def update_chandao(name, chandao_name=None, password=None, object_id=None):
         user = User.query_user(name)
         msg = None
         if user:
-            if za:
-                user.chandao_za = za
-            if session_id:
-                user.chandao_session_id = session_id
+            if chandao_name:
+                user.chandao_name = chandao_name
+            if password:
+                user.chandao_password = password
             if object_id:
                 user.chandao_object_id = object_id
             session.commit()
