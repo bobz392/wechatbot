@@ -38,7 +38,7 @@ class Chandao(object):
             return None
 
     
-    def send_chandao(self):
+    def send(self):
         """发送一个禅道日志的请求
         
         Keyword Arguments:
@@ -56,24 +56,44 @@ class Chandao(object):
 
         if len(work) <= 0:
             return u'%s 今天的日志不存在' % self.sender
-        else:            
-            payload = self.create_payload(user, work)
-            cookies = self.create_cookie(user)
-            url = 'http://pm.shangdejigou.cn/effort-createForObject-task-%s.html?onlybody=yes' % user.chandao_object_id
-            r = requests.post(url, data=payload, cookies=cookies)
-            content = r.content
-            print('chandao send status %s', r)
-            print('content = %s' % r.content)
-            if r.status_code == 200 and '<script>self.location=\'/user-login' not in content:
-                return u'%s 禅道发送完成' % user.name
+        else:
+            cookie = self.login()            
+            if cookie is None:
+                return u'%s 禅道登录失败' % self.sender
             else:
-                return u'%s 禅道发送失败, %s' % (user.name, content)
+                payload = self.create_payload(user, work)
+                cookies = self.create_cookie(user, cookie)
+                url = 'http://pm.shangdejigou.cn/effort-createForObject-task-%s.html?onlybody=yes' % user.chandao_object_id
+                r = requests.post(url, data=payload, cookies=cookies)
+                content = r.content
+                print('chandao send status %s', r)
+                print('content = %s' % r.content)
+                if r.status_code == 200 and '<script>self.location=\'/user-login' not in content:
+                    return u'%s 禅道发送完成' % user.name
+                else:
+                    return u'%s 禅道发送失败, %s' % (user.name, content)
 
     
-    def chandao_login(self):
+    def login(self):
         url = 'http://pm.shangdejigou.cn/user-login.html'
-        # login_payload = 
-        # requests.post(url, )
+        user = User.query_user(self.sender)
+        if user:
+            login_payload = {}
+            login_payload['account'] = user.chandao_name
+            login_payload['password'] = user.chandao_password
+            login_payload['keepLogin[]'] = 'on'
+            login_payload['referer'] = 'http://pm.shangdejigou.cn/my-task.html'
+            with requests.Session() as s:
+                resp = s.post(url, data=login_payload)
+                print(resp)
+                print(resp.content)
+                if resp.status_code == 200 and \
+                    '<script>parent.location=\'http://pm.shangdejigou.cn/my-task.html' in resp.content:
+                    return s.cookies.get_dict()
+                else:
+                    return None
+        else:
+            return None
 
     def create_payload(self, user, work):
         """禅道请求的 post 中所携带的 payload 拼接
@@ -105,7 +125,7 @@ class Chandao(object):
         
         return payload
 
-    def create_cookie(self, user):
+    def create_cookie(self, user, login_cookies):
         """禅道请求的 post 中所携带的 cookie 拼接
 
         Return:
@@ -114,13 +134,7 @@ class Chandao(object):
 
         jar = requests.cookies.RequestsCookieJar()
         domain = '.pm.shangdejigou.cn'
-        jar.set('lang', 'zh-cn', domain=domain, path='/')
-        jar.set('device', 'desktop', domain=domain, path='/')
-        jar.set('theme', 'default', domain=domain, path='/')
-        jar.set('za', user.chandao_za, domain=domain, path='/')
-        jar.set('keepLogin', 'on', domain=domain, path='/')
-        jar.set('windowHeight', '2321', domain=domain, path='/')
-        jar.set('windowWidth', '784', domain=domain, path='/')
-        jar.set('zentaosid', user.chandao_session_id, domain=domain, path='/')
+        for k, v in login_cookies.items():
+            jar.set(k, v, domain=domain, path='/')
 
         return jar
