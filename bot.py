@@ -18,7 +18,12 @@ def job():
     print('do job')
     friend_keeplive.send('i am alive')
 
+def notify_check_in():
+    group.send(u'记得打卡！')
+
 schedule.every(15).to(25).minutes.do(job)
+schedule.every().day.at('19:00').do(notify_check_in)
+
 
 @bot_alex.register(group, TEXT)
 def just_print(msg):
