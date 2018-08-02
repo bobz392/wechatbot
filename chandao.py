@@ -32,8 +32,8 @@ class Chandao(object):
         user = User.query_user(self.sender)
         if user is None:
             return u'用户(%s)不存在' % self.sender
-        elif user.chandao_za is None or user.chandao_session_id is None:
-            return u'%s 禅道的 za 或 session id 为空' % self.sender
+        elif user.chandao_name is None or user.chandao_password is None:
+            return u'%s 禅道的用户名和密码为空' % self.sender
         else: 
             return None
 
@@ -53,14 +53,16 @@ class Chandao(object):
         work = u''
         for idx, msg in enumerate(today_messages):
                 work += u'%s、%s；' % (idx + 1, msg.message)
-
+        print('prepar send')
         if len(work) <= 0:
             return u'%s 今天的日志不存在' % self.sender
         else:
             cookie = self.login()            
             if cookie is None:
+                print('login failed')
                 return u'%s 禅道登录失败' % self.sender
             else:
+                print('prepar success')
                 payload = self.create_payload(user, work)
                 cookies = self.create_cookie(user, cookie)
                 url = 'http://pm.shangdejigou.cn/effort-createForObject-task-%s.html?onlybody=yes' % user.chandao_object_id

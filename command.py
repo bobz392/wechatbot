@@ -159,7 +159,7 @@ class Command(object):
             text {[string]} -- url 日志信息字符串
             sender {[string]} -- 由谁发出的发送邮件指令
         """
-        msg = None
+        msg = u'                                  '
         if User.is_sender(sender):
             mail = Mail()
             infos = User.all_user_note()
@@ -167,8 +167,10 @@ class Command(object):
 
             for u in User.all_users():
                 cd = Chandao(u.name)
-                status = cd.send_chandao()
+                status = cd.send()
+                print('status = %s' % status)
                 msg += '%s\n' % status
+                print('msg = %s') % msg
         else:
             msg = u'%s 你不是邮件发送者' % sender
         return msg
