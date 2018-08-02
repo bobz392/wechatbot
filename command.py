@@ -210,7 +210,7 @@ class Command(object):
             helper = u"当前的用户信息查询\n\nExample:\n\t\t-user（## 用户名是不可变的为当前用户的微信名，如果改名了会导致用户失效）\n"
            
         elif submodule == 'updateuser':
-            helper = u'更新当前用户的信息\n\nExample:\n\t\t-updateuser?password=\[your password]\'\n\t\t-updateuser?email=zhoubo@sunlands.com\n\t\t-updateuser?realname=周博'
+            helper = u'更新当前用户的信息\n\nExample:\n\t\t-updateuser?password=[password]\n\t\t-updateuser?email=zhoubo@sunlands.com\n\t\t-updateuser?realname=周博'
                 
         elif submodule == 'sender':
             helper = u'当前邮件的发送者的查询 & 设置\n\nExample:\n\t\t-sender （## 仅仅查询）\n\t\t-sender?setme （## 更新为当前的用户发送）'

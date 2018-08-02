@@ -18,19 +18,19 @@ class Mail(object):
 
         self.tr = u'''
             <tr class="">
-                <td width="75" class="" style="border-width: 1px; border-style: none solid solid; border-color: rgb(221, 221, 221) rgb(223, 226, 229) rgb(223, 226, 229); padding: 6px 13px;">
+                <td width="15" class="" style="border-width: 1px; border-style: none solid solid; border-color: rgb(221, 221, 221) rgb(223, 226, 229) rgb(223, 226, 229); padding: 6px 13px;">
                     <div class="" style="margin: 0px;">
                         <font color="#141414" face="SimSun" class="">
                             <span class="" style="background-color: rgb(251, 251, 251);">[!~!~!~!]</span>
                         </font>
                     </div>
                 </td>
-                <td width="425" class="" style="border-width: 1px; border-style: none solid solid none; border-color: rgb(221, 221, 221) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px; word-break: break-all;[~~~~~~~]">
+                <td width="805" class="" style="border-width: 1px; border-style: none solid solid none; border-color: rgb(221, 221, 221) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px; word-break: break-all;[~~~~~~~]">
                     <div class="" style="margin: 0px;">
                         [!~~~!]
                     </div>
                 </td>
-                <td width="805" class="" style="border-width: 1px; border-style: none solid solid none; border-color: rgb(221, 221, 221) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px;[~~~~~~~]">
+                <td width="425" class="" style="border-width: 1px; border-style: none solid solid none; border-color: rgb(221, 221, 221) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px;[~~~~~~~]">
                     <br class="">
                 </td>
             </tr>
@@ -44,17 +44,17 @@ class Mail(object):
             <table class="customTableClassName" cellspacing="0" cellpadding="0" style="margin-bottom: 10px; border-collapse: collapse; caret-color: rgb(51, 51, 51); color: rgb(51, 51, 51); font-family: verdana, Tahoma, Arial, 宋体, sans-serif; font-size: 14px; text-size-adjust: auto;">
                 <thead class="">
                     <tr class="firstRow" style="height: 41px;">
-                        <td width="799" height="41" class="" style="border-width: 1px; border-style: solid solid solid none; border-color: rgb(223, 226, 229) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px; background-color: rgb(247, 247, 247);">
+                        <td width="319" height="41" class="" style="border-width: 1px; border-style: solid solid solid none; border-color: rgb(223, 226, 229) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px; background-color: rgb(247, 247, 247);">
                             <br class="">
                         </td>
-                        <td width="419" height="41" class="" style="border-width: 1px; border-style: solid solid solid none; border-color: rgb(223, 226, 229) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px; background-color: rgb(247, 247, 247);">
+                        <td width="799" height="41" class="" style="border-width: 1px; border-style: solid solid solid none; border-color: rgb(223, 226, 229) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px; background-color: rgb(247, 247, 247);">
                             <p class="" style="margin: 0px 0px 10px; padding: 0px; text-align: center;">
                                 <strong class="">
                                     <span class="" style="font-family: SimSun;">工作内容</span>
                                 </strong>
                             </p>
                         </td>
-                        <td width="799" height="41" class="" style="border-width: 1px; border-style: solid solid solid none; border-color: rgb(223, 226, 229) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px; background-color: rgb(247, 247, 247);">
+                        <td width="319" height="41" class="" style="border-width: 1px; border-style: solid solid solid none; border-color: rgb(223, 226, 229) rgb(223, 226, 229) rgb(223, 226, 229) rgb(221, 221, 221); padding: 6px 13px; background-color: rgb(247, 247, 247);">
                             <p class="" style="margin: 0px 0px 10px; padding: 0px; text-align: center;">
                                 <strong class="">
                                     <span class="" style="font-family: SimSun;">问题</span>
