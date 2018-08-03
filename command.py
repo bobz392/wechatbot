@@ -158,18 +158,18 @@ class Command(object):
         """发送邮件的
         
         Arguments:
-            text {[string]} -- url 日志信息字符串
-            sender {[string]} -- 由谁发出的发送邮件指令
+            text {string} -- url 日志信息字符串
+            sender {string} -- 由谁发出的发送邮件指令
         """
-        msg = u'                                  '
+        msg = u''
         if User.is_sender(sender):
             mail = Mail()
             infos = User.all_user_note()
             msg = mail.build_daily_report_html(infos)
 
-            for u in User.all_users():
-                cd = Chandao(u.name)
-                status = cd.send()
+            for user in User.all_users():
+                chandao = Chandao(user.name)
+                status = chandao.send()
                 print('status = %s' % status)
                 msg += '%s\n' % status
                 print('msg = %s') % msg
