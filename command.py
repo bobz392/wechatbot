@@ -142,16 +142,18 @@ class Command(object):
         """
         parse = urlparse(text)
         query = parse.query
-        qs = self.parse_query_2_dict(query)
-        if qs.has_key('message') and qs.has_key('id'):
-            return Message.update_message(qs['id'], sender, qs['message'])
-        elif qs.has_key('message'):
-            return Message.add_message(sender, qs['message'])
-        elif qs.has_key('week'):
+
+        if query == 'week':
             return Message.week_messages(sender)
         else:
-            print('message today')
-            return Message.today_message(sender)
+            qs = self.parse_query_2_dict(query)
+            if qs.has_key('message') and qs.has_key('id'):
+                return Message.update_message(qs['id'], sender, qs['message'])
+            elif qs.has_key('message'):
+                return Message.add_message(sender, qs['message'])
+            else:
+                print('message today')
+                return Message.today_message(sender)
             
     def sendmail(self, text, sender):
         print('send mail!!!!')
