@@ -22,7 +22,10 @@ class User(Base):
     realname = Column(String(10))
     password = Column(String(40))
     sender = Column(Boolean, default=False)
+    phone_number = Column(String(11), default=None)
 
+    # chandao_session_id = Column(String(40), default=None)
+    # chandao_za = Column(String(40), default=None)
     chandao_object_id = Column(String(40), default=None)
     chandao_name = Column(String(40), default=None)
     chandao_password = Column(String(40), default=None)

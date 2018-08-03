@@ -4,6 +4,7 @@ from wxpy import *
 import schedule
 import time
 from command import Command
+from check_in import CheckIn
 
 bot_alex = Bot(cache_path=True)
 command = Command()
@@ -18,11 +19,22 @@ def job():
     print('do job')
     friend_keeplive.send('i am alive')
 
+check_in = CheckIn()
+
 def notify_check_in():
-    group.send(u'记得打卡！')
+    msg = check_in.check_all_user()
+    group.send(u'记得打卡！') 
+
+
+def schedule_of_weekdays(*days):
+    for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']:
+        check_in_job = schedule.every()
+        for check_time in ['19:15', '19:30', '19:45', \
+                '20:00', '20:30', '20:45', '21:00', '21:30']:
+            getattr(check_in_job, day).at(check_time).do()    
+      
 
 schedule.every(15).to(25).minutes.do(job)
-schedule.every().day.at('19:00').do(notify_check_in)
 
 
 @bot_alex.register(group, TEXT)
