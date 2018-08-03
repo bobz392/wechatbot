@@ -23,7 +23,7 @@ class Command(object):
             '-user': ['-'],
             '-updateuser': ['password', 'email', 'realname'],
             '-sender': ['setme'],
-            '-note': ['message', 'id'],
+            '-note': ['message', 'id', 'week'],
             '-sendmail': ['force'],
             '-help': ['-'],
             '-delete': ['-'],
@@ -147,6 +147,8 @@ class Command(object):
             return Message.update_message(qs['id'], sender, qs['message'])
         elif qs.has_key('message'):
             return Message.add_message(sender, qs['message'])
+        elif qs.has_key('week'):
+            return Message.week_messages(sender)
         else:
             print('message today')
             return Message.today_message(sender)
@@ -216,7 +218,7 @@ class Command(object):
             helper = u'当前邮件的发送者的查询 & 设置\n\nExample:\n\t\t-sender （## 仅仅查询）\n\t\t-sender?setme （## 更新为当前的用户发送）'
 
         elif submodule == 'note':
-            helper = u'当前用户的日志查询 & 设置\n\nExample: \n\t\t-note （## 仅仅查询今天的日志）\n\t\t-note?[id & message] （## 更新当前的用户日志，可以选择更新指定 id 的日志，如不指定则直接创建新日志）'
+            helper = u'当前用户的日志查询 & 设置\n\nExample: \n\t\t-note （## 仅仅查询今天的日志）\n\t\t-note?week （## 查询本周的日志）\n\t\t-note?[id & message] （## 更新当前的用户日志，可以选择更新指定 id 的日志，如不指定则直接创建新日志）'
                 
         elif submodule == 'sendmail':
             helper = u'发送日志\n\nExample: \n\t\t-sendmail \n\t\t-sendmail?force  （## 强制发送，用户列表存在的会被设置为空日志）\n\t\t-sendmail?force=[msg] （## 强制发送，用户列表存在的会被设置为 msg 指定的内容）'

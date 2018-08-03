@@ -5,7 +5,7 @@ from sqlalchemy import Column, String, ForeignKey,\
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import and_, func, create_engine
-from datetime import datetime
+from datetime import datetime, timedelta
 
 Base = declarative_base()
 
@@ -71,9 +71,9 @@ class User(Base):
             name {string} -- 需要更新或者创建的用户
         
         Keyword Arguments:
-            email {[string]} -- 263邮箱 (default: {None})
-            password {[string]} -- 263邮箱密码 (default: {None})
-            realname {[string]} -- 真实的名字，如果这里为 None 会拆分邮箱前缀 (default: {None})
+            email {string} -- 263邮箱 (default: {None})
+            password {string} -- 263邮箱密码 (default: {None})
+            realname {string} -- 真实的名字，如果这里为 None 会拆分邮箱前缀 (default: {None})
         """
         user = User.query_user(name)
         msg = u'创建或者更新异常'
@@ -107,7 +107,7 @@ class User(Base):
         """ 指定的用户是不是邮件发送者
         
         Arguments:
-            sender {[string]} -- 当前消息发送者的名字
+            sender {string} -- 当前消息发送者的名字
         """
         user = User.query_user(name)
         if user:
@@ -120,10 +120,10 @@ class User(Base):
         """设置当前的 sender 为 name 的 user
 
         Arguments:
-            name {[string]} -- 当前的发送者的名字，也是即将被设置为邮件发送者
+            name {string} -- 当前的发送者的名字，也是即将被设置为邮件发送者
 
         Returns:
-            [string] -- 设置的相关信息返回
+            {string} -- 设置的相关信息返回
         """
         maybe_sender = User.query_user(name)
         if maybe_sender:
@@ -147,7 +147,7 @@ class User(Base):
         """ 查询当前的邮件发送者是谁
         
         Returns:
-            [string] -- 返回发送者的名字信息
+            {string} -- 返回发送者的名字信息
         """
         user = session.query(User).filter(User.sender == True).first()
         if user:
@@ -170,7 +170,7 @@ class User(Base):
         """查询指定用户是否存在
         
         Arguments:
-            name {[string]} -- 查询的用户名，用户名在数据库中是唯一的，并且为微信名
+            name {string} -- 查询的用户名，用户名在数据库中是唯一的，并且为微信名
         """
         user = User.query_user(name)
         return u'叫 %s(%s) 的用户存在，邮箱为 %s，%s' % \
@@ -234,10 +234,28 @@ class Message(Base):
                 .filter(and_(Message.sender == sender, Message.date_create > today))
 
     @staticmethod
+    def query_weekly_message(sender):
+        now = datetime.now()
+        today = now.weekday()
+        first_day = now - timedelta(days=today)
+        query_day = datetime(first_day.year, first_day.month, first_day.day, \
+                hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+        return session.query(Message) \
+                .filter(and_(Message.sender == sender, Message.date_create > query_day))
+
+    @staticmethod
+    def week_messages(sender):
+        s = ''
+        for m in Message.query_weekly_message(sender):
+            s += 'id=%s, content=%s-%s\n' \
+                % (m.id, m.message, m.date_create.strftime("%Y-%m-%d"))
+        return s
+
+    @staticmethod
     def today_message(sender):
         s = ''
         for m in Message.query_today_message(sender):
-            s += 'id = %s, message = %s\n' % (m.id, m.message)
+            s += 'id=%s, content=%s\n' % (m.id, m.message)
         
         return  u'今日无%s的记录' % sender if len(s) <= 0 else s       
 
