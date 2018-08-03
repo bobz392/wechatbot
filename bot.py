@@ -23,7 +23,7 @@ check_in = CheckIn()
 
 def notify_check_in():
     msg = check_in.check_all_user()
-    group.send(u'记得打卡！') 
+    group.send(msg) 
 
 
 def schedule_of_weekdays(*days):

@@ -16,9 +16,9 @@ class CheckIn(object):
         """
         if user is not None:
             check_in_url = \
-                'http://localhost:8081/request?url=http:%2F%2Fm.ehr.sunlands.com%2F \
-                    mobile-web%2Fattendance%2FselectAttendanceData.do&params=%7B%22account%22:%22'\
+                'http://localhost:8081/request?url=http:%2F%2Fm.ehr.sunlands.com%2Fmobile-web%2Fattendance%2FselectAttendanceData.do&params=%7B%22account%22:%22'\
                     + user.phone_number + '%22,%22accountType%22:%221%22%7D'
+            print('prepar checkin %s' % user.name)
             r = requests.get(check_in_url)
             if r.status_code == 200:
                 key_data = json.loads(r.content)['key']
