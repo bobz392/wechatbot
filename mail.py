@@ -141,8 +141,7 @@ class DailyMail(Mail):
         mail_body = self.body
         mail_body = mail_body.replace(self.contemt_replacement, trs)
 
-        # self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']  
-        self.receivers = ['zhoubo392@qq.com']
+        self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']
         self.subject = '【今日站报】尚研-员工平台组-iOS'
         self.sender_from = sender
         self.sender_password = pwd
