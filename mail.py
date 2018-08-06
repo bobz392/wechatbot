@@ -1,9 +1,10 @@
 #! /usr/bin/env python2.7
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import smtplib
 
 from email.mime.text import MIMEText
+import chardet
 from email.header import Header
 from model import Message
 
@@ -12,11 +13,11 @@ class Mail(object):
     """ 邮件发送的基类。
     定义了一些替换符号和发送的实际逻辑
     """
+    content_replacement = u'[!~~~!]'
+    name_replacement = u'[!~!~!~!]'
+    color_replacement = u'[~~~~~~~]'
 
     def __init__(self):
-        self.contemt_replacement = u'[!~~~!]'
-        self.name_replacement = u'[!~!~!~!]'
-        self.color_replacement = u'[~~~~~~~]'
         self.subject = None
         self.receivers = []
         self.sender_from = None
@@ -32,12 +33,12 @@ class Mail(object):
             if self.subject:
                 message['Subject'] = Header(self.subject, 'utf-8')
             
-            smtpObj = smtplib.SMTP() 
+            smtp = smtplib.SMTP() 
             try:
-                smtpObj.debuglevel = 4
-                smtpObj.connect(mail_host, 25)   #465
-                smtpObj.login(self.sender_from, self.sender_password)  
-                smtpObj.sendmail(self.sender_from, self.receivers, message.as_string())
+                smtp.debuglevel = 4
+                smtp.connect(mail_host, 25)   #465
+                smtp.login(self.sender_from, self.sender_password)  
+                smtp.sendmail(self.sender_from, self.receivers, message.as_string())
                 return u'邮件发送成功\n'
             except smtplib.SMTPException:
                 return u'邮件发送失败\n'
@@ -112,6 +113,7 @@ class DailyMail(Mail):
     def build_daily_report_html(self, info, \
         sender='zhoubo@sunlands.com', pwd='qwerty123', empty_holder=None):
         trs = u''
+        print('%s, %s' % (sender, pwd))
         user_idx = 0
         for user, messages in info.items():
             divs = u''
@@ -119,17 +121,17 @@ class DailyMail(Mail):
             for index, message in enumerate(messages):
                 new_div = self.div
                 dst = u'%d、%s' % (index + 1, message.message)
-                new_div = new_div.replace(self.contemt_replacement, dst)
+                new_div = new_div.replace(self.content_replacement, dst)
                 divs += new_div
 
             if not divs and empty_holder:
                 new_div = self.div
-                dst = u'%s' % empty_holder
+                new_div = new_div.replace(self.content_replacement, empty_holder)
                 divs = new_div
 
             new_tr = self.tr
             new_tr = new_tr.replace(self.name_replacement, user)
-            new_tr = new_tr.replace(self.contemt_replacement, divs)
+            new_tr = new_tr.replace(self.content_replacement, divs)
             if (user_idx % 2) == 0:
                 new_tr = new_tr.replace(self.color_replacement, u'')
             else:
@@ -139,10 +141,10 @@ class DailyMail(Mail):
             user_idx += 1
             
         mail_body = self.body
-        mail_body = mail_body.replace(self.contemt_replacement, trs)
-
+        mail_body = mail_body.replace(self.content_replacement, trs)
+        print('mail_body = %s' % mail_body)
         # self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']  
-        self.receivers = ['zhoubo392@qq.com']
+        self.receivers = ['zhoubo@sunlands.com']
         self.subject = '【今日站报】尚研-员工平台组-iOS'
         self.sender_from = sender
         self.sender_password = pwd
