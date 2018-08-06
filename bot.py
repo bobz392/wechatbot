@@ -21,7 +21,7 @@ def job():
 
 check_in = CheckIn()
 
-def notify_check_in():
+def notify_check_innotify_check_in():
     msg = check_in.check_all_user()
     group.send(msg) 
 

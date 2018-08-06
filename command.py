@@ -1,10 +1,12 @@
 #coding=utf-8
 
 from urlparse import urlparse, parse_qs
+from datetime import datetime
+import sys
 from model import User, Message
 from mail import Mail
 from chandao import Chandao
-import sys
+
 
 class Command(object):
     """命令辅助 class
@@ -165,9 +167,11 @@ class Command(object):
         """
         msg = u''
         if User.is_sender(sender):
-            mail = Mail()
-            infos = User.all_user_note()
-            msg = mail.build_daily_report_html(infos)
+            now = datetime.now()
+            if now.weekday() != 4:
+                mail = Mail()
+                infos = User.all_user_note()
+                msg = mail.build_daily_report_html(infos)
 
             for user in User.all_users():
                 chandao = Chandao(user.name)
