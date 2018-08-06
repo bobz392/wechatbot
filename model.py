@@ -1,3 +1,4 @@
+#! /usr/bin/env python2.7
 #coding=utf-8
 
 from sqlalchemy import Column, String, ForeignKey,\
@@ -20,6 +21,7 @@ class User(Base):
     name = Column(String(50), primary_key=True)
     email = Column(String(40), unique=True)
     realname = Column(String(10))
+    # 邮件发送者的邮箱密码
     password = Column(String(40))
     sender = Column(Boolean, default=False)
     phone_number = Column(String(11), default=None)
@@ -146,13 +148,19 @@ class User(Base):
             return u'都没注册信息，发送 nmb'
 
     @staticmethod
+    def query_mail_sender():
+        """返回当前的 mail 发送者
+        """
+        return session.query(User).filter(User.sender == True).first()
+
+    @staticmethod
     def show_sender():
         """ 查询当前的邮件发送者是谁
         
         Returns:
             {string} -- 返回发送者的名字信息
         """
-        user = session.query(User).filter(User.sender == True).first()
+        user = User.query_mail_sender()
         if user:
             return u'当前发送者为 %s' % user.name
         else:
@@ -218,6 +226,16 @@ class Message(Base):
 
     @staticmethod
     def update_message(id, sender, message):
+        """创建或者更新一条记录
+        
+        Arguments:
+            id {string} -- 如果需要更新的话会指定一个记录的 id，创建则不传递这个字段
+            sender {string} -- 发送者的名字
+            message {string} -- 一条记录的内容
+        
+        Returns:
+            [string] -- 创建或者更新的结果文字
+        """
         m = session.query(Message) \
                 .filter(and_(Message.sender == sender, Message.id == id)) \
                 .first()

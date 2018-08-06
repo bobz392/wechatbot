@@ -2,7 +2,7 @@
 
 from urlparse import urlparse, parse_qs
 from model import User, Message
-from mail import Mail
+from mail import DailyMail
 from chandao import Chandao
 import sys
 
@@ -165,9 +165,14 @@ class Command(object):
         """
         msg = u''
         if User.is_sender(sender):
-            mail = Mail()
+            daily_mail = DailyMail()
             infos = User.all_user_note()
-            msg = mail.build_daily_report_html(infos)
+            mail_sender = User.query_mail_sender()
+            if mail_sender:
+                msg = daily_mail.build_daily_report_html(infos, \
+                    sender=mail_sender.name, pwd=mail_sender.password)
+            else:
+                msg = u'当前还未设置邮件发送者，邮件发送失败'
 
             for user in User.all_users():
                 chandao = Chandao(user.name)

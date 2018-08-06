@@ -1,3 +1,4 @@
+#! /usr/bin/env python2.7
 #coding=utf-8
 
 from model import User, Message
@@ -42,8 +43,8 @@ class Chandao(object):
         """发送一个禅道日志的请求
         
         Keyword Arguments:
-            consumed {[int]]} -- 当天任务记录多少时间 (default: {每天工作时长 8 小时})
-            left {[int]} -- 任务还剩余多少时间 (default: {剩余默认100小时})
+            consumed {int} -- 当天任务记录多少时间 (default: {每天工作时长 8 小时})
+            left {int} -- 任务还剩余多少时间 (default: {剩余默认100小时})
         
         Returns:
             [type] -- [description]

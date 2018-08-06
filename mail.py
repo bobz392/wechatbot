@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python2.7
 #-*- coding: utf-8 -*-
 
 import smtplib
@@ -7,13 +7,47 @@ from email.mime.text import MIMEText
 from email.header import Header
 from model import Message
 
+
 class Mail(object):
-    
-    def __init__(self, *args, **kwargs):
-        self.replacement = u'[!~~~!]'
+    """ 邮件发送的基类。
+    定义了一些替换符号和发送的实际逻辑
+    """
+
+    def __init__(self):
+        self.contemt_replacement = u'[!~~~!]'
         self.name_replacement = u'[!~!~!~!]'
         self.color_replacement = u'[~~~~~~~]'
+        self.subject = None
+        self.receivers = []
+        self.sender_from = None
+        self.sender_password = None
 
+    def send(self, mail_body):
+        if self.receivers and self.sender_from \
+                and self.sender_password:
+            mail_host="smtp.263.net"
+            message = MIMEText(mail_body, 'html', 'utf-8')
+            message['From'] = Header(self.sender_from)
+            message['To'] = Header(','.join(self.receivers)) 
+            if self.subject:
+                message['Subject'] = Header(self.subject, 'utf-8')
+            
+            smtpObj = smtplib.SMTP() 
+            try:
+                smtpObj.debuglevel = 4
+                smtpObj.connect(mail_host, 25)   #465
+                smtpObj.login(self.sender_from, self.sender_password)  
+                smtpObj.sendmail(self.sender_from, self.receivers, message.as_string())
+                return u'邮件发送成功\n'
+            except smtplib.SMTPException:
+                return u'邮件发送失败\n'
+        else:
+            return u'邮件发送者或者接收者没有填写'
+
+class DailyMail(Mail):
+    """每日站报的 mail 发送。
+    """
+    def __init__(self):
         self.highlight = u'background-color: rgb(246, 248, 250);'
 
         self.tr = u'''
@@ -84,12 +118,12 @@ class Mail(object):
             for index, message in enumerate(messages):
                 new_div = self.div
                 dst = u'%d、%s' % (index + 1, message.message)
-                new_div = new_div.replace(self.replacement, dst)
+                new_div = new_div.replace(self.contemt_replacement, dst)
                 divs += new_div
 
             new_tr = self.tr
             new_tr = new_tr.replace(self.name_replacement, user)
-            new_tr = new_tr.replace(self.replacement, divs)
+            new_tr = new_tr.replace(self.contemt_replacement, divs)
             if (user_idx % 2) == 0:
                 new_tr = new_tr.replace(self.color_replacement, u'')
             else:
@@ -98,25 +132,11 @@ class Mail(object):
             trs += new_tr
             user_idx += 1
             
-        new_body = self.body
-        new_body = new_body.replace(self.replacement, trs)
+        mail_body = self.body
+        mail_body = mail_body.replace(self.contemt_replacement, trs)
 
-        mail_host="smtp.263.net"
-
-        receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']  
-# 'zhoubo@sunlands.com', 'huangyaqing@sunlands.com', 'zhourui@sunland.org.cn', 'yf-luonao@sunlands.com'
-        message = MIMEText(new_body, 'html', 'utf-8')
-        message['From'] = Header(sender)
-        message['To'] = Header(','.join(receivers)) 
-        
-        message['Subject'] = Header('【今日站报】尚研-员工平台组-iOS', 'utf-8')
-        
-        smtpObj = smtplib.SMTP() 
-        try:
-            smtpObj.debuglevel = 4
-            smtpObj.connect(mail_host, 25)   #465
-            smtpObj.login(sender, pwd)  
-            smtpObj.sendmail(sender, receivers, message.as_string())
-            return u'邮件发送成功\n'
-        except smtplib.SMTPException:
-            return u'邮件发送失败\n'
+        self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']  
+        self.subject = '【今日站报】尚研-员工平台组-iOS'
+        self.sender_from = sender
+        self.sender_password = pwd
+        self.send(mail_body)

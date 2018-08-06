@@ -1,3 +1,4 @@
+#! /usr/bin/env python2.7
 #coding=utf-8
 
 from datetime import datetime
@@ -26,7 +27,8 @@ class CheckIn(object):
                 print('json_data = %s' % json_data)
                 check_in_time = json_data['checkInTime']
                 check_out_time = json_data['checkOutTime']
-                if check_in_time is None:
+                print('check_in_time = %s' % check_in_time)
+                if check_in_time == u'':
                     return u'@%s 请注意 还没打上班卡\n' % user.name
                 elif check_in_time == check_out_time:
                     now = datetime.now()
@@ -40,6 +42,10 @@ class CheckIn(object):
         return None
 
     def check_all_user(self):
+        # now = datetime.now()
+        # if now.weekday == 5 or now.weekday == 6:
+        #     return None
+
         msg = u''
         for user in User.all_users():
             result = self._query_check_info(user)

@@ -1,3 +1,4 @@
+#! /usr/bin/env python2.7
 #coding=utf-8
 
 from wxpy import *
@@ -15,26 +16,23 @@ group = ensure_one(bot_alex.groups().search(group_name))
 
 friend_keeplive = ensure_one(bot_alex.friends().search('bot'))
 
-def job():
-    print('do job')
+def keep_alive():
     friend_keeplive.send('i am alive')
 
 check_in = CheckIn()
 
 def notify_check_in():
     msg = check_in.check_all_user()
-    group.send(msg) 
+    if msg:
+        group.send(msg) 
 
 
 def schedule_of_weekdays(*days):
-    for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']:
-        check_in_job = schedule.every()
-        for check_time in ['19:15', '19:30', '19:45', \
+    for check_time in ['10:00', '19:15', '19:30', '19:45', \
                 '20:00', '20:30', '20:45', '21:00', '21:30']:
-            getattr(check_in_job, day).at(check_time).do()    
-      
+        schedule.every().days.at(check_time).do(notify_check_in)     
 
-schedule.every(15).to(25).minutes.do(job)
+schedule.every(15).to(25).minutes.do(keep_alive)
 
 
 @bot_alex.register(group, TEXT)
