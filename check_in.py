@@ -41,9 +41,9 @@ class CheckIn(object):
         return None
 
     def check_all_user(self):
-        # now = datetime.now()
-        # if now.weekday == 5 or now.weekday == 6:
-        #     return None
+        now = datetime.now()
+        if now.weekday == 5 or now.weekday == 6:
+            return None
 
         msg = u''
         for user in User.all_users():

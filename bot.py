@@ -28,7 +28,7 @@ def notify_checkin_notify_check_in():
         group.send(msg) 
 
 def schedule_of_weekdays():
-    for check_time in ['10:00', '19:00', '19:15', '19:30', '19:45', \
+    for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
                 '20:00', '20:30', '20:45', '21:00', '21:30']:
         schedule.every().days.at(check_time).do(notify_checkin_notify_check_in)     
 
