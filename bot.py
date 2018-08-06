@@ -19,21 +19,20 @@ friend_keeplive = ensure_one(bot_alex.friends().search('bot'))
 def keep_alive():
     friend_keeplive.send('i am alive')
 
-check_in = CheckIn()
+checkin = CheckIn()
 
-def notify_check_innotify_check_in():
-    msg = check_in.check_all_user()
+def notify_checkin_notify_check_in():
+    msg = checkin.check_all_user()
     if msg:
         group.send(msg) 
 
-
-def schedule_of_weekdays(*days):
+def schedule_of_weekdays():
     for check_time in ['10:00', '19:00', '19:15', '19:30', '19:45', \
                 '20:00', '20:30', '20:45', '21:00', '21:30']:
-        schedule.every().days.at(check_time).do(notify_check_in)     
+        schedule.every().days.at(check_time).do(notify_checkin_notify_check_in)     
 
 schedule.every(15).to(25).minutes.do(keep_alive)
-
+schedule_of_weekdays()
 
 @bot_alex.register(group, TEXT)
 def just_print(msg):
