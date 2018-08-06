@@ -109,7 +109,8 @@ class DailyMail(Mail):
         </div>
         ''' 
 
-    def build_daily_report_html(self, info, sender='zhoubo@sunlands.com', pwd='qwerty123'):
+    def build_daily_report_html(self, info, \
+        sender='zhoubo@sunlands.com', pwd='qwerty123', empty_holder=None):
         trs = u''
         user_idx = 0
         for user, messages in info.items():
@@ -120,6 +121,11 @@ class DailyMail(Mail):
                 dst = u'%d、%s' % (index + 1, message.message)
                 new_div = new_div.replace(self.contemt_replacement, dst)
                 divs += new_div
+
+            if not divs and empty_holder:
+                new_div = self.div
+                dst = u'%s' % empty_holder
+                divs = new_div
 
             new_tr = self.tr
             new_tr = new_tr.replace(self.name_replacement, user)
@@ -135,7 +141,8 @@ class DailyMail(Mail):
         mail_body = self.body
         mail_body = mail_body.replace(self.contemt_replacement, trs)
 
-        self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']  
+        # self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']  
+        self.receivers = ['zhoubo392@qq.com']
         self.subject = '【今日站报】尚研-员工平台组-iOS'
         self.sender_from = sender
         self.sender_password = pwd

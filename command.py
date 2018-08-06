@@ -1,10 +1,12 @@
 #coding=utf-8
 
 from urlparse import urlparse, parse_qs
+from datetime import datetime
+import sys
 from model import User, Message
 from mail import DailyMail
 from chandao import Chandao
-import sys
+
 
 class Command(object):
     """命令辅助 class
@@ -24,7 +26,7 @@ class Command(object):
             '-updateuser': ['password', 'email', 'realname'],
             '-sender': ['setme'],
             '-note': ['message', 'id', 'week'],
-            '-sendmail': ['force'],
+            '-sendmail': ['empty', 'chandao'],
             '-help': ['-'],
             '-delete': ['-'],
             '-chandao': ['-'],
@@ -163,23 +165,38 @@ class Command(object):
             text {string} -- url 日志信息字符串
             sender {string} -- 由谁发出的发送邮件指令
         """
+        parse = urlparse(text)
+        query = parse.query
+        params = self.parse_query_2_dict(query)
+        
+        send_chandao = params['chandao'] == '1' \
+            if params.has_key('chandao') else True
+        default_note = params['empty'] \
+            if params.has_key('empty') else None
+
         msg = u''
         if User.is_sender(sender):
             daily_mail = DailyMail()
-            infos = User.all_user_note()
+            notes = User.all_user_note()
             mail_sender = User.query_mail_sender()
             if mail_sender:
-                msg = daily_mail.build_daily_report_html(infos, \
-                    sender=mail_sender.name, pwd=mail_sender.password)
+                now = datetime.now()
+                if now.weekday() != 4:
+                    msg = daily_mail.build_daily_report_html(notes, \
+                        sender=mail_sender.name, pwd=mail_sender.password, \
+                        empty_holder=default_note)
             else:
                 msg = u'当前还未设置邮件发送者，邮件发送失败'
-
-            for user in User.all_users():
-                chandao = Chandao(user.name)
-                status = chandao.send()
-                print('status = %s' % status)
-                msg += '%s\n' % status
-                print('msg = %s') % msg
+            # 如果要发送禅道的话
+            if send_chandao:
+                for user in User.all_users():
+                    chandao = Chandao(user.name)
+                    status = chandao.send()
+                    print('status = %s' % status)
+                    msg += '%s\n' % status
+                    print('msg = %s') % msg
+            else:
+                print('不需要发送禅道')
         else:
             msg = u'%s 你不是邮件发送者' % sender
         return msg
@@ -228,7 +245,7 @@ class Command(object):
             helper = u'当前用户的日志查询 & 设置\n\nExample: \n\t\t-note （## 仅仅查询今天的日志）\n\t\t-note?week （## 查询本周的日志）\n\t\t-note?[id & message] （## 更新当前的用户日志，可以选择更新指定 id 的日志，如不指定则直接创建新日志）'
                 
         elif submodule == 'sendmail':
-            helper = u'发送日志\n\nExample: \n\t\t-sendmail \n\t\t-sendmail?force  （## 强制发送，用户列表存在的会被设置为空日志）\n\t\t-sendmail?force=[msg] （## 强制发送，用户列表存在的会被设置为 msg 指定的内容）'
+            helper = u'发送日志\n\nExample: \n\t\t-sendmail?chandao=1 （## chandao = 1 同时会发送禅道，1也是默认值）\n\t\t-sendmail?empty=[msg] （## 强制发送，所有为空的记录会被设置为 msg 指定的内容）'
 
         elif submodule == 'chandao':
             helper = u'禅道相关\n\nExample: \n\t\t-chandao?check （## 检查当前用户禅道信息）\n\t\t-chandao?send  (## 手动发送当前用户的禅道)\n\t\t-chandao?name=[name]&password=[password]&oid=[oid]  （##需要设置禅道的用户名&密码，以及更新到的 object id 从任务页面获取）'

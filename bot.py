@@ -21,14 +21,14 @@ def keep_alive():
 
 check_in = CheckIn()
 
-def notify_check_in():
+def notify_check_innotify_check_in():
     msg = check_in.check_all_user()
     if msg:
         group.send(msg) 
 
 
 def schedule_of_weekdays(*days):
-    for check_time in ['10:00', '19:15', '19:30', '19:45', \
+    for check_time in ['10:00', '19:00', '19:15', '19:30', '19:45', \
                 '20:00', '20:30', '20:45', '21:00', '21:30']:
         schedule.every().days.at(check_time).do(notify_check_in)     
 
