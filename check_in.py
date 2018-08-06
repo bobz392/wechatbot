@@ -33,7 +33,6 @@ class CheckIn(object):
                 elif check_in_time == check_out_time:
                     now = datetime.now()
                     # check_out_date = strptime(check_out_time, "%Y-%m-%d %H:%M:%S")
-                elif check_in_time == check_out_time:
                     if now.hour >= 19:
                         return u'@%s 请注意 还没打下班卡\n' % user.name
                     else:
