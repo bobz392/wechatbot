@@ -22,6 +22,7 @@ def keep_alive():
 checkin = CheckIn()
 
 def notify_checkin_notify_check_in():
+    print('检查打卡信息！！！！！')
     msg = checkin.check_all_user()
     if msg:
         group.send(msg) 
