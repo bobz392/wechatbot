@@ -266,9 +266,9 @@ class Message(Base):
         msg = u''
         for user in User.all_users():
             msg += u'%s' % user.name
-            msg += u' 今日日志已添加\n' \
-                if len(Message.query_today_message(user.name).all()) > 0 \
-                else u' 今日日志未添加\n'
+            message_count = len(Message.query_today_message(user.name).all())
+            msg += u' 今日%d条日志已添加\n' % message_count \
+                if message_count > 0 else u' 今日日志未添加\n'
         if msg:
             return msg
 
