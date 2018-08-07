@@ -64,7 +64,7 @@ class WeekReporter(object):
             print('a round records = %s' % records)
             if records:
                 record_group.append(records)
-        print('group = %s' % record_group)
+        print('group = %s, messages = %s' % (record_group, messages))
         messages, keywords = self.keyword(record_group, messages)
         self.build_report(name, messages, keywords)
 
@@ -91,17 +91,18 @@ class WeekReporter(object):
             tokenized {[string]} -- 原文本记录
         """
         keywords = []
-        messages = []
+        result_messages = []
         for indexs in indexs_list:
             texts = []
             for index in indexs:
+                print index
                 texts.append(messages[index].message)
             message_text = ' '.join(texts)
             print message_text
-            messages.append(texts)
+            result_messages.append(texts)
             keywords.append(''.join( \
                 jieba.analyse.extract_tags(message_text)[0:3]))
-        return (messages, keywords)
+        return (result_messages, keywords)
 
 w = WeekReporter()
 w.create_report(u'M_zhou')
