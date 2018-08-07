@@ -338,13 +338,14 @@ class Report(Base):
     next_week_todo = Column(Text, default=None)
 
     @staticmethod
-    def create_report(reporter, origin_report):
+    def create_report(reporter, origin_report, next_week):
         """
         创建一个指定用户的原始周报。    
         
         Arguments:
             reporter {string} -- 周报是为谁创建的
-            origin_report {string} -- 周报的内容，其中 ‘-’开头的行为一组记录的关键词，
+            origin_report {string} -- 周报的内容，其中 ‘-’开头的行为一组记录的关键词
+            todo {string} -- 下周代办的内容，多条代办以中文逗号分隔
         
         Raises:
             Exception -- 插入失败的话返回异常
@@ -352,7 +353,8 @@ class Report(Base):
         Returns:
             [None] -- 成功无返回
         """
-        wr = Report(reporter=reporter, origin_report=origin_report)
+        wr = Report(reporter=reporter, origin_report=origin_report, \
+            next_week_todo=next_week)
         session.add(wr)
         session.commit()
         if wr in session:

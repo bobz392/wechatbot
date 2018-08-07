@@ -206,8 +206,14 @@ class WeeklyMail(Mail):
                         body = body.replace(self.content_body_replacement, content)
                         finish_contents += body
                 html = html.replace(self.weekly_finish_replacement, finish_contents)
+                todo_texts = report.next_week_todo.split(u'，')
+
+                next_week_todo = u''
+                for todo in todo_texts:
+                    new_todo = self.content_body_p
+                    new_todo = new_todo.replace(self.content_body_replacement, todo)
+                    next_week_todo += new_todo
+                html = html.replace(self.weekly_todo_replacement, next_week_todo)
                 print(html)
             else:
                 return u'用户 %s 不存在或者本周周报还未生成' % sender
-
-
