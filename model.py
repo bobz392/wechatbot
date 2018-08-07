@@ -255,6 +255,12 @@ class Message(Base):
 
     @staticmethod
     def query_today_message(sender):
+        """
+        指定用户今日的全部日志
+
+        Arguments:
+            sender {string} -- 查询日志的用户名
+        """
         now = datetime.now()
         today = datetime(now.year, now.month, now.day, \
                 hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
@@ -263,6 +269,9 @@ class Message(Base):
 
     @staticmethod
     def check_today_message():
+        """
+        检查当前所有用户的日志情况
+        """ 
         msg = u''
         for user in User.all_users():
             msg += u'%s' % user.name
@@ -285,6 +294,15 @@ class Message(Base):
 
     @staticmethod
     def week_messages(sender):
+        """
+        本周的指定用户的全部日志
+        
+        Arguments:
+            sender {string} -- 查询本周日志的用户名
+        
+        Returns:
+            [Message] -- 本周指定用户的所有日志
+        """
         s = ''
         for m in Message.query_weekly_message(sender):
             s += 'id=%s, content=%s-%s\n' \
@@ -310,12 +328,28 @@ class Report(Base):
 
     origin_report = Column(Text, default=None)
     checked = Column(Boolean, default=False)
+    # 用户可以更新周报，但是永远不会改变原始记录
     fix_report = Column(Text, default=None)
+
+    # 周报的时间间隔记录
     start_date = Column(DateTime, default=first_date_of_week)
     end_date = Column(DateTime, default=datetime.now)
 
     @staticmethod
     def create_report(reporter, origin_report):
+        """
+        创建一个指定用户的原始周报。    
+        
+        Arguments:
+            reporter {string} -- 周报是为谁创建的
+            origin_report {string} -- 周报的内容，其中 ‘-’开头的行为一组记录的关键词，
+        
+        Raises:
+            Exception -- 插入失败的话返回异常
+        
+        Returns:
+            [None] -- 成功无返回
+        """
         wr = Report(reporter=reporter, origin_report=origin_report)
         session.add(wr)
         session.commit()
@@ -323,5 +357,6 @@ class Report(Base):
             return None
         else:
             raise Exception
-    
+
+
 Base.metadata.create_all(engine)
