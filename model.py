@@ -17,7 +17,9 @@ session = Session()
 def first_date_of_week():
     now = datetime.now()
     weekday_of_today = now.weekday()
-    return now - timedelta(days=weekday_of_today+8)
+    first_day = now - timedelta(days=weekday_of_today+8)
+    return datetime(first_day.year, first_day.month, first_day.day, \
+                hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
 
 class User(Base):
     
@@ -287,8 +289,6 @@ class Message(Base):
         查询每周用户为 sender 名下所有消息记录。
         """
         first_day = first_date_of_week()
-        query_day = datetime(first_day.year, first_day.month, first_day.day, \
-                hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
         return session.query(Message) \
                 .filter(and_(Message.sender == sender, Message.date_create > query_day))
 
@@ -335,6 +335,8 @@ class Report(Base):
     start_date = Column(DateTime, default=first_date_of_week)
     end_date = Column(DateTime, default=datetime.now)
 
+    next_week_todo = Column(Text, default=None)
+
     @staticmethod
     def create_report(reporter, origin_report):
         """
@@ -358,5 +360,28 @@ class Report(Base):
         else:
             raise Exception
 
+    @staticmethod
+    def query_weekly_report(reporter):
+        """
+        查询本周周报
+
+        Arguments:
+            reporter {string} -- 周报的查询者
+
+        Returns:
+            [Reporter | None] -- 返回本周周报或者 none
+        """
+        first_day = first_date_of_week()
+        return session.query(Report) \
+                .filter(and_(Report.reporter == reporter, Report.start_date >= first_day))\
+                .first()
+
+    @staticmethod
+    def week_date_duration():
+        style = '%Y.%m.%d'
+        first_day = first_date_of_week().strftime(style)
+        now = datetime.now().strftime(style)
+        return u'%s-%s' % (first_day, now)
+        
 
 Base.metadata.create_all(engine)

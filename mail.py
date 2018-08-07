@@ -6,7 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 import chardet
 from email.header import Header
-from model import Message
+from model import Message, User, Report
 
 
 class Mail(object):
@@ -162,13 +162,15 @@ class WeeklyMail(Mail):
         self.content_body_replacement = u'[~~!body!~~]'
         self.weekly_finish_replacement = u'[~~!weekly_finish!~~]'
         self.weekly_todo_replacement = u'[~~!weekly_todo!~~]'
-        self.weekly_name_replacement = u'[~~!weekly_name!~~]'
+
+        self.reporter_name_replacement = u'[~~!weekly_name!~~]'
         self.weekly_description_replacement = u'[~~!weekly_description!~~]'
         self.weekly_title_replacement = u'[~~!weekly_title!~~]'
+        self.weekly_date_replacement = u'[~~!weekly_date!~~]'
         
         self.content_header_p = u'''
                 <p style=";font-size: 16px;font-family: 宋体">
-                    <span style="font-size: 14px;color: rgb(51, 51, 51)">App</span><span style="font-size: 14px;color: rgb(51, 51, 51)">[~~!header!~~]</span>
+                    <span style="font-size: 14px;color: rgb(51, 51, 51)">[~~!header!~~]</span>
                 </p>'''
         self.content_body_p = u'''
                 <p style=";font-size: 14px;font-family: Calibri, sans-serif;text-align: justify;text-indent: 28px">
@@ -182,6 +184,30 @@ class WeeklyMail(Mail):
     def build_weekly_report_html(self, sender, \
                     title=u'尚德机构企业版App', \
                     description=u'尚德机构 iOS-App'):
-        with open(self.report_template_path, 'r') as html:
-            print html.read()
+        with open(self.report_template_path, 'r') as f:
+            html = unicode(f.read(), "utf-8")
+            user = User.query_user(sender)
+            report = Report.query_weekly_report(sender)
+            if user and report:
+                html = html.replace(self.reporter_name_replacement, user.realname)
+                html = html.replace(self.weekly_title_replacement, title)
+                html = html.replace(self.weekly_description_replacement, description)
+                html = html.replace(self.weekly_date_replacement, Report.week_date_duration())
+                contents = report.origin_report.splitlines()
+
+                finish_contents = u''
+                for content in contents:
+                    if content.startswith('-'):
+                        header = self.content_header_p
+                        header = header.replace(self.content_header_replacement, u'%s' % content[1:])
+                        finish_contents += header
+                    else: 
+                        body = self.content_body_p
+                        body = body.replace(self.content_body_replacement, content)
+                        finish_contents += body
+                html = html.replace(self.weekly_finish_replacement, finish_contents)
+                print(html)
+            else:
+                return u'用户 %s 不存在或者本周周报还未生成' % sender
+
 

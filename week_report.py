@@ -69,6 +69,14 @@ class WeekReporter(object):
         self.build_report(name, messages, keywords)
 
     def build_report(self, name, messages, keywords):
+        """
+        周报的构造方法
+        
+        Arguments:
+            name {string} -- 谁的周报
+            messages {[string]} -- 本周的所有根据相似度分好 group 的消息 
+            keywords {[string]} -- 每组分好 group 的关键字，用作日报头
+        """
         try:
             report = u''
             for msgs, keyword in zip(messages, keywords):
@@ -103,6 +111,3 @@ class WeekReporter(object):
             keywords.append(''.join( \
                 jieba.analyse.extract_tags(message_text)[0:3]))
         return (result_messages, keywords)
-
-w = WeekReporter()
-w.create_report(u'M_zhou')
