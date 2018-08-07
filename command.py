@@ -241,7 +241,7 @@ class Command(object):
         helper = None
         submodule = parse.query
         if submodule == '':
-            helper = u'user       当前的用户信息查询\nupdateuser 更新当前用户的信息\nsender     当前邮件的发送者查询 & 设置\nnote       当前用户的日志查询 & 设置\nsendmail       发送日志\nchandao      禅道相关\n\n输入 -help?[submodule]查询子命令详细以及使用方式'
+            helper = u'user       当前的用户信息查询\nupdateuser 更新当前用户的信息\nsender     当前邮件的发送者查询 & 设置\nnote       当前用户的日志查询 & 设置\nsendmail       发送日志\nchandao      禅道相关\ncheckin      打卡信息查询\n\n输入 -help?[submodule]查询子命令详细以及使用方式'
             
         elif submodule == 'user':
             helper = u"当前的用户信息查询\n\nExample:\n\t\t-user（## 用户名是不可变的为当前用户的微信名，如果改名了会导致用户失效）\n"
