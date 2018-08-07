@@ -262,6 +262,17 @@ class Message(Base):
                 .filter(and_(Message.sender == sender, Message.date_create > today))
 
     @staticmethod
+    def check_today_message():
+        msg = u''
+        for user in User.all_users():
+            msg += u'%s' % user.name
+            msg += u' 今日日志已添加\n' \
+                if len(Message.query_today_message(user.name).all()) > 0 \
+                else u' 今日日志未添加\n'
+        if msg:
+            return msg
+
+    @staticmethod
     def query_weekly_message(sender):
         """
         查询每周用户为 sender 名下所有消息记录。

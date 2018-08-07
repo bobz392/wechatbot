@@ -168,6 +168,9 @@ class Command(object):
         parse = urlparse(text)
         query = parse.query
         params = self.parse_query_2_dict(query)
+
+        if query == 'check':
+            return Message.check_today_message()
         
         send_chandao = params['chandao'] == '1' \
             if params.has_key('chandao') else True
@@ -247,7 +250,7 @@ class Command(object):
             helper = u'当前用户的日志查询 & 设置\n\nExample: \n\t\t-note （## 仅仅查询今天的日志）\n\t\t-note?week （## 查询本周的日志）\n\t\t-note?[id & message] （## 更新当前的用户日志，可以选择更新指定 id 的日志，如不指定则直接创建新日志）'
                 
         elif submodule == 'sendmail':
-            helper = u'发送日志\n\nExample: \n\t\t-sendmail?chandao=1 （## chandao = 1 同时会发送禅道，这个参数可以省略 1 也是默认值）\n\t\t-sendmail?empty=[msg] （## 强制发送，所有为空的记录会被设置为 msg 指定的内容）'
+            helper = u'发送日志\n\nExample: \n\t\t-sendmail?chandao=1 （## chandao = 1 同时会发送禅道，这个参数可以省略 1 也是默认值）\n\t\t-sendmail?empty=[msg] （## 强制发送，所有为空的记录会被设置为 msg 指定的内容）\n\t\t-sendmail?check （## 检查今日日志更新情况）'
 
         elif submodule == 'chandao':
             helper = u'禅道相关\n\nExample: \n\t\t-chandao?check （## 检查当前用户禅道信息）\n\t\t-chandao?send  (## 手动发送当前用户的禅道)\n\t\t-chandao?name=[name]&password=[password]&oid=[oid]  （##需要设置禅道的用户名&密码，以及更新到的 object id 从任务页面获取）'
