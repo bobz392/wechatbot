@@ -2,7 +2,7 @@
 #coding=utf-8
 
 from sqlalchemy import Column, String, ForeignKey,\
-    DateTime, Integer, BigInteger, Boolean
+    DateTime, Integer, BigInteger, Boolean, Text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import and_, func, create_engine
@@ -256,9 +256,12 @@ class Message(Base):
 
     @staticmethod
     def query_weekly_message(sender):
+        """
+        查询每周用户为 sender 名下所有消息记录。
+        """
         now = datetime.now()
         today = now.weekday()
-        first_day = now - timedelta(days=today)
+        first_day = now - timedelta(days=today+8) 
         query_day = datetime(first_day.year, first_day.month, first_day.day, \
                 hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
         return session.query(Message) \
@@ -280,4 +283,18 @@ class Message(Base):
         
         return  u'今日无%s的记录' % sender if len(s) <= 0 else s       
 
+
+class WeeklyReport(Base):
+    """
+    每周日报的 orm 模型类
+    """
+    __tablename__ = 'weekly_report'
+
+    report_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
+    reporter = Column(String(50), ForeignKey('user.name'))
+
+    origin_report = Column(Text, default=None)
+    checked = Column(Boolean, default=False)
+    fix_report = Column(Text, default=None)
+    
 Base.metadata.create_all(engine)

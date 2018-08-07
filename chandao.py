@@ -39,16 +39,21 @@ class Chandao(object):
             return None
 
     
-    def send(self):
-        """发送一个禅道日志的请求
+    def send(self, consumed=None, left=None):
+        """
+        发送一个禅道日志的请求
         
         Keyword Arguments:
             consumed {int} -- 当天任务记录多少时间 (default: {每天工作时长 8 小时})
             left {int} -- 任务还剩余多少时间 (default: {剩余默认100小时})
         
-        Returns:
-            [type] -- [description]
+        warring 目前这个逻辑没有生效
         """
+        if consumed:
+            self.consumed = consumed
+        if left:
+            self.left = left
+            
         user = User.query_user(self.sender)
         today_messages = Message.query_today_message(self.sender)
         work = u''
@@ -78,6 +83,10 @@ class Chandao(object):
 
     
     def login(self):
+        """
+        由于 session 的维护方式不稳定。
+        所以帮助用户登录自己的禅道获取最新的 session 。
+        """
         url = 'http://pm.shangdejigou.cn/user-login.html'
         user = User.query_user(self.sender)
         if user:
@@ -99,7 +108,8 @@ class Chandao(object):
             return None
 
     def create_payload(self, user, work):
-        """禅道请求的 post 中所携带的 payload 拼接
+        """
+        禅道请求的 post 中所携带的 payload 拼接。
         """
         date = time.strftime('%Y-%m-%d', time.localtime())
         

@@ -176,17 +176,18 @@ class Command(object):
 
         msg = u''
         if User.is_sender(sender):
-            # daily_mail = DailyMail()
-            # notes = User.all_user_note()
-            # mail_sender = User.query_mail_sender()
-            # if mail_sender:
-            #     now = datetime.now()
-            #     if now.weekday() != 4:
-            #         msg = daily_mail.build_daily_report_html(notes, \
-            #             sender=mail_sender.email, pwd=mail_sender.password, \
-            #             empty_holder=default_note)
-            # else:
-            #     msg = u'当前还未设置邮件发送者，邮件发送失败'
+            daily_mail = DailyMail()
+            notes = User.all_user_note()
+            mail_sender = User.query_mail_sender()
+            if mail_sender:
+                now = datetime.now()
+                # 0 到 4 代表周一到周五，周五不需要发送禅道
+                if now.weekday() != 4:
+                    msg = daily_mail.build_daily_report_html(notes, \
+                        sender=mail_sender.email, pwd=mail_sender.password, \
+                        empty_holder=default_note)
+            else:
+                msg = u'当前还未设置邮件发送者，邮件发送失败'
             # 如果要发送禅道的话
             if send_chandao:
                 print('发送禅道')

@@ -9,11 +9,13 @@ from model import User
 
 
 class CheckIn(object):
-    """ 当前用户的打卡信息查询
+    """ 
+    当前用户的打卡信息查询的 class
     """
 
     def _query_check_info(self, user):
-        """检查当前的打卡情况
+        """
+        检查当前的打卡情况
         """
         if user is not None:
             check_in_url = \
@@ -41,6 +43,13 @@ class CheckIn(object):
         return None
 
     def check_all_user(self):
+        """
+        检查所有用户的打卡信息，除非是周末。
+        
+        Returns:
+            [string] -- 返回每个成员的打卡情况，如果没有输出则代表已经打卡。
+                        没有消息是好的消息。
+        """
         now = datetime.now()
         if now.weekday == 5 or now.weekday == 6:
             return None
