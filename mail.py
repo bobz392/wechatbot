@@ -10,8 +10,9 @@ from model import Message
 
 
 class Mail(object):
-    """ 邮件发送的基类。
-    定义了一些替换符号和发送的实际逻辑
+    """
+    邮件发送的基类。
+    定义了一些替换符号和发送的实际逻辑。
     """
     content_replacement = u'[!~~~!]'
     name_replacement = u'[!~!~!~!]'
@@ -46,7 +47,8 @@ class Mail(object):
             return u'邮件发送者或者接收者没有填写'
 
 class DailyMail(Mail):
-    """每日站报的 mail 发送。
+    """
+    每日站报的 mail 发送。
     """
     def __init__(self):
         self.highlight = u'background-color: rgb(246, 248, 250);'
@@ -141,9 +143,45 @@ class DailyMail(Mail):
             user_idx += 1
             
         mail_body = self.body
-        mail_body = mail_body.replace(self.contemt_replacement, trs)
+        mail_body = mail_body.replace(self.content_replacement, trs)
         self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']
         self.subject = '【今日站报】尚研-员工平台组-iOS'
         self.sender_from = sender
         self.sender_password = pwd
-        self.send(mail_body)
+        return self.send(mail_body)
+
+
+class WeeklyMail(Mail):
+    """
+    周报的构建 class
+    """
+
+    def __init__(self):
+
+        self.content_header_replacement = u'[~~!header!~~]'
+        self.content_body_replacement = u'[~~!body!~~]'
+        self.weekly_finish_replacement = u'[~~!weekly_finish!~~]'
+        self.weekly_todo_replacement = u'[~~!weekly_todo!~~]'
+        self.weekly_name_replacement = u'[~~!weekly_name!~~]'
+        self.weekly_description_replacement = u'[~~!weekly_description!~~]'
+        self.weekly_title_replacement = u'[~~!weekly_title!~~]'
+        
+        self.content_header_p = u'''
+                <p style=";font-size: 16px;font-family: 宋体">
+                    <span style="font-size: 14px;color: rgb(51, 51, 51)">App</span><span style="font-size: 14px;color: rgb(51, 51, 51)">[~~!header!~~]</span>
+                </p>'''
+        self.content_body_p = u'''
+                <p style=";font-size: 14px;font-family: Calibri, sans-serif;text-align: justify;text-indent: 28px">
+                    <span style="font-family: Wingdings;color: rgb(51, 51, 51)">Ø</span>
+                    <span style="font-size: 9px;font-family: &#39;Times New Roman&#39;, serif;color: rgb(51, 51, 51)">
+                    &nbsp;&nbsp; &nbsp;&nbsp;
+                    </span><span style="font-family: 宋体;color: rgb(51, 51, 51)">[~~!body!~~]</span>
+                </p>'''
+        self.report_template_path = r'report_template.html'
+
+    def build_weekly_report_html(self, sender, \
+                    title=u'尚德机构企业版App', \
+                    description=u'尚德机构 iOS-App'):
+        with open(self.report_template_path, 'r') as html:
+            print html.read()
+

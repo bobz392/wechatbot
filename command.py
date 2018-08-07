@@ -213,7 +213,7 @@ class Command(object):
         parse = urlparse(text)
         query = parse.query
 
-        if query == 'check':
+        if query == 'check' or query == '':
             return User.user_chandao_info(sender)
         elif query == 'send':
             c = Chandao(sender)

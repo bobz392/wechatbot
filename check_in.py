@@ -38,8 +38,7 @@ class CheckIn(object):
                     if now.hour >= 19:
                         return u'@%s 请注意 还没打下班卡\n' % user.name
                     else:
-                        # return u'还没到打下班卡时间，上班卡已经打 %s' % check_in_time
-                        print('还没到打下班卡时间，上班卡已经打 %s' % check_in_time)
+                        print('还没到打下班卡时间，上班卡已经打')
         return None
 
     def check_all_user(self):

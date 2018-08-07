@@ -14,6 +14,11 @@ engine = create_engine('sqlite:///shit-email.sqlite', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+def first_date_of_week():
+    now = datetime.now()
+    weekday_of_today = now.weekday()
+    return now - timedelta(days=weekday_of_today+8)
+
 class User(Base):
     
     __tablename__ = 'user'
@@ -26,11 +31,13 @@ class User(Base):
     sender = Column(Boolean, default=False)
     phone_number = Column(String(11), default=None)
 
-    # chandao_session_id = Column(String(40), default=None)
-    # chandao_za = Column(String(40), default=None)
     chandao_object_id = Column(String(40), default=None)
     chandao_name = Column(String(40), default=None)
     chandao_password = Column(String(40), default=None)
+
+    # useless
+    chandao_session_id = Column(String(40), default=None)
+    chandao_za = Column(String(40), default=None)
 
     @staticmethod
     def all_users():
@@ -259,9 +266,7 @@ class Message(Base):
         """
         查询每周用户为 sender 名下所有消息记录。
         """
-        now = datetime.now()
-        today = now.weekday()
-        first_day = now - timedelta(days=today+8) 
+        first_day = first_date_of_week()
         query_day = datetime(first_day.year, first_day.month, first_day.day, \
                 hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
         return session.query(Message) \
@@ -283,8 +288,7 @@ class Message(Base):
         
         return  u'今日无%s的记录' % sender if len(s) <= 0 else s       
 
-
-class WeeklyReport(Base):
+class Report(Base):
     """
     每周日报的 orm 模型类
     """
@@ -296,5 +300,17 @@ class WeeklyReport(Base):
     origin_report = Column(Text, default=None)
     checked = Column(Boolean, default=False)
     fix_report = Column(Text, default=None)
+    start_date = Column(DateTime, default=first_date_of_week)
+    end_date = Column(DateTime, default=datetime.now)
+
+    @staticmethod
+    def create_report(reporter, origin_report):
+        wr = Report(reporter=reporter, origin_report=origin_report)
+        session.add(wr)
+        session.commit()
+        if wr in session:
+            return None
+        else:
+            raise Exception
     
 Base.metadata.create_all(engine)

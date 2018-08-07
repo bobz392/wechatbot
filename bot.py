@@ -13,13 +13,12 @@ command = Command()
 group_name = 'iOS group'
 group = ensure_one(bot_alex.groups().search(group_name))
 # group.update_group(True)
+checkin = CheckIn()
 
 friend_keeplive = ensure_one(bot_alex.friends().search('keep-alive-bot'))
 
 def keep_alive():
     friend_keeplive.send('i am alive')
-
-checkin = CheckIn()
 
 def notify_checkin_notify_check_in():
     print('检查打卡信息！！！！！')
