@@ -5,7 +5,7 @@ from datetime import datetime
 from time import strptime
 import json
 import requests
-from model import User
+from model import User, Session
 
 
 class CheckIn(object):
@@ -54,7 +54,8 @@ class CheckIn(object):
             return None
 
         msg = u''
-        for user in User.all_users():
+        sess = Session()
+        for user in User.all_users(sess):
             result = self._query_check_info(user)
             if result:
                 msg += result

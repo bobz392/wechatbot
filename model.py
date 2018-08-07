@@ -40,8 +40,8 @@ class User(Base):
     chandao_za = Column(String(40), default=None)
 
     @staticmethod
-    def all_users():
-        return session.query(User).all()
+    def all_users(sess=session):
+        return sess.query(User).all()
 
     @staticmethod
     def query_user(name):
