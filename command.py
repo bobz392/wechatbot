@@ -6,6 +6,7 @@ import sys
 from model import User, Message
 from mail import DailyMail
 from chandao import Chandao
+from check_in import CheckIn
 
 
 class Command(object):
@@ -28,8 +29,9 @@ class Command(object):
             '-note': ['message', 'id', 'week'],
             '-sendmail': ['empty', 'chandao'],
             '-help': ['-'],
-            '-delete': ['-'],
+            # '-delete': ['-'],
             '-chandao': ['-'],
+            '-checkin': ['-'],
         }
         self.help_path = '-help'
         self.user_path = '-user'
@@ -39,6 +41,7 @@ class Command(object):
         self.note_path = '-note'
         self.sendmail_path = '-sendmail'
         self.chandao_path = '-chandao'
+        self.checkin_path = '-checkin'
 
     def vaild(self, text):
         """ 当前的 command 是否是合格的格式
@@ -74,6 +77,9 @@ class Command(object):
             message = self.sendmail(text, sender)
         elif path == self.chandao_path:
             message = self.chandao_command(text, sender)
+        elif path == self.checkin_path:
+            checkin = CheckIn()
+            message = checkin.check_all_user()
 
         return message
 
@@ -254,6 +260,9 @@ class Command(object):
 
         elif submodule == 'chandao':
             helper = u'禅道相关\n\nExample: \n\t\t-chandao?check （## 检查当前用户禅道信息）\n\t\t-chandao?send  (## 手动发送当前用户的禅道)\n\t\t-chandao?name=[name]&password=[password]&oid=[oid]  （##需要设置禅道的用户名&密码，以及更新到的 object id 从任务页面获取）'
+        
+        elif submodule == 'checkin':
+            helper = u'打卡信息相关\n\nExample: \n\t\t-checkin （## 打卡信息查询）'
 
         return helper
 
