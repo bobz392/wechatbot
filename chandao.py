@@ -71,7 +71,8 @@ class Chandao(object):
                 print('prepar success')
                 payload = self.create_payload(user, work)
                 cookies = self.create_cookie(user, cookie)
-                url = 'http://pm.shangdejigou.cn/effort-createForObject-task-%s.html?onlybody=yes' % user.chandao_object_id
+                url = 'http://pm.shangdejigou.cn/effort-createForObject-task-%s.html?onlybody=yes' \
+                    % user.chandao_object_id
                 r = requests.post(url, data=payload, cookies=cookies)
                 content = r.content
                 print('chandao send status %s', r)

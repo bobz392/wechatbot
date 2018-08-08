@@ -269,14 +269,7 @@ class Command(object):
             helper = u'打卡信息相关\n\nExample: \n\t\t-checkin （## 打卡信息查询）'
 
         elif submodule == 'weekly':
-            helper = u'''
-            周报相关（计算相对复杂，目前开发阶段未启用多线程，请一个一个运行）\n
-            Example：
-            \t-weekly?[next&title&desc=$] （##  用户周报构建，next 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）
-            \t-weekly?[check=0 | 1] （##  确认周报，只有每个人确认以后才能发送，仅仅传递 check 则默认为 1 即确认周报无误）
-            \t-weekly?[review=$]  （## 预览的本周完成内容，注意每个分组务必以【-】区分）
-            \t-weekly?[update=$]  （## 更新周报的本周完成内容，注意事项同上）
-            \t-weekly?send  （## 确认后可以发送周报）'''
+            helper = u'周报相关（计算相对复杂，目前开发阶段未启用多线程，请一个一个运行）\n\nExample：\t\t-weekly?[next&title&desc=$] （##  用户周报构建，next 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）\t\t-weekly?[check=0 | 1] （##  确认周报，只有每个人确认以后才能发送，仅仅传递 check 则默认为 1 即确认周报无误）\t\t-weekly?[review=$]  （## 预览的本周完成内容，注意每个分组务必以【-】区分）\t\t-weekly?[update=$]  （## 更新周报的本周完成内容，注意事项同上）\t\t-weekly?send  （## 确认后可以发送周报）'
 
         return helper
 

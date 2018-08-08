@@ -54,7 +54,7 @@ class User(Base):
         user = User.query_user(name)
         msg = None
         if user:
-            msg = u'用户 %s\chandao name： %s\nobject id：%s' \
+            msg = u'用户 %s\nchandao name： %s\nobject id：%s' \
                 % (name, user.chandao_name, user.chandao_object_id)
         else:
             msg = u'都没注册信息，查询 nmb'
