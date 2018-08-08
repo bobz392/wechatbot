@@ -169,7 +169,7 @@ class WeeklyMail(Mail):
         self.weekly_date_replacement = u'[~~!weekly_date!~~]'
         
         self.content_header_p = u'''
-                <p style="font-weight:bold;font-size: 16px;font-family: 宋体">
+                <p style="font-size: 16px;font-family: 宋体">
                     <span style="font-size: 18px;color: rgb(51, 51, 51)">[~~!header!~~]</span>
                 </p>'''
         self.content_body_p = u'''
@@ -179,17 +179,15 @@ class WeeklyMail(Mail):
 
         self.report_template_path = r'report_template.html'
 
-    def build_weekly_report_html(self, sender, \
-                    title=u'尚德机构企业版App', \
-                    description=u'尚德机构 iOS-App'):
+    def build_weekly_report_html(self, sender):
         with open(self.report_template_path, 'r') as f:
             html = unicode(f.read(), "utf-8")
             user = User.query_user(sender)
             report = Report.query_weekly_report(sender)
             if user and report:
                 html = html.replace(self.reporter_name_replacement, user.realname)
-                html = html.replace(self.weekly_title_replacement, title)
-                html = html.replace(self.weekly_description_replacement, description)
+                html = html.replace(self.weekly_title_replacement, report.project_title)
+                html = html.replace(self.weekly_description_replacement, report.description)
                 html = html.replace(self.weekly_date_replacement, Report.week_date_duration())
                 contents = report.origin_report.splitlines()
 

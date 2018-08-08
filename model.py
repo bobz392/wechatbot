@@ -336,9 +336,12 @@ class Report(Base):
     end_date = Column(DateTime, default=datetime.now)
 
     next_week_todo = Column(Text, default=None)
+    project_title = Column(String(40), default=None)
+    description = Column(String(40), default=None)
 
     @staticmethod
-    def create_report(reporter, origin_report, next_week):
+    def create_report(reporter, origin_report, next_week, \
+        project_title=None, description=None):
         """
         创建一个指定用户的原始周报。    
         
@@ -346,15 +349,19 @@ class Report(Base):
             reporter {string} -- 周报是为谁创建的
             origin_report {string} -- 周报的内容，其中 ‘-’开头的行为一组记录的关键词
             todo {string} -- 下周代办的内容，多条代办以中文逗号分隔
-        
+            project_title {string} -- 项目名，在邮件中展示用 默认值见代码
+            description {string} -- 项目的描述，在邮件中展示用 默认值见代码
         Raises:
             Exception -- 插入失败的话返回异常
         
         Returns:
             [None] -- 成功无返回
         """
+        title = project_title if project_title else u'尚德机构企业版App'
+        desc = description if description else u'尚德机构 iOS-App'
+
         wr = Report(reporter=reporter, origin_report=origin_report, \
-            next_week_todo=next_week)
+            next_week_todo=next_week, project_title=title, description=desc)
         session.add(wr)
         session.commit()
         if wr in session:
@@ -381,6 +388,9 @@ class Report(Base):
 
     @staticmethod
     def week_date_duration():
+        """
+        辅助函数返回当前本周一到周五区间的文字
+        """
         style = '%Y.%m.%d'
         first_day = first_date_of_week().strftime(style)
         now = datetime.now().strftime(style)
