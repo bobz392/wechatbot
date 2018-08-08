@@ -8,13 +8,20 @@ from model import Message, Report
 
 class WeekReporter(object):
 
-    # def __init__(self):
+    def __init__(self, name, next_week=u'继续完成相应需求', title=None, desc=None):
         # logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', \
-            # level=logging.INFO)
+        #     level=logging.INFO)
+        self.name = name
+        self.next_week = next_week
+        self.title = title
+        self.description = desc
 
-    def create_report(self, name, next_week_todo):
+    def create_report(self):
+        """
+        生成周报，使用 lsi 进行相似度判断，然后 text rank 进行关键词选取
+        """
         jieba.analyse.set_stop_words('./stopwords.dat')
-        messages = Message.query_weekly_message(name).all()
+        messages = Message.query_weekly_message(self.name).all()
         tokenized = [jieba.analyse.extract_tags(note.message) \
             for note in messages]
         
@@ -66,9 +73,9 @@ class WeekReporter(object):
                 record_group.append(records)
         print('group = %s, messages = %s' % (record_group, messages))
         messages, keywords = self.keyword(record_group, messages)
-        self.build_report(name, messages, keywords, next_week_todo)
+        self.build_report(messages, keywords)
 
-    def build_report(self, name, messages, keywords, next_week_todo):
+    def build_report(self, messages, keywords):
         """
         周报的构造方法
         
@@ -83,7 +90,8 @@ class WeekReporter(object):
                 report += u'-%s %s\n' % (keyword, u'【100%】')
                 for msg in msgs:
                     report += u'%s\n' % msg
-            Report.create_report(name, report, next_week_todo)
+            Report.create_report(self.name, report, \
+                self.next_week, self.title, self.description)
             print('创建日报成功')
         except Exception:
             print('创建日报失败')
