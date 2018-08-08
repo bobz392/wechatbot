@@ -245,7 +245,7 @@ class Command(object):
         helper = None
         submodule = parse.query
         if submodule == '':
-            helper = u'user       当前的用户信息查询\nupdateuser 更新当前用户的信息\nsender     当前邮件的发送者查询 & 设置\nnote       当前用户的日志查询 & 设置\nsendmail       发送日志\nchandao      禅道相关\ncheckin      打卡信息查询\n\nweekly     周报任务相关\n\n输入 -help?[submodule]查询子命令详细以及使用方式'
+            helper = u'user       当前的用户信息查询\nupdateuser 更新当前用户的信息\nsender     当前邮件的发送者查询 & 设置\nnote       当前用户的日志查询 & 设置\nsendmail       发送日志\nchandao      禅道相关\ncheckin      打卡信息查询\nweekly     周报任务相关\n\n输入 -help?[submodule]查询子命令详细以及使用方式'
             
         elif submodule == 'user':
             helper = u"当前的用户信息查询\n\nExample:\n\t\t-user（## 用户名是不可变的为当前用户的微信名，如果改名了会导致用户失效）\n"
@@ -270,13 +270,13 @@ class Command(object):
 
         elif submodule == 'weekly':
             helper = u'''
-            周报相关（计算相对复杂，目前开发阶段未启用多线程，请一个一个运行）
-            
+            周报相关（计算相对复杂，目前开发阶段未启用多线程，请一个一个运行）\n
             Example：
-            \t\t-weekly?[next&title&desc=$] （##  用户周报构建，next 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）
-            \t\t-weekly?[check=0 | 1] （##  确认周报，只有每个人确认以后才能发送，仅仅传递 check 则默认为 1 即确认周报无误）
-            \t\t-weekly?[review=$]  （## 预览的本周完成内容，注意每个分组务必以【-】区分）
-            \t\t-weekly?[update=$]  （## 更新周报的本周完成内容，注意事项同上）'''
+            \t-weekly?[next&title&desc=$] （##  用户周报构建，next 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）
+            \t-weekly?[check=0 | 1] （##  确认周报，只有每个人确认以后才能发送，仅仅传递 check 则默认为 1 即确认周报无误）
+            \t-weekly?[review=$]  （## 预览的本周完成内容，注意每个分组务必以【-】区分）
+            \t-weekly?[update=$]  （## 更新周报的本周完成内容，注意事项同上）
+            \t-weekly?send  （## 确认后可以发送周报）'''
 
         return helper
 
