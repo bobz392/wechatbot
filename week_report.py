@@ -12,7 +12,7 @@ class WeekReporter(object):
         # logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', \
             # level=logging.INFO)
 
-    def create_report(self, name):
+    def create_report(self, name, next_week_todo):
         jieba.analyse.set_stop_words('./stopwords.dat')
         messages = Message.query_weekly_message(name).all()
         tokenized = [jieba.analyse.extract_tags(note.message) \
@@ -66,9 +66,9 @@ class WeekReporter(object):
                 record_group.append(records)
         print('group = %s, messages = %s' % (record_group, messages))
         messages, keywords = self.keyword(record_group, messages)
-        self.build_report(name, messages, keywords)
+        self.build_report(name, messages, keywords, next_week_todo)
 
-    def build_report(self, name, messages, keywords):
+    def build_report(self, name, messages, keywords, next_week_todo):
         """
         周报的构造方法
         
@@ -80,14 +80,13 @@ class WeekReporter(object):
         try:
             report = u''
             for msgs, keyword in zip(messages, keywords):
-                report += u'-%s\n' % keyword
+                report += u'-%s %s\n' % (keyword, u'【100%】')
                 for msg in msgs:
                     report += u'%s\n' % msg
-            Report.create_report(name, report)
+            Report.create_report(name, report, next_week_todo)
+            print('创建日报成功')
         except Exception:
             print('创建日报失败')
-        finally:
-            print('创建日报成功')
 
     def keyword(self, indexs_list, messages):
         """
@@ -109,5 +108,5 @@ class WeekReporter(object):
             print message_text
             result_messages.append(texts)
             keywords.append(''.join( \
-                jieba.analyse.extract_tags(message_text)[0:3]))
+                jieba.analyse.textrank(message_text)[0:3]))
         return (result_messages, keywords)

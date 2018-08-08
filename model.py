@@ -54,8 +54,8 @@ class User(Base):
         user = User.query_user(name)
         msg = None
         if user:
-            msg = u'用户 %s\nza： %s\nsession id： %s\nobject id：%s' \
-                % (name, user.chandao_za, user.chandao_session_id, user.chandao_object_id)
+            msg = u'用户 %s\chandao name： %s\nobject id：%s' \
+                % (name, user.chandao_name, user.chandao_object_id)
         else:
             msg = u'都没注册信息，查询 nmb'
         return msg
@@ -288,9 +288,9 @@ class Message(Base):
         """
         查询每周用户为 sender 名下所有消息记录。
         """
-        first_day = first_date_of_week()
+        first_day_of_week = first_date_of_week()
         return session.query(Message) \
-                .filter(and_(Message.sender == sender, Message.date_create > query_day))
+                .filter(and_(Message.sender == sender, Message.date_create > first_day_of_week))
 
     @staticmethod
     def week_messages(sender):
@@ -373,9 +373,10 @@ class Report(Base):
         Returns:
             [Reporter | None] -- 返回本周周报或者 none
         """
-        first_day = first_date_of_week()
+        first_day_of_week = first_date_of_week()
         return session.query(Report) \
-                .filter(and_(Report.reporter == reporter, Report.start_date >= first_day))\
+                .filter(and_(Report.reporter == reporter, \
+                    Report.start_date >= first_day_of_week)) \
                 .first()
 
     @staticmethod

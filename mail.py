@@ -169,16 +169,14 @@ class WeeklyMail(Mail):
         self.weekly_date_replacement = u'[~~!weekly_date!~~]'
         
         self.content_header_p = u'''
-                <p style=";font-size: 16px;font-family: 宋体">
-                    <span style="font-size: 14px;color: rgb(51, 51, 51)">[~~!header!~~]</span>
+                <p style="font-weight:bold;font-size: 16px;font-family: 宋体">
+                    <span style="font-size: 18px;color: rgb(51, 51, 51)">[~~!header!~~]</span>
                 </p>'''
         self.content_body_p = u'''
-                <p style=";font-size: 14px;font-family: Calibri, sans-serif;text-align: justify;text-indent: 28px">
-                    <span style="font-family: Wingdings;color: rgb(51, 51, 51)">Ø</span>
-                    <span style="font-size: 9px;font-family: &#39;Times New Roman&#39;, serif;color: rgb(51, 51, 51)">
-                    &nbsp;&nbsp; &nbsp;&nbsp;
-                    </span><span style="font-family: 宋体;color: rgb(51, 51, 51)">[~~!body!~~]</span>
+                <p class="MsoListParagraph" style="margin-left: 32px">
+                    <span style="font-size:14px;font-family:Wingdings">Ø<span style="font-variant-numeric: normal;font-variant-east-asian: normal;font-stretch: normal;font-size: 9px;line-height: normal;font-family: &#39;Times New Roman&#39;">&nbsp;&nbsp; </span></span><span style="font-size:14px;font-family:SimSun">[~~!body!~~]</span>
                 </p>'''
+
         self.report_template_path = r'report_template.html'
 
     def build_weekly_report_html(self, sender, \
