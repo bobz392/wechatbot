@@ -4,7 +4,6 @@
 import smtplib
 
 from email.mime.text import MIMEText
-import chardet
 from email.header import Header
 from model import Message, User, Report
 
@@ -178,26 +177,37 @@ class WeeklyMail(Mail):
                 </p>'''
 
         self.report_template_path = r'report_template.html'
+        
+        self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']
+        
 
     def build_weekly_report_html(self, sender):
         with open(self.report_template_path, 'r') as f:
             html = unicode(f.read(), "utf-8")
             user = User.query_user(sender)
             report = Report.query_weekly_report(sender)
+
             if user and report:
+                week_duration = Report.week_date_duration()
                 html = html.replace(self.reporter_name_replacement, user.realname)
                 html = html.replace(self.weekly_title_replacement, report.project_title)
                 html = html.replace(self.weekly_description_replacement, report.description)
-                html = html.replace(self.weekly_date_replacement, Report.week_date_duration())
+                html = html.replace(self.weekly_date_replacement, week_duration)
                 contents = report.origin_report.splitlines()
+
+                self.subject = '工作周报-%s-技术-尚武研-员工平台-iOS-%s' \
+                    % (user.realname, week_duration)
+                self.sender_from = user.email
+                self.sender_password = user.password
 
                 finish_contents = u''
                 for content in contents:
                     if content.startswith('-'):
                         header = self.content_header_p
-                        header = header.replace(self.content_header_replacement, u'%s' % content[1:])
+                        header = header.replace(self.content_header_replacement, \
+                            u'%s' % content[1:])
                         finish_contents += header
-                    else: 
+                    else:
                         body = self.content_body_p
                         body = body.replace(self.content_body_replacement, content)
                         finish_contents += body
@@ -210,6 +220,6 @@ class WeeklyMail(Mail):
                     new_todo = new_todo.replace(self.content_body_replacement, todo)
                     next_week_todo += new_todo
                 html = html.replace(self.weekly_todo_replacement, next_week_todo)
-                print(html)
+                return self.send(html)
             else:
                 return u'用户 %s 不存在或者本周周报还未生成' % sender

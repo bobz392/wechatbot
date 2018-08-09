@@ -14,15 +14,20 @@ engine = create_engine('sqlite:///shit-email.sqlite', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
+class DBError(RuntimeError):
+    def __init__(self, arg):
+        self.args = arg
+
 def first_date_of_week():
     now = datetime.now()
     weekday_of_today = now.weekday()
-    first_day = now - timedelta(days=weekday_of_today+8)
+    first_day = now - timedelta(days=weekday_of_today)
     return datetime(first_day.year, first_day.month, first_day.day, \
                 hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
 
 class User(Base):
-    
+
     __tablename__ = 'user'
 
     name = Column(String(50), primary_key=True)
@@ -107,7 +112,8 @@ class User(Base):
                 emailnames = email.split('@')
                 emailname = emailnames[0] if len(emailnames) >= 1 else email
                 realname = realname if realname is not None else emailname
-                user = User(name=name, email=email, password=password, realname=realname)    
+                user = User(name=name, email=email, \
+                    password=password, realname=realname)
                 session.add(user)
                 session.commit()
                 if user in session:
@@ -119,7 +125,7 @@ class User(Base):
     @staticmethod
     def is_sender(name):
         """ 指定的用户是不是邮件发送者
-        
+
         Arguments:
             sender {string} -- 当前消息发送者的名字
         """
@@ -364,7 +370,7 @@ class Report(Base):
         project_title=None, description=None):
         """
         创建一个指定用户的原始周报。    
-        
+
         Arguments:
             reporter {string} -- 周报是为谁创建的
             origin_report {string} -- 周报的内容，其中 ‘-’开头的行为一组记录的关键词
@@ -373,21 +379,23 @@ class Report(Base):
             description {string} -- 项目的描述，在邮件中展示用 默认值见代码
         Raises:
             Exception -- 插入失败的话返回异常
-        
+
         Returns:
             [None] -- 成功无返回
         """
         title = project_title if project_title else u'尚德机构企业版App'
         desc = description if description else u'尚德机构 iOS-App'
 
-        wr = Report(reporter=reporter, origin_report=origin_report, \
+        if Report.query_weekly_report(reporter):
+            raise DBError('report')
+        report = Report(reporter=reporter, origin_report=origin_report, \
             next_week_todo=next_week, project_title=title, description=desc)
-        session.add(wr)
+        session.add(report)
         session.commit()
-        if wr in session:
-            return None
+        if report in session:
+            return report.report_id
         else:
-            raise Exception
+            raise DBError('report')
 
     @staticmethod
     def query_weekly_report(reporter):
@@ -415,6 +423,29 @@ class Report(Base):
         first_day = first_date_of_week().strftime(style)
         now = datetime.now().strftime(style)
         return u'%s-%s' % (first_day, now)
-        
+
+    def report_checked(self, sender):
+        """
+        设置用户本周的周报为通过 review
+        """
+        self.checked = True
+        session.commit()
+    
+    def update_report(self, report=None, \
+                next=None, title=None, desc=None):
+        if report or next or title or desc:
+            if report:
+                self.fix_report = report
+            if next:
+                self.next_week_todo = next
+            if title:
+                self.project_title = title
+            if desc:
+                self.description = desc
+            session.commit()
+            return u'%s：更新周报成功' % self.reporter
+        else:
+            return u'%s：瞎更 nmb' % self.reporter
+
 
 Base.metadata.create_all(engine)

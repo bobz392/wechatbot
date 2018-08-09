@@ -1,14 +1,14 @@
 #! /usr/bin/env python2.7
 #coding=utf-8
 
-import logging
+# import logging
 from gensim import corpora, models, similarities
 import jieba, jieba.analyse
-from model import Message, Report
+from model import Message, Report, DBError
 
 class WeekReporter(object):
 
-    def __init__(self, name, next_week=u'继续完成相应需求', title=None, desc=None):
+    def __init__(self, name, next_week=None, title=None, desc=None):
         # logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', \
         #     level=logging.INFO)
         self.name = name
@@ -72,16 +72,17 @@ class WeekReporter(object):
             if records:
                 record_group.append(records)
         print('group = %s, messages = %s' % (record_group, messages))
-        messages, keywords = self.keyword(record_group, messages)
-        self.build_report(messages, keywords)
+        messages, keywords = self._keyword(record_group, messages)
+        result = self._build_report(messages, keywords)
+        return result
 
-    def build_report(self, messages, keywords):
+    def _build_report(self, messages, keywords):
         """
         周报的构造方法
-        
+
         Arguments:
             name {string} -- 谁的周报
-            messages {[string]} -- 本周的所有根据相似度分好 group 的消息 
+            messages {[string]} -- 本周的所有根据相似度分好 group 的消息
             keywords {[string]} -- 每组分好 group 的关键字，用作日报头
         """
         try:
@@ -90,17 +91,19 @@ class WeekReporter(object):
                 report += u'-%s %s\n' % (keyword, u'【100%】')
                 for msg in msgs:
                     report += u'%s\n' % msg
-            Report.create_report(self.name, report, \
-                self.next_week, self.title, self.description)
-            print('创建日报成功')
-        except Exception:
-            print('创建日报失败')
+            r_id = Report.create_report(self.name, report, \
+                    self.next_week, self.title, self.description)
+            if r_id:
+                return u'创建日报成功，id = %s' % r_id
+            return u'创建日报失败'
+        except DBError:
+            return u'创建日报失败'
 
-    def keyword(self, indexs_list, messages):
+    def _keyword(self, indexs_list, messages):
         """
         返回原记录中 index list 中指定 index 文字集合的关键词。
         取前 3 个拼接。
-        
+
         Arguments:
             text_lis {[int]} -- 需要在一起的 index 集合
             tokenized {[string]} -- 原文本记录

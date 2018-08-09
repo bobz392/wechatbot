@@ -5,8 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
-
-wxpy.pkl
+*.pkl
+*.sqlite
 # Distribution / packaging
 .Python
 build/

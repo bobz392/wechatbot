@@ -3,14 +3,15 @@
 from urlparse import urlparse, parse_qs
 from datetime import datetime
 import sys
-from model import User, Message
-from mail import DailyMail
+from model import User, Message, Report
+from mail import DailyMail, WeeklyMail
 from chandao import Chandao
 from check_in import CheckIn
+from week_report import WeekReporter
 
-def parse_query_2_dict(query): 
-        return dict( (k, v if len(v)>1 else v[0]) \
-                for k, v in parse_qs(query).iteritems())
+def parse_query_2_dict(query):
+    return dict((k, v if len(v) > 1 else v[0]) \
+            for k, v in parse_qs(query).iteritems())
 
 class Command(object):
     """命令辅助 class
@@ -18,7 +19,7 @@ class Command(object):
         object {[object]} -- [description]
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         """ 初始化当前可以使用的所有 commands
             [{string: [string]}}] -- [
                 key 代表当前的参数
@@ -68,10 +69,10 @@ class Command(object):
     def command_class(self, class_name):
         """
         获取当前 module 中指定 class name 的 class
-        
+
         Arguments:
-            cls {string} -- 对应的 class 的 string name 
-        
+            cls {string} -- 对应的 class 的 string name
+
         Returns:
             {class} -- 返回对应的 class 如有的话，否则返回 None
         """
@@ -84,11 +85,11 @@ class Command(object):
     def analysis(self, message, sender):
         """
         根据消息来分解、处理
-        
+
         Arguments:
             router_text {string} -- router 的 string，通常就是一条消息
             sender {string} -- 当前的消息发送者
-        
+
         Returns:
             [string] -- 返回处理后的文字
         """
@@ -116,7 +117,7 @@ class Command(object):
 class UserCommand(object):
     """
     用户相关的命令
-    
+
     检查当前用户信息 - sunlands_webot://-user/check
     更新当前用户信息 - sunlands_webot://-user/update?password=[$password]&email=[$email]&realname=[$realname]
     切换发送者 - sunlands_webot://-user/sender-setme
@@ -125,7 +126,7 @@ class UserCommand(object):
 
     @classmethod
     def helper_info(cls):
-        return u'''当前的用户信息查询
+        return u'''当前的用户信息以及邮件发送者查询 & 更新
 Example:
     -user/check（## 用户名是不可变的为当前用户的微信名，如果改名了会导致用户失效）
     -user/update?password=[$password]&email=[$email]&realname=[$realname] （## 更新当前用户的信息）
@@ -135,7 +136,7 @@ Example:
 
     def __call__(self, router_parse, sender):
         """ 用户相关的逻辑
-        
+
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的指令
@@ -180,11 +181,11 @@ Example:
         """
         if not update_dict:
             return u'瞎更你mb'
-        else:
-            return User.create_user(sender, \
-                        update_dict.get('email', None), \
-                        update_dict.get('password', None), \
-                        update_dict.get('realname', None))
+        
+        return User.create_user(sender, \
+                    update_dict.get('email', None), \
+                    update_dict.get('password', None), \
+                    update_dict.get('realname', None))
 
 class NoteCommand(object):
     """
@@ -220,30 +221,31 @@ Example:
         path = router_parse.path
         query = router_parse.query
 
+        msg = None
         if path == '/week':
             # return u'/week %s' % sender
-            return Message.week_messages(sender)
+            msg = Message.week_messages(sender)
         if path == '/check':
             # return u'/check %s' % sender
-            return Message.today_message(sender)
+            msg = Message.today_message(sender)
         if path == '/update':
             qs = parse_query_2_dict(query)
             if qs.has_key('m') and qs.has_key('id'):
                 # return u'/update %s, query = %s' % (sender, query)
-                return Message.update_message(qs['id'], sender, qs['m'])
+                msg = Message.update_message(qs['id'], sender, qs['m'])
             if qs.has_key('m'):
                 # return u'/create %s, query = %s' % (sender, query)
-                return Message.add_message(sender, qs['m'])
+                msg = Message.add_message(sender, qs['m'])
 
-            return u'更新你妹啊更新 %s' % sender
+            msg = u'更新你妹啊更新 %s' % sender
 
         if path == '/delete':
             qs = parse_query_2_dict(query)
             if qs.has_key('id'):
-                return Message.delete_message(qs['id'], sender)
-            return u'%s：删除日志失败'
+                msg = Message.delete_message(qs['id'], sender)
+            msg = u'%s：删除日志失败'
 
-        return NoteCommand.helper_info()
+        return msg if msg else NoteCommand.helper_info()
 
 class ChandaoCommand(object):
     """
@@ -269,7 +271,7 @@ Example:
 
     def __call__(self, router_parse, sender):
         """ 禅道相关的命令解析
-        
+
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 谁发起的禅道命令
@@ -297,7 +299,7 @@ Example:
 class CheckinCommand(object):
     """
     打卡相关的命令
-    
+
     当前打卡情况 - sunlands_webot://-checkin
     当前打卡情况 - sunlands_webot://-checkin/all
     """
@@ -349,10 +351,10 @@ Example:
                         empty_holder=default_note)
         # 如果没有设置发送者
         return u'当前还未设置邮件发送者，邮件发送失败'
-            
+
     def __call__(self, router_parse, sender):
         """发送站报邮件
-        
+
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送邮件指令
@@ -395,35 +397,61 @@ Example:
 class WeeklyCommand(object):
     """
     发送周报邮件的命令
-        
+  
     创建周报 - sunlands_webot://-weekly/update?[next&title&desc=$]
     确认周报无误 - sunlands_webot://-weekly/check
     预览周报 - sunlands_webot://weekly/review
     """
-    
+
     @classmethod
     def helper_info(cls):
         return  u'''周报相关（计算相对复杂，目前开发阶段未启用多线程，请一个一个运行，发送前请务必确认）
 
 Example：
-    -weekly?[next&title&desc=$] （##  用户周报构建，next 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）
+    -weekly/create?next&title&desc=[$] （##  用户周报构建，next 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）
     -weekly/check （##  确认周报，只有每个人确认以后才能发送，即确认周报无误）
     -weekly/review  （## 预览的本周完成内容，注意每个分组务必以【-】区分）
-    -weekly?[update=$]  （## 更新周报的本周完成内容，注意事项同上）
-    -weekly?send  （## 确认后可以发送周报）
+    -weekly/update?c=[$c]&next&title&desc=[$]  （## 更新周报的本周完成内容以及其它信息，注意事项同上）
+    -weekly/send  （## 确认后可以发送周报）
 '''
 
     def __call__(self, router_parse, sender):
         """
         发送周报邮件的命令
-        
+
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送邮件指令
         """
         path = router_parse.path
         query = router_parse.query
-        return u'开发中，请耐心'
+        query_dict = parse_query_2_dict(query)
+        msg = None
+        if path == '/create':
+            report = WeekReporter(name=sender, \
+                next_week=query_dict.get('next', u'继续完成相应需求'), \
+                title=query_dict.get('title'), \
+                desc=query_dict.get('desc'))
+            msg = report.create_report()
+        else:
+            w_pr = Report.query_weekly_report(sender)
+            if not w_pr:
+                return u'%s：本周周报还未创建' % sender
+            elif path == '/review':
+                msg = u'周报标题：%s、描述：%s。\n%s\n下周任务：%s' \
+                    % (w_pr.project_title, w_pr.description, \
+                        w_pr.origin_report, w_pr.next_week_todo)
+            elif path == '/check':
+                w_pr.report_checked()
+                msg = u'%s：可以发送周报啦' % sender
+            elif path == '/send':
+                w_mail = WeeklyMail()
+                msg = w_mail.build_weekly_report_html(sender)
+            elif path == 'update':
+                msg = w_pr.update_report(self, report=query_dict.get('c'), \
+                    next=query_dict.get('next'), title=query_dict.get('title'), \
+                    desc=query_dict.get('desc'))
+        return msg if msg else WeeklyCommand.helper_info()
 
 class HelpCommand(object):
 
@@ -445,8 +473,8 @@ chandao     禅道相关
 checkin     打卡信息查询
 weekly      周报任务相关
             
-输入 -help?[submodule]查询子命令详细以及使用方式'
-'''    
+输入 -help?[submodule]查询子命令详细以及使用方式
+'''
         elif submodule == 'user':
             helper = UserCommand.helper_info()
         elif submodule == 'note':
