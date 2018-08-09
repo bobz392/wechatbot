@@ -52,7 +52,7 @@ class Command(object):
         Returns:
             {[bool]} -- 是否是需要解析的格式
         """
-        parse = urlparse(text)
+        print(text.startswith('-'))
         return text.startswith('-')
 
     def to_str(self, unicode_or_str):
@@ -206,7 +206,8 @@ class NoteCommand(object):
 Example: 
     -note/check （## 仅仅查询今天的日志）
     -note/week （## 查询本周的日志）
-    -note/update?id&message（## 更新当前的用户日志，可以选择更新指定 id 的日志，如不指定则直接创建新日志）
+    -note/update?id=[$id]&m=[$m]（## 更新当前的用户日志，可以选择更新指定 id 的日志，如不指定则直接创建新日志）
+    -note/delete?id=[$id] （## 删除指定 id 的消息）
 '''
 
     def __call__(self, router_parse, sender):
@@ -227,14 +228,20 @@ Example:
             return Message.today_message(sender)
         if path == '/update':
             qs = parse_query_2_dict(query)
-            if qs.has_key('message') and qs.has_key('id'):
+            if qs.has_key('m') and qs.has_key('id'):
                 # return u'/update %s, query = %s' % (sender, query)
-                return Message.update_message(qs['id'], sender, qs['message'])
-            if qs.has_key('message'):
+                return Message.update_message(qs['id'], sender, qs['m'])
+            if qs.has_key('m'):
                 # return u'/create %s, query = %s' % (sender, query)
-                return Message.add_message(sender, qs['message'])
+                return Message.add_message(sender, qs['m'])
 
-            return u'更新你妹啊更新'
+            return u'更新你妹啊更新 %s' % sender
+
+        if path == '-delete':
+            qs = parse_query_2_dict(query)
+            if qs.has_key('id'):
+                return Message.delete_message(qs['id'], sender)
+            return u'%s：删除日志失败'
 
         return NoteCommand.helper_info()
 

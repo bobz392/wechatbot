@@ -256,6 +256,26 @@ class Message(Base):
             return u'记录更新成功，id 为 %s' % m.id
 
     @staticmethod
+    def delete_message(msg_id, sender):
+        """
+        删除一条指定 id 的消息
+        
+        Arguments:
+            id {string} -- 删除消息的 id
+            sender {[type]} -- 确保删除的消息是自己的
+        """
+        msg = session.query(Message) \
+                .filter(and_(Message.sender == sender, Message.id == msg_id)) \
+                .first()
+        if msg is None:
+            return u'id = %s 的记录不存在' % msg_id
+        else:
+            session.delete(msg)
+            session.commit()
+            return u'id = %s 的消息删除成功' % msg_id
+            
+
+    @staticmethod
     def query_today_message(sender):
         """
         指定用户今日的全部日志
