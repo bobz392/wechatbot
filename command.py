@@ -237,7 +237,7 @@ Example:
 
             return u'更新你妹啊更新 %s' % sender
 
-        if path == '-delete':
+        if path == '/delete':
             qs = parse_query_2_dict(query)
             if qs.has_key('id'):
                 return Message.delete_message(qs['id'], sender)
