@@ -177,8 +177,8 @@ class WeeklyMail(Mail):
                 </p>'''
 
         self.report_template_path = r'report_template.html'
-        
-        self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']
+        self.receivers = ['zhoubo@sunlands.com']
+        # self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']
         
 
     def build_weekly_report_html(self, sender):
@@ -195,7 +195,7 @@ class WeeklyMail(Mail):
                 html = html.replace(self.weekly_date_replacement, week_duration)
                 contents = report.origin_report.splitlines()
 
-                self.subject = '工作周报-%s-技术-尚武研-员工平台-iOS-%s' \
+                self.subject = u'工作周报-%s-技术-尚武研-员工平台-iOS-%s' \
                     % (user.realname, week_duration)
                 self.sender_from = user.email
                 self.sender_password = user.password

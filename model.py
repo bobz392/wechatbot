@@ -310,6 +310,22 @@ class Message(Base):
             return msg
 
     @staticmethod
+    def check_empty_message():
+        """
+        检查今日组内每个人的消息是否都添加
+
+        Returns:
+            [Boolean] -- 返回 bool 代表当前是否都添加完
+        """
+        checked = True
+        for user in User.all_users():
+            message_count = len(Message.query_today_message(user.name).all())
+            if message_count <= 0:
+                checked = False
+                break
+        return checked
+
+    @staticmethod
     def query_weekly_message(sender):
         """
         查询每周用户为 sender 名下所有消息记录。
@@ -369,7 +385,7 @@ class Report(Base):
     def create_report(reporter, origin_report, next_week, \
         project_title=None, description=None):
         """
-        创建一个指定用户的原始周报。    
+        创建一个指定用户的原始周报。
 
         Arguments:
             reporter {string} -- 周报是为谁创建的
@@ -424,20 +440,22 @@ class Report(Base):
         now = datetime.now().strftime(style)
         return u'%s-%s' % (first_day, now)
 
-    def report_checked(self, sender):
+    def report_checked(self):
         """
         设置用户本周的周报为通过 review
         """
         self.checked = True
+        if not self.fix_report:
+            self.fix_report = self.origin_report
         session.commit()
-    
+
     def update_report(self, report=None, \
-                next=None, title=None, desc=None):
-        if report or next or title or desc:
+                todo=None, title=None, desc=None):
+        if report or todo or title or desc:
             if report:
                 self.fix_report = report
-            if next:
-                self.next_week_todo = next
+            if todo:
+                self.next_week_todo = todo
             if title:
                 self.project_title = title
             if desc:

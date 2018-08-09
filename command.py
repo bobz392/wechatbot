@@ -365,12 +365,12 @@ Example:
 
         if path == '/check':
             return Message.check_today_message()
-        
         send_chandao = params['chandao'] == '1' \
             if params.has_key('chandao') else True
         default_note = params['empty'] \
             if params.has_key('empty') else None
-
+        if not Message.check_empty_message() and not default_note:
+            return u'还有人未添加周报，如果想强制发送请传递 empty 参数'
         msg = u''
         if User.is_sender(sender):
             mail_result = SendmailCommand.sendmail(default_note)
@@ -379,13 +379,10 @@ Example:
 
             # 如果要发送禅道的话
             if send_chandao:
-                print('\n发送禅道中...')
                 for user in User.all_users():
                     chandao = Chandao(user.name)
                     status = chandao.send()
-                    print('status = %s' % status)
                     msg += '%s\n' % status
-                    print('msg = %s') % msg
             else:
                 print('不需要发送禅道')
         else:
@@ -408,10 +405,10 @@ class WeeklyCommand(object):
         return  u'''周报相关（计算相对复杂，目前开发阶段未启用多线程，请一个一个运行，发送前请务必确认）
 
 Example：
-    -weekly/create?next&title&desc=[$] （##  用户周报构建，next 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）
+    -weekly/create?todo&title&desc=[$] （##  用户周报构建，todo 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）
     -weekly/check （##  确认周报，只有每个人确认以后才能发送，即确认周报无误）
     -weekly/review  （## 预览的本周完成内容，注意每个分组务必以【-】区分）
-    -weekly/update?c=[$c]&next&title&desc=[$]  （## 更新周报的本周完成内容以及其它信息，注意事项同上）
+    -weekly/update?done=[$done]&todo&title&desc=[$]  （## 更新周报的本周完成内容以及其它信息，注意事项同上）
     -weekly/send  （## 确认后可以发送周报）
 '''
 
@@ -438,18 +435,24 @@ Example：
             if not w_pr:
                 return u'%s：本周周报还未创建' % sender
             elif path == '/review':
+                report_fix = w_pr.fix_report if w_pr.fix_report \
+                    else w_pr.origin_report
                 msg = u'周报标题：%s、描述：%s。\n%s\n下周任务：%s' \
                     % (w_pr.project_title, w_pr.description, \
-                        w_pr.origin_report, w_pr.next_week_todo)
+                        report_fix, w_pr.next_week_todo)
             elif path == '/check':
                 w_pr.report_checked()
                 msg = u'%s：可以发送周报啦' % sender
             elif path == '/send':
-                w_mail = WeeklyMail()
-                msg = w_mail.build_weekly_report_html(sender)
-            elif path == 'update':
-                msg = w_pr.update_report(self, report=query_dict.get('c'), \
-                    next=query_dict.get('next'), title=query_dict.get('title'), \
+                if w_pr.checked:
+                    w_mail = WeeklyMail()
+                    msg = w_mail.build_weekly_report_html(sender)
+                else:
+                    msg = u'%s：请确认周报无误后再发送' % sender
+            elif path == '/update':
+                print(query_dict.get('done'))
+                msg = w_pr.update_report(report=query_dict.get('done'), \
+                    todo=query_dict.get('todo'), title=query_dict.get('title'), \
                     desc=query_dict.get('desc'))
         return msg if msg else WeeklyCommand.helper_info()
 
