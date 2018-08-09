@@ -1,3 +1,12 @@
 {
-    "python.jediEnabled": true
+    "python.jediEnabled": true,
+    "files.exclude": {
+        "**/.gitignore": true,
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/*.pyc": true,
+        "**/.DS_Store": true,
+        "**/*.pkl": true,
+    }
 }
