@@ -53,8 +53,7 @@ class Command(object):
             {[bool]} -- 是否是需要解析的格式
         """
         parse = urlparse(text)
-        return text.startswith('-')  and \
-            self.commands[parse.path] is not None
+        return text.startswith('-')
 
     def to_str(self, unicode_or_str):
         """
@@ -97,6 +96,8 @@ class Command(object):
         router_text = u'webot://%s' % message
         parse = urlparse(router_text)
         command = parse.netloc
+        if not self.commands.has_key(command):
+            return HelpCommand()()
         message = None
         print('command = %s, path = %s, query = %s' \
             % (command, parse.path, parse.query))
