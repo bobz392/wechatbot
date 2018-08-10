@@ -177,8 +177,7 @@ class WeeklyMail(Mail):
                 </p>'''
 
         self.report_template_path = r'report_template.html'
-        self.receivers = ['zhoubo@sunlands.com']
-        # self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']
+        self.receivers = ['yf-sunwei@sunlands.com', 'rd-staff.list@sunlands.com']
         
 
     def build_weekly_report_html(self, sender):
