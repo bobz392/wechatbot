@@ -382,7 +382,7 @@ class Report(Base):
     description = Column(String(40), default=None)
 
     @staticmethod
-    def create_report(reporter, origin_report, next_week, \
+    def create_report(reporter, origin_report, todo, \
         project_title=None, description=None):
         """
         创建一个指定用户的原始周报。
@@ -405,7 +405,7 @@ class Report(Base):
         if Report.query_weekly_report(reporter):
             raise DBError('report')
         report = Report(reporter=reporter, origin_report=origin_report, \
-            next_week_todo=next_week, project_title=title, description=desc)
+            next_week_todo=todo, project_title=title, description=desc)
         session.add(report)
         session.commit()
         if report in session:
@@ -449,11 +449,20 @@ class Report(Base):
             self.fix_report = self.origin_report
         session.commit()
 
-    def update_report(self, report=None, \
+    def update_report(self, done=None, \
                 todo=None, title=None, desc=None):
-        if report or todo or title or desc:
-            if report:
-                self.fix_report = report
+        """
+        更新本周的周报
+
+        Keyword Arguments:
+            done {string} -- 周报的主体内容 (default: {None})
+            todo {string} -- 周报的主体内容 (default: {None})
+            title {string} -- 标题 (default: {None})
+            desc {string} -- 描述 (default: {None})
+        """
+        if done or todo or title or desc:
+            if done:
+                self.fix_report = done
             if todo:
                 self.next_week_todo = todo
             if title:

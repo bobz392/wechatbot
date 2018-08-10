@@ -94,10 +94,10 @@ class WeekReporter(object):
             r_id = Report.create_report(self.name, report, \
                     self.next_week, self.title, self.description)
             if r_id:
-                return u'创建日报成功，id = %s' % r_id
-            return u'创建日报失败'
+                return u'创建周报成功，id = %s' % r_id
+            return u'创建周报失败，确认是否已经存在'
         except DBError:
-            return u'创建日报失败'
+            return u'创建周报失败'
 
     def _keyword(self, indexs_list, messages):
         """

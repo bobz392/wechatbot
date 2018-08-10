@@ -394,7 +394,7 @@ Example:
 class WeeklyCommand(object):
     """
     发送周报邮件的命令
-  
+
     创建周报 - sunlands_webot://-weekly/update?[next&title&desc=$]
     确认周报无误 - sunlands_webot://-weekly/check
     预览周报 - sunlands_webot://weekly/review
@@ -426,7 +426,7 @@ Example：
         msg = None
         if path == '/create':
             report = WeekReporter(name=sender, \
-                next_week=query_dict.get('next', u'继续完成相应需求'), \
+                next_week=query_dict.get('todo', u'继续完成相应需求'), \
                 title=query_dict.get('title'), \
                 desc=query_dict.get('desc'))
             msg = report.create_report()
@@ -450,7 +450,6 @@ Example：
                 else:
                     msg = u'%s：请确认周报无误后再发送' % sender
             elif path == '/update':
-                print(query_dict.get('done'))
                 msg = w_pr.update_report(report=query_dict.get('done'), \
                     todo=query_dict.get('todo'), title=query_dict.get('title'), \
                     desc=query_dict.get('desc'))
