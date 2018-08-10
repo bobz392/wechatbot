@@ -233,11 +233,11 @@ Example:
             if qs.has_key('m') and qs.has_key('id'):
                 # return u'/update %s, query = %s' % (sender, query)
                 msg = Message.update_message(qs['id'], sender, qs['m'])
-            if qs.has_key('m'):
+            elif qs.has_key('m'):
                 # return u'/create %s, query = %s' % (sender, query)
                 msg = Message.add_message(sender, qs['m'])
-
-            msg = u'更新你妹啊更新 %s' % sender
+            else:
+                msg = u'更新你妹啊更新 %s' % sender
 
         if path == '/delete':
             qs = parse_query_2_dict(query)
