@@ -450,7 +450,7 @@ Example：
                 else:
                     msg = u'%s：请确认周报无误后再发送' % sender
             elif path == '/update':
-                msg = w_pr.update_report(report=query_dict.get('done'), \
+                msg = w_pr.update_report(done=query_dict.get('done'), \
                     todo=query_dict.get('todo'), title=query_dict.get('title'), \
                     desc=query_dict.get('desc'))
         return msg if msg else WeeklyCommand.helper_info()
