@@ -50,7 +50,8 @@ class CheckIn(object):
                         没有消息是好的消息。
         """
         now = datetime.now()
-        if now.weekday == 5 or now.weekday == 6:
+        print(now.weekday())
+        if now.weekday() == 5 or now.weekday() == 6:
             return None
 
         msg = u''
