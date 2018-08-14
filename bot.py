@@ -17,7 +17,7 @@ class AlexBot(object):
         self.bot.enable_puid()
         self.command = Command()
 
-        group_name = 'test'#'iOS group'
+        group_name = 'iOS group'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
         self.checkin = CheckIn()
@@ -69,8 +69,8 @@ if __name__ == "__main__":
         # print(msg.member.puid)  #puid
         return alex_bot.resolve_command(msg.text, msg.member)
 
-    embed()
+    # embed()
 
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
