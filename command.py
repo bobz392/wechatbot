@@ -53,7 +53,6 @@ class Command(object):
         Returns:
             {[bool]} -- 是否是需要解析的格式
         """
-        print(text.startswith('-'))
         return text.startswith('-')
 
     def to_str(self, unicode_or_str):
@@ -106,11 +105,11 @@ class Command(object):
         class_name = self.to_str(command[1:2].upper() \
             + command[2:] + 'Command')
         command_class = self.command_class(class_name)
-        class_object = command_class()
+        command_class_object = command_class()
         # print(type(class_object))
         # print(isinstance(class_object, HelpCommand))
         # print(class_object.__dict__)
-        message = class_object(parse, sender)
+        message = command_class_object(parse, sender)
 
         return message
 
