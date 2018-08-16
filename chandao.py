@@ -136,7 +136,6 @@ class Chandao(object):
 
             work_key = 'work[%d]' % idx
             payload[work_key] = work
-        
         return payload
 
     def create_cookie(self, user, login_cookies):
@@ -145,10 +144,8 @@ class Chandao(object):
         Return:
             返回 cookie jar
         """
-
         jar = requests.cookies.RequestsCookieJar()
         domain = '.pm.shangdejigou.cn'
         for k, v in login_cookies.items():
             jar.set(k, v, domain=domain, path='/')
-
         return jar

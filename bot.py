@@ -4,6 +4,7 @@
 from wxpy import *
 import schedule
 import time
+from kr36 import Kr
 from command import Command
 from check_in import CheckIn
 
@@ -16,6 +17,7 @@ class AlexBot(object):
         self.bot = Bot(cache_path=True)
         self.bot.enable_puid()
         self.command = Command()
+        self.kr = Kr()
 
         group_name = 'iOS group'
         self.group = ensure_one(self.bot.groups().search(group_name))
@@ -31,6 +33,11 @@ class AlexBot(object):
     def notify_weekday_checkin(self):
         print('检查打卡信息！！！！！')
         msg = self.checkin.check_all_user()
+        if msg:
+            self.group.send(msg)
+
+    def load_kr_data(self):
+        msg = self.kr.loadData()
         if msg:
             self.group.send(msg)
 
@@ -61,10 +68,10 @@ if __name__ == "__main__":
     alex_bot = AlexBot()
     schedule.every(15).to(25).minutes.do(alex_bot.keep_alive)
     alex_bot.schedule_of_weekdays()
+    schedule.every().days.at('9:40').do
 
-    print(alex_bot.group)
     @alex_bot.bot.register(alex_bot.group, TEXT)
-    def just_print(msg):
+    def router(msg):
         # 打印消息
         # print(msg.member.puid)  #puid
         return alex_bot.resolve_command(msg.text, msg.member)
