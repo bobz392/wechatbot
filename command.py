@@ -242,7 +242,8 @@ Example:
             qs = parse_query_2_dict(query)
             if qs.has_key('id'):
                 msg = Message.delete_message(qs['id'], sender)
-            msg = u'%s：删除日志失败'
+            else:
+                msg = u'%s：删除日志失败' % sender
 
         return msg if msg else NoteCommand.helper_info()
 
