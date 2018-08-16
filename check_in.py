@@ -24,21 +24,24 @@ class CheckIn(object):
             print('prepar checkin %s' % user.name)
             r = requests.get(check_in_url)
             if r.status_code == 200:
-                key_data = json.loads(r.content)['key']
-                json_data = json.loads(key_data)
-                print('json_data = %s' % json_data)
-                check_in_time = json_data['checkInTime']
-                check_out_time = json_data['checkOutTime']
-                print('check_in_time = %s' % check_in_time)
-                if check_in_time == u'':
-                    return u'@%s 请注意 还没打上班卡\n' % user.name
-                elif check_in_time == check_out_time:
-                    now = datetime.now()
-                    # check_out_date = strptime(check_out_time, "%Y-%m-%d %H:%M:%S")
-                    if now.hour >= 19:
-                        return u'@%s 请注意 还没打下班卡\n' % user.name
-                    else:
-                        print('还没到打下班卡时间，上班卡已经打')
+                try:
+                    key_data = json.loads(r.content)['key']
+                    json_data = json.loads(key_data)
+                    print('json_data = %s' % json_data)
+                    check_in_time = json_data['checkInTime']
+                    check_out_time = json_data['checkOutTime']
+                    print('check_in_time = %s' % check_in_time)
+                    if check_in_time == u'':
+                        return u'@%s 请注意 还没打上班卡\n' % user.name
+                    elif check_in_time == check_out_time:
+                        now = datetime.now()
+                        # check_out_date = strptime(check_out_time, "%Y-%m-%d %H:%M:%S")
+                        if now.hour >= 19:
+                            return u'@%s 请注意 还没打下班卡\n' % user.name
+                        else:
+                            print('还没到打下班卡时间，上班卡已经打')
+                except ValueError as e:
+                    print('value error %s', e)
         return None
 
     def check_all_user(self):
