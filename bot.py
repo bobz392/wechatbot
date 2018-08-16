@@ -17,7 +17,6 @@ class AlexBot(object):
         self.bot = Bot(cache_path=True)
         self.bot.enable_puid()
         self.command = Command()
-        self.kr = Kr()
 
         group_name = 'iOS group'
         self.group = ensure_one(self.bot.groups().search(group_name))
@@ -37,7 +36,8 @@ class AlexBot(object):
             self.group.send(msg)
 
     def load_kr_data(self):
-        msg = self.kr.loadData()
+        kr = Kr()
+        msg = kr.loadData()
         if msg:
             self.group.send(msg)
 
