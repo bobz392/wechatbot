@@ -68,7 +68,7 @@ if __name__ == "__main__":
     alex_bot = AlexBot()
     schedule.every(15).to(25).minutes.do(alex_bot.keep_alive)
     alex_bot.schedule_of_weekdays()
-    schedule.every().days.at('9:40').do
+    schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
     @alex_bot.bot.register(alex_bot.group, TEXT)
     def router(msg):

@@ -42,8 +42,7 @@ class Kr:
                 #         break
 
             except Exception as e:
-                print 'error:%s' % e
-
+                print('error:%s' % e)
             else:
                 msg += self.saveData(i, title, detail.text)#, src)
 
