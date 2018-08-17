@@ -95,7 +95,7 @@ class Command(object):
 
         router_text = u'webot://%s' % message
         parse = urlparse(router_text)
-        command = parse.netloc
+        command = parse.netloc.lower()
         if not self.commands.has_key(command):
             return HelpCommand()()
         message = None
@@ -141,7 +141,7 @@ Example:
             sender {string} -- 由谁发出的指令
         """
         query = router_parse.query
-        path = router_parse.path
+        path = router_parse.path.lower()
 
         if path == '/check' or path == '':
             # return u'/check %s' % sender
