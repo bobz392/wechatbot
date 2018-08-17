@@ -10,7 +10,7 @@ from check_in import CheckIn
 from week_report import WeekReporter
 
 def parse_query_2_dict(query):
-    return dict((k, v if len(v) > 1 else v[0]) \
+    return dict((k.lower(), v if len(v) > 1 else v[0]) \
             for k, v in parse_qs(query).iteritems())
 
 class Command(object):
@@ -189,7 +189,7 @@ Example:
 class NoteCommand(object):
     """
     发送站报的命令
-    
+
     当前用户本周的日志 - sunlands_webot://-note/week
     检查 - sunlands_webot://-note/check
     设置发送者 - sunlands_webot://-note/sender?set=[$name]
