@@ -44,7 +44,7 @@ class CheckIn(object):
                     print('value error %s', e)
         return None
 
-    def check_all_user(self):
+    def check_all_user(self, allow_group):
         """
         检查所有用户的打卡信息，除非是周末。
         
@@ -60,7 +60,8 @@ class CheckIn(object):
         msg = u''
         sess = Session()
         for user in User.all_users(sess):
-            result = self._query_check_info(user)
-            if result:
-                msg += result
+            if user.group == allow_group:
+                result = self._query_check_info(user)
+                if result:
+                    msg += result
         return msg

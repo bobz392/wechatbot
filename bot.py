@@ -29,9 +29,9 @@ class AlexBot(object):
     def keep_alive(self):
         self.friend_keeplive.send('i am alive')
 
-    def notify_weekday_checkin(self):
+    def notify_iOS_checkin(self):
         print('检查打卡信息！！！！！')
-        msg = self.checkin.check_all_user()
+        msg = self.checkin.check_all_user('1')
         if msg:
             self.group.send(msg)
 
@@ -44,7 +44,7 @@ class AlexBot(object):
     def schedule_of_weekdays(self):
         for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
                     '20:00', '20:30', '20:45', '21:00', '21:30']:
-            schedule.every().days.at(check_time).do(self.notify_weekday_checkin)
+            schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
 
     def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command

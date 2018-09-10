@@ -306,7 +306,7 @@ Example:
 
 class CheckinCommand(object):
     """
-    打卡相关的命令，不需要检查 group
+    打卡相关的命令，需要检查 group
 
     当前打卡情况 - sunlands_webot://-checkin
     当前打卡情况 - sunlands_webot://-checkin/all
@@ -323,9 +323,11 @@ class CheckinCommand(object):
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送打卡指令
         """
-
+        if allow_group and not User.check_user_group_id(sender, allow_group):
+            return u'恭喜您没有权限。哈哈哈哈。'
+            
         checkin = CheckIn()
-        return checkin.check_all_user()
+        return checkin.check_all_user(allow_group)
 
 class SendmailCommand(object):
     """
