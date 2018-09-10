@@ -17,6 +17,6 @@
 - 数据库迁移脚本，sqlite export & sqlite to mysql & mysql to sqlite （ez）
 - 启动脚本 （ez）
 - 上下文会话
-- 添加分组功能
+- ~~添加分组功能~~ （目前分组太弱了，不过够了目前）
 - 个人助手？
 - 集成 flask 开发一个方便查看的管理台
