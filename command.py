@@ -347,9 +347,9 @@ Example:
     -sendmail/check （## 检查今日日志更新情况）
 '''
     @classmethod
-    def sendmail(cls, default_note):
+    def sendmail(cls, default_note, allow_group):
         daily_mail = DailyMail()
-        notes = User.all_user_note()
+        notes = User.all_user_note(allow_group)
         mail_sender = User.query_mail_sender()
         now = datetime.now()
         # 0 到 4 代表周一到周五，周五不需要发送站报
@@ -378,22 +378,22 @@ Example:
         params = parse_query_2_dict(query)
 
         if path == '/check':
-            return Message.check_today_message()
+            return Message.check_today_message(allow_group)
         send_chandao = params['chandao'] == '1' \
             if params.has_key('chandao') else True
         default_note = params['empty'] \
             if params.has_key('empty') else None
-        if not Message.check_empty_message() and not default_note:
+        if not Message.check_empty_message(allow_group) and not default_note:
             return u'还有人未添加周报，如果想强制发送请传递 empty 参数'
         msg = u''
         if User.is_sender(sender):
-            mail_result = SendmailCommand.sendmail(default_note)
+            mail_result = SendmailCommand.sendmail(default_note, allow_group)
             if mail_result:
                 msg += mail_result
 
             # 如果要发送禅道的话
             if send_chandao:
-                for user in User.all_users():
+                for user in User.all_users(allow_group):
                     chandao = Chandao(user.name)
                     status = chandao.send()
                     msg += '%s\n' % status

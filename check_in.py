@@ -59,9 +59,8 @@ class CheckIn(object):
 
         msg = u''
         sess = Session()
-        for user in User.all_users(sess):
-            if user.group == allow_group:
-                result = self._query_check_info(user)
-                if result:
-                    msg += result
+        for user in User.all_users(allow_group, sess):
+            result = self._query_check_info(user)
+            if result:
+                msg += result
         return msg

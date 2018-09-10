@@ -48,8 +48,9 @@ class User(Base):
     chandao_za = Column(String(40), default=None)
 
     @staticmethod
-    def all_users(sess=session):
-        return sess.query(User).all()
+    def all_users(allow_group, sess=session):
+        return sess.query(User)\
+                .filter(User.group == allow_group).all()
 
     @staticmethod
     def query_user(name):
@@ -274,10 +275,12 @@ class User(Base):
             if user else u'叫 %s 的用户不存在' % name
 
     @staticmethod
-    def all_user_note():
+    def all_user_note(allow_group):
         """返回今天所有人的记录
         """
-        users = session.query(User).all()
+        users = session.query(User)\
+            .filter(User.group == allow_group)\
+            .all()
         all_notes = {}
         for u in users:
             print('user = %s, realname = %s' % (u.name, u.realname))
@@ -366,12 +369,12 @@ class Message(Base):
                 .filter(and_(Message.sender == sender, Message.date_create > today))
 
     @staticmethod
-    def check_today_message():
+    def check_today_message(allow_group):
         """
         检查当前所有用户的日志情况
         """ 
         msg = u''
-        for user in User.all_users():
+        for user in User.all_users(allow_group):
             msg += u'%s' % user.name
             message_count = len(Message.query_today_message(user.name).all())
             msg += u' 今日%d条日志已添加\n' % message_count \
@@ -380,7 +383,7 @@ class Message(Base):
             return msg
 
     @staticmethod
-    def check_empty_message():
+    def check_empty_message(allow_group):
         """
         检查今日组内每个人的消息是否都添加
 
@@ -388,7 +391,7 @@ class Message(Base):
             [Boolean] -- 返回 bool 代表当前是否都添加完
         """
         checked = True
-        for user in User.all_users():
+        for user in User.all_users(allow_group):
             message_count = len(Message.query_today_message(user.name).all())
             if message_count <= 0:
                 checked = False
