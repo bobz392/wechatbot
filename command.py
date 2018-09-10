@@ -94,6 +94,12 @@ class Command(object):
             [string] -- 返回处理后的文字
         """
 
+        if message == u'-perfect':
+            if sender == 'M_zhou':
+                return u'M_zhou 你最棒了'
+            else:
+                return u'%s 你真是烦死了啊' % sender
+
         router_text = u'webot://%s' % message
         parse = urlparse(router_text)
         command = parse.netloc.lower()
