@@ -256,9 +256,19 @@ class User(Base):
         """
         user = User.query_user(name)
         sender = u'是发送者' if user.sender else u'不是发送者'
-        group = u'分组为(%s)，' % user.group if user.group else u''
+        group_info = None
+        if user.group:
+            group = Group.query_group_name(user.group)
+            if group:
+                group_info = u'分组为(id=%s-%s)，' % \
+                            (user.group, group.group_name)
+            else:
+                group_info = u''
+        else:
+            group_info = u''
+
         return u'叫 %s(%s) 的用户存在，%s邮箱为 %s，%s' % \
-            (name, user.realname, group, user.email, sender) \
+            (name, user.realname, group_info, user.email, sender) \
             if user else u'叫 %s 的用户不存在' % name
 
     @staticmethod
