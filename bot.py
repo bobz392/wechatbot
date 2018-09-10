@@ -38,6 +38,11 @@ class AlexBot(object):
         if msg:
             self.group.send(msg)
 
+    def notify_checkgroup_checkin(self):
+        msg = self.checkin.check_all_user('2')
+        if msg:
+            self.checkin_group.send(msg)
+
     def load_kr_data(self):
         kr = Kr()
         msg = kr.loadData()
@@ -48,6 +53,7 @@ class AlexBot(object):
         for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
                     '20:00', '20:30', '20:45', '21:00', '21:30']:
             schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
+            schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
 
     def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command
