@@ -81,13 +81,14 @@ class Command(object):
         else:
             return None
 
-    def analysis(self, message, sender):
+    def analysis(self, message, sender, allow_group):
         """
         根据消息来分解、处理
 
         Arguments:
             router_text {string} -- router 的 string，通常就是一条消息
             sender {string} -- 当前的消息发送者
+            allow_group {string} -- 当前的消息允许处理的 group
 
         Returns:
             [string] -- 返回处理后的文字
@@ -109,13 +110,13 @@ class Command(object):
         # print(type(class_object))
         # print(isinstance(class_object, HelpCommand))
         # print(class_object.__dict__)
-        message = command_class_object(parse, sender)
+        message = command_class_object(parse, sender, allow_group)
 
         return message
 
 class UserCommand(object):
     """
-    用户相关的命令
+    用户相关的命令，不需要检查 group
 
     检查当前用户信息 - sunlands_webot://-user/check
     更新当前用户信息 - sunlands_webot://-user/update?password=[$password]&email=[$email]&realname=[$realname]
@@ -128,12 +129,12 @@ class UserCommand(object):
         return u'''当前的用户信息以及邮件发送者查询 & 更新
 Example:
     -user/check（## 用户名是不可变的为当前用户的微信名，如果改名了会导致用户失效）
-    -user/update?password=[$password]&email=[$email]&realname=[$realname] （## 更新当前用户的信息）
+    -user/update?password=[$password]&email=[$email]&realname=[$realname]&group=[$group] （## 更新当前用户的信息，密码为邮箱密码）
     -user/sender-check （## 仅仅查询）
     -user/sender-setme （## 更新为当前的用户发送）
 '''
 
-    def __call__(self, router_parse, sender):
+    def __call__(self, router_parse, sender, allow_group):
         """ 用户相关的逻辑
 
         Arguments:
@@ -184,11 +185,12 @@ Example:
         return User.create_user(sender, \
                     update_dict.get('email', None), \
                     update_dict.get('password', None), \
-                    update_dict.get('realname', None))
+                    update_dict.get('realname', None), \
+                    update_dict.get('group', None))
 
 class NoteCommand(object):
     """
-    发送站报的命令
+    发送站报的命令，需要检查 group
 
     当前用户本周的日志 - sunlands_webot://-note/week
     检查 - sunlands_webot://-note/check
@@ -210,13 +212,16 @@ Example:
     -note/delete?id=[$id] （## 删除指定 id 的消息）
 '''
 
-    def __call__(self, router_parse, sender):
+    def __call__(self, router_parse, sender, allow_group):
         """ 日志相关的逻辑
         
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的站报指令
         """
+        if allow_group and not User.check_user_group_id(sender, allow_group):
+            return u'恭喜您没有权限。哈哈哈哈。'
+
         path = router_parse.path
         query = router_parse.query
 
@@ -249,7 +254,7 @@ Example:
 
 class ChandaoCommand(object):
     """
-    发送禅道的命令
+    发送禅道的命令，需要检查 group
 
     发送 - sunlands_webot://-chandao/send
     检查 - sunlands_webot://-chandao/check
@@ -269,13 +274,16 @@ Example:
     -chandao/update?name=[$name]&password=[$password]&oid=[$oid]  （##  设置禅道的用户名&密码，以及更新到的 object id 从任务页面获取）
 '''
 
-    def __call__(self, router_parse, sender):
+    def __call__(self, router_parse, sender, allow_group):
         """ 禅道相关的命令解析
 
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 谁发起的禅道命令
         """
+        if allow_group and not User.check_user_group_id(sender, allow_group):
+            return u'恭喜您没有权限。哈哈哈哈。'
+
         path = router_parse.path
         query = router_parse.query
 
@@ -298,7 +306,7 @@ Example:
 
 class CheckinCommand(object):
     """
-    打卡相关的命令
+    打卡相关的命令，不需要检查 group
 
     当前打卡情况 - sunlands_webot://-checkin
     当前打卡情况 - sunlands_webot://-checkin/all
@@ -308,7 +316,7 @@ class CheckinCommand(object):
     def helper_info(cls):
         return u'打卡信息相关\n\nExample: \n\t\t-checkin （## 组内所有人打卡信息查询）'
 
-    def __call__(self, router_parse, sender):
+    def __call__(self, router_parse, sender, allow_group):
         """打卡信息
         
         Arguments:
@@ -321,7 +329,7 @@ class CheckinCommand(object):
 
 class SendmailCommand(object):
     """
-    发送站报邮件的命令
+    发送站报邮件的命令，需要检查 group
 
     当前的邮件发送情况 - sunlands_webot://-sendmail/check
     当前的邮件发送情况 - sunlands_webot://-sendmail?chandao=[1 | 0]&empty=[$empty]
@@ -352,13 +360,16 @@ Example:
         # 如果没有设置发送者
         return u'当前还未设置邮件发送者，邮件发送失败'
 
-    def __call__(self, router_parse, sender):
+    def __call__(self, router_parse, sender, allow_group):
         """发送站报邮件
 
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送邮件指令
         """
+        if allow_group and not User.check_user_group_id(sender, allow_group):
+            return u'恭喜您没有权限。哈哈哈哈。'
+
         path = router_parse.path
         query = router_parse.query
         params = parse_query_2_dict(query)
@@ -393,7 +404,7 @@ Example:
 
 class WeeklyCommand(object):
     """
-    发送周报邮件的命令
+    发送周报邮件的命令，需要检查 group
 
     创建周报 - sunlands_webot://-weekly/update?[next&title&desc=$]
     确认周报无误 - sunlands_webot://-weekly/check
@@ -412,7 +423,7 @@ Example：
     -weekly/send  （## 确认后可以发送周报）
 '''
 
-    def __call__(self, router_parse, sender):
+    def __call__(self, router_parse, sender, allow_group):
         """
         发送周报邮件的命令
 
@@ -420,6 +431,9 @@ Example：
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送邮件指令
         """
+        if allow_group and not User.check_user_group_id(sender, allow_group):
+            return u'恭喜您没有权限。哈哈哈哈。'
+
         path = router_parse.path
         query = router_parse.query
         query_dict = parse_query_2_dict(query)
@@ -457,8 +471,8 @@ Example：
 
 class HelpCommand(object):
 
-    def __call__(self, router_parse, sender):
-        """ 辅助消息的文字返回
+    def __call__(self, router_parse, sender, allow_group):
+        """ 辅助消息的文字返回，不需要检查 group
 
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router

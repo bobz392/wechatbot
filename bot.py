@@ -46,18 +46,19 @@ class AlexBot(object):
                     '20:00', '20:30', '20:45', '21:00', '21:30']:
             schedule.every().days.at(check_time).do(self.notify_weekday_checkin)
 
-    def resolve_command(self, text, sender):
+    def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command
 
         Arguments:
             text {string} -- 当前收到的消息内容
             sender {string} -- 当前消息的发送者
+            allow_group {int} -- 当前消息允许访问的分组 id， None 代表全部人都可以访问
         Returns:
             [string, None] -- 当解析成功的时候返回 string 否者返回 none
         """
         print('parpre to solove text = %s, sender = %s' % (text, sender.name))
         if self.command.vaild(text):
-            result = self.command.analysis(text, sender.name)
+            result = self.command.analysis(text, sender.name, allow_group)
             print('solove %s result = %s' % (text, result))
             return result
 
@@ -71,10 +72,10 @@ if __name__ == "__main__":
     schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
     @alex_bot.bot.register(alex_bot.group, TEXT)
-    def router(msg):
+    def iOS_router(msg):
         # 打印消息
         print("puid = %s" % msg.member.puid)  #puid
-        return alex_bot.resolve_command(msg.text, msg.member)
+        return alex_bot.resolve_command(msg.text, msg.member, '1')
 
     # embed()
 

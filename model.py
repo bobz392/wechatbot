@@ -120,12 +120,13 @@ class User(Base):
         return msg
 
     @staticmethod
-    def create_user(name, email=None, password=None, realname=None):
+    def create_user(name, email=None, password=None, \
+                    realname=None, group=None):
         """创建一个 user 如果必要的话，如果当前 user 已经存在，那么会更新不为空的信息。
-        
+
         Arguments:
             name {string} -- 需要更新或者创建的用户
-        
+
         Keyword Arguments:
             email {string} -- 263邮箱 (default: {None})
             password {string} -- 263邮箱密码 (default: {None})
@@ -140,6 +141,8 @@ class User(Base):
                 user.password = password
             if realname:
                 user.realname = realname
+            if group and Group.query_group_name(group):
+                user.group = group
             session.commit()
             msg = u'更新成功'
         else:
@@ -158,6 +161,22 @@ class User(Base):
                 else:
                     msg = u'用户 %s 创建失败' % name
         return msg
+
+    @staticmethod
+    def check_user_group_id(name, group_id):
+        """检查用户的 group id 是否正确
+
+        Arguments:
+            group_id {int} -- 检查的 group id
+
+        Return:
+            返回是否是正确的分组
+        """
+        user = User.query_user(name)
+        if user:
+            return user.group == group_id
+
+        return False
 
     @staticmethod
     def is_sender(name):
@@ -236,8 +255,10 @@ class User(Base):
             name {string} -- 查询的用户名，用户名在数据库中是唯一的，并且为微信名
         """
         user = User.query_user(name)
-        return u'叫 %s(%s) 的用户存在，邮箱为 %s，%s' % \
-            (name, user.realname, user.email, u'是发送者' if user.sender else u'不是发送者') \
+        sender = u'是发送者' if user.sender else u'不是发送者'
+        group = u'分组为(%s)，' % user.group if user.group else u''
+        return u'叫 %s(%s) 的用户存在，%s邮箱为 %s，%s' % \
+            (name, user.realname, group, user.email, sender) \
             if user else u'叫 %s 的用户不存在' % name
 
     @staticmethod
@@ -375,10 +396,10 @@ class Message(Base):
     def week_messages(sender):
         """
         本周的指定用户的全部日志
-        
+
         Arguments:
             sender {string} -- 查询本周日志的用户名
-        
+
         Returns:
             [Message] -- 本周指定用户的所有日志
         """
@@ -393,8 +414,8 @@ class Message(Base):
         s = ''
         for m in Message.query_today_message(sender):
             s += 'id=%s, content=%s\n' % (m.id, m.message)
-        
-        return  u'今日无%s的记录' % sender if len(s) <= 0 else s       
+
+        return  u'今日无%s的记录' % sender if len(s) <= 0 else s
 
 class Report(Base):
     """
