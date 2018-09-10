@@ -129,7 +129,7 @@ class UserCommand(object):
         return u'''当前的用户信息以及邮件发送者查询 & 更新
 Example:
     -user/check（## 用户名是不可变的为当前用户的微信名，如果改名了会导致用户失效）
-    -user/update?password=[$password]&email=[$email]&realname=[$realname]&group=[$group] （## 更新当前用户的信息，密码为邮箱密码）
+    -user/update?password=[$password]&email=[$email]&realname=[$realname]&group=[$group]&tel=[$tel] （## 更新当前用户的信息，密码为邮箱密码）
     -user/sender-check （## 仅仅查询）
     -user/sender-setme （## 更新为当前的用户发送）
 '''
@@ -186,7 +186,8 @@ Example:
                     update_dict.get('email', None), \
                     update_dict.get('password', None), \
                     update_dict.get('realname', None), \
-                    update_dict.get('group', None))
+                    update_dict.get('group', None), \
+                    update_dict.get('tel', None))
 
 class NoteCommand(object):
     """

@@ -121,7 +121,7 @@ class User(Base):
 
     @staticmethod
     def create_user(name, email=None, password=None, \
-                    realname=None, group=None):
+                    realname=None, group=None, tel=None):
         """创建一个 user 如果必要的话，如果当前 user 已经存在，那么会更新不为空的信息。
 
         Arguments:
@@ -143,6 +143,8 @@ class User(Base):
                 user.realname = realname
             if group and Group.query_group_name(group):
                 user.group = group
+            if tel:
+                user.phone_number = tel
             session.commit()
             msg = u'更新成功'
         else:
@@ -256,9 +258,19 @@ class User(Base):
         """
         user = User.query_user(name)
         sender = u'是发送者' if user.sender else u'不是发送者'
-        group = u'分组为(%s)，' % user.group if user.group else u''
+        group_info = None
+        if user.group:
+            group = Group.query_group_name(user.group)
+            if group:
+                group_info = u'分组为(id=%s-%s)，' % \
+                            (user.group, group.group_name)
+            else:
+                group_info = u''
+        else:
+            group_info = u''
+
         return u'叫 %s(%s) 的用户存在，%s邮箱为 %s，%s' % \
-            (name, user.realname, group, user.email, sender) \
+            (name, user.realname, group_info, user.email, sender) \
             if user else u'叫 %s 的用户不存在' % name
 
     @staticmethod
