@@ -141,7 +141,7 @@ Example:
             sender {string} -- 由谁发出的指令
         """
         query = router_parse.query
-        path = router_parse.path.lower()
+        path = router_parse.path
 
         if path == '/check' or path == '':
             # return u'/check %s' % sender

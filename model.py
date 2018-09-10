@@ -14,7 +14,6 @@ engine = create_engine('sqlite:///shit-email.sqlite', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-
 class DBError(RuntimeError):
     def __init__(self, arg):
         self.args = arg
@@ -37,10 +36,12 @@ class User(Base):
     password = Column(String(40))
     sender = Column(Boolean, default=False)
     phone_number = Column(String(11), default=None)
-
+    # 禅道
     chandao_object_id = Column(String(40), default=None)
     chandao_name = Column(String(40), default=None)
     chandao_password = Column(String(40), default=None)
+    # 分组
+    group = Column(String(60), default=None)
 
     # useless
     chandao_session_id = Column(String(40), default=None)
@@ -53,6 +54,42 @@ class User(Base):
     @staticmethod
     def query_user(name):
         return session.query(User).filter(User.name == name).first()
+
+    @staticmethod
+    def query_user_group(name):
+        group_id = User.query_user_group_id(name)
+        msg = None
+        if group_id :
+            group = Group.query_group_name(group_id)
+            if group:
+                msg = u'用户:%s，分组（id = %s）为%s。' \
+                    % (name, group_id, group)
+            else:
+                msg = u'用户:%s，目前没有分组' % name
+        else:
+            msg = u'用户：%s 不存在。' % name
+        return msg
+
+    @staticmethod
+    def query_user_group_id(name):
+        user = User.query_user(name)
+        if user:
+            return user.group
+    
+        return None
+
+    @staticmethod
+    def update_user_group_id(name, group_id):
+        user = User.query_user(name)
+        group = Group.query_group_name(group_id)
+        if user and group:
+            user.group = group_id
+            session.commit()
+            return  u'用户：%s 分组更新为 id = %s' \
+                % (name, group_id)
+
+        return u'用户：%s 不存在或者分组 id = %s 不存在。' \
+            % (name, group_id)
 
     @staticmethod
     def user_chandao_info(name):
@@ -188,13 +225,13 @@ class User(Base):
             session.delete(user)
             session.commit()
             return u'删除 %s 的用户成功' % name
-        else: 
+        else:
             return u'瞎删你mb'
 
     @staticmethod
     def user_exist(name):
         """查询指定用户是否存在
-        
+
         Arguments:
             name {string} -- 查询的用户名，用户名在数据库中是唯一的，并且为微信名
         """
@@ -265,7 +302,7 @@ class Message(Base):
     def delete_message(msg_id, sender):
         """
         删除一条指定 id 的消息
-        
+
         Arguments:
             id {string} -- 删除消息的 id
             sender {[type]} -- 确保删除的消息是自己的
@@ -473,6 +510,30 @@ class Report(Base):
             return u'%s：更新周报成功' % self.reporter
         else:
             return u'%s：瞎更 nmb' % self.reporter
+
+
+class Group(Base):
+    """
+    用户分组的 orm 模型类
+    """
+    __tablename__ = 'group'
+
+    group_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
+    group_name = Column(String(50))
+
+    @staticmethod
+    def query_group_name(gid):
+        """查询指定 id 的分组
+
+        Arguments:
+            gid {int} -- 分组的 id
+
+        Returns:
+            [Group] -- 查询到的分组模型或者 None
+        """
+        return session.query(Group) \
+                .filter(Group.group_id == gid)\
+                .first()
 
 
 Base.metadata.create_all(engine)

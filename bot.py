@@ -73,7 +73,7 @@ if __name__ == "__main__":
     @alex_bot.bot.register(alex_bot.group, TEXT)
     def router(msg):
         # 打印消息
-        # print(msg.member.puid)  #puid
+        print("puid = %s" % msg.member.puid)  #puid
         return alex_bot.resolve_command(msg.text, msg.member)
 
     # embed()
