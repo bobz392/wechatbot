@@ -23,6 +23,9 @@ class AlexBot(object):
         self.group.update_group(True)
         self.checkin = CheckIn()
 
+        checkin_group_name = 'checkin_notify'
+        self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
+
         self.friend_keeplive = \
             ensure_one(self.bot.friends().search('keep-alive-bot'))
 
@@ -77,6 +80,11 @@ if __name__ == "__main__":
         print("puid = %s" % msg.member.puid)  #puid
         return alex_bot.resolve_command(msg.text, msg.member, '1')
 
+    @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
+    def check_in_router(msg):
+        print("checkin group puid = %s" % msg.member.puid)  #puid
+        return alex_bot.resolve_command(msg.text, msg.member, '2')
+    
     # embed()
 
     while True:

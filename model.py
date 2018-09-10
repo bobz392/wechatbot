@@ -121,7 +121,7 @@ class User(Base):
 
     @staticmethod
     def create_user(name, email=None, password=None, \
-                    realname=None, group=None):
+                    realname=None, group=None, tel=None):
         """创建一个 user 如果必要的话，如果当前 user 已经存在，那么会更新不为空的信息。
 
         Arguments:
@@ -143,6 +143,8 @@ class User(Base):
                 user.realname = realname
             if group and Group.query_group_name(group):
                 user.group = group
+            if tel:
+                user.phone_number = tel
             session.commit()
             msg = u'更新成功'
         else:
