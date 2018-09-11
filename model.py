@@ -179,6 +179,9 @@ class User(Base):
                 realname = realname if realname is not None else emailname
                 user = User(name=name, email=email, \
                     password=password, realname=realname)
+                user.group = group
+                user.phone_number = tel
+                user.airplane_mode = False
                 session.add(user)
                 session.commit()
                 if user in session:
