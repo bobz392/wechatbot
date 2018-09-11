@@ -33,12 +33,13 @@ class AlexBot(object):
         self.friend_keeplive.send('i am alive')
 
     def notify_iOS_checkin(self):
-        print('检查打卡信息！！！！！')
+        print('检查 iOS 打卡信息！！！！！')
         msg = self.checkin.check_all_user('1')
         if msg:
             self.group.send(msg)
 
     def notify_checkgroup_checkin(self):
+        print('检查打卡组打卡信息！！！！！')
         msg = self.checkin.check_all_user('2')
         if msg:
             self.checkin_group.send(msg)
@@ -48,6 +49,7 @@ class AlexBot(object):
         msg = kr.loadData()
         if msg:
             self.group.send(msg)
+            self.checkin_group.send(msg)
 
     def schedule_of_weekdays(self):
         for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
