@@ -27,9 +27,9 @@ class CheckIn(object):
                 try:
                     key_data = json.loads(r.content)['key']
                     json_data = json.loads(key_data)
-                    print('json_data = %s' % json_data)
-                    check_in_time = json_data['checkInTime']
-                    check_out_time = json_data['checkOutTime']
+                    print('json_data = %s' % json_data)                    
+                    check_in_time = json_data.get('checkInTime', None)
+                    check_out_time = json_data.get('checkOutTime', None)
                     print('check_in_time = %s' % check_in_time)
                     if check_in_time == u'':
                         return u'@%s 请注意 还没打上班卡\n' % user.name
@@ -64,3 +64,6 @@ class CheckIn(object):
             if result:
                 msg += result
         return msg
+
+    def check_info_just_me(self, allow_group):
+        msg = None
