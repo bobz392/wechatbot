@@ -35,6 +35,7 @@ class User(Base):
     # 邮件发送者的邮箱密码
     password = Column(String(40))
     sender = Column(Boolean, default=False)
+    airplane_mode = Column(Boolean, default=False)
     phone_number = Column(String(11), default=None)
     # 禅道
     chandao_object_id = Column(String(40), default=None)
@@ -73,11 +74,30 @@ class User(Base):
 
     @staticmethod
     def query_user_group_id(name):
+        """查询当前用户的 group id
+        
+        Arguments:
+            name {string} --  用户名
+        
+        Returns:
+             string --  当前的用户 group id 没有返回 none
+        """
         user = User.query_user(name)
         if user:
             return user.group
     
         return None
+
+    @staticmethod
+    def set_user_airplane_mode(name, mode):
+        user = User.query_user(name)
+        if user:
+            user.airplane_mode = mode
+            session.commit()
+            return u'%s：设置飞行模式成功，当前 %s' % \
+                (name, u'开启' if mode else u'关闭')
+            
+        return u'%s：设置勿扰模式失败'
 
     @staticmethod
     def update_user_group_id(name, group_id):
@@ -94,6 +114,8 @@ class User(Base):
 
     @staticmethod
     def user_chandao_info(name):
+        """用户的禅道信息
+        """
         user = User.query_user(name)
         msg = None
         if user:

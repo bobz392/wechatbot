@@ -138,6 +138,7 @@ Example:
     -user/update?password=[$password]&email=[$email]&realname=[$realname]&group=[$group]&tel=[$tel] （## 更新当前用户的信息，密码为邮箱密码）
     -user/sender-check （## 仅仅查询）
     -user/sender-setme （## 更新为当前的用户发送）
+    -user/airplane?open=[$open]  (## 飞行模式，目前功能为不会检查打卡，1 代表开启飞行模式)
 '''
 
     def __call__(self, router_parse, sender, allow_group):
@@ -157,12 +158,17 @@ Example:
             # return u'/update %s' % sender
             update_dict = parse_query_2_dict(query)
             return UserCommand.update_user(update_dict, sender)
-        if path == 'sender-setme':
+        if path == '/sender-setme':
             # return u'/sender-setme %s' % sender
-            return User.show_sender()
-        if path == 'sender-check':
-            # return u'/sender-check %s' % sender
             return User.sender_set_to(sender)
+        if path == '/sender-check':
+            # return u'/sender-check %s' % sender
+            return User.show_sender()
+        if path == '/airplane':
+            open_dict = parse_query_2_dict(query)
+            is_open_text = open_dict.get('open', '0')
+            is_open = True if is_open_text == '1' else False
+            return User.set_user_airplane_mode(sender, is_open)
 
         return UserCommand.helper_info()
 
@@ -226,7 +232,7 @@ Example:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的站报指令
         """
-        if allow_group and not User.check_user_group_id(sender, allow_group):
+        if allow_group == '1' and not User.check_user_group_id(sender, allow_group):
             return u'恭喜您没有权限。哈哈哈哈。'
 
         path = router_parse.path
@@ -288,7 +294,7 @@ Example:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 谁发起的禅道命令
         """
-        if allow_group and not User.check_user_group_id(sender, allow_group):
+        if allow_group == '1' and not User.check_user_group_id(sender, allow_group):
             return u'恭喜您没有权限。哈哈哈哈。'
 
         path = router_parse.path
@@ -376,7 +382,7 @@ Example:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送邮件指令
         """
-        if allow_group and not User.check_user_group_id(sender, allow_group):
+        if allow_group == '1' and not User.check_user_group_id(sender, allow_group):
             return u'恭喜您没有权限。哈哈哈哈。'
 
         path = router_parse.path
@@ -440,7 +446,7 @@ Example：
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送邮件指令
         """
-        if allow_group and not User.check_user_group_id(sender, allow_group):
+        if allow_group == '1' and not User.check_user_group_id(sender, allow_group):
             return u'恭喜您没有权限。哈哈哈哈。'
 
         path = router_parse.path
