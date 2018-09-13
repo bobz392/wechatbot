@@ -42,6 +42,7 @@ class AlexBot(object):
         print('检查打卡组打卡信息！！！！！')
         msg = self.checkin.check_all_user('2')
         if msg:
+            time.sleep(5)
             self.checkin_group.send(msg)
 
     def load_kr_data(self):
@@ -56,7 +57,6 @@ class AlexBot(object):
         for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
                     '20:00', '20:30', '20:45', '21:00', '21:30']:
             schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
-            time.sleep(5)
             schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
 
     def resolve_command(self, text, sender, allow_group=None):
@@ -80,7 +80,7 @@ class AlexBot(object):
 
 if __name__ == "__main__":
     alex_bot = AlexBot()
-    schedule.every(15).to(25).minutes.do(alex_bot.keep_alive)
+    schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
     alex_bot.schedule_of_weekdays()
     schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
     def check_in_router(msg):
-        print("checkin group puid = %s" % msg.member.puid)  #puid
+        print("checkin group puid = %s" % msg.member.puid)#puid
         return alex_bot.resolve_command(msg.text, msg.member, '2')
 
     while True:

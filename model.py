@@ -101,6 +101,15 @@ class User(Base):
 
     @staticmethod
     def update_user_group_id(name, group_id):
+        """更新用户的 group 
+        
+        Arguments:
+            name {string} -- 用户名
+            group_id {string} -- 用户的 group id
+        
+        Returns:
+            string -- 返回的消息
+        """
         user = User.query_user(name)
         group = Group.query_group_name(group_id)
         if user and group:
@@ -127,6 +136,19 @@ class User(Base):
 
     @staticmethod
     def update_chandao(name, chandao_name=None, password=None, object_id=None):
+        """更新禅道的相关信息
+        
+        Arguments:
+            name {string} -- 用户名
+        
+        Keyword Arguments:
+            chandao_name {string} -- 禅道的用户名 (default: {None})
+            password {string} -- 禅道的密码 (default: {None})
+            object_id {string} -- 禅道的 object id，通过web页面去获取 (default: {None})
+        
+        Returns:
+            string -- 返回更新的结果
+        """
         user = User.query_user(name)
         msg = None
         if user:
