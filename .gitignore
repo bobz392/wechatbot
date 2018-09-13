@@ -5,6 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
+*.png
+*.PNG
 *.DS_Store
 *.pkl
 *.sqlite
