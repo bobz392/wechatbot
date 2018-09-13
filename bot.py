@@ -94,9 +94,7 @@ if __name__ == "__main__":
     def check_in_router(msg):
         print("checkin group puid = %s" % msg.member.puid)  #puid
         return alex_bot.resolve_command(msg.text, msg.member, '2')
-    
-    embed()
 
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
