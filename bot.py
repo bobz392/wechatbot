@@ -3,7 +3,7 @@
 
 from wxpy import *
 import schedule
-import time
+import time, signal
 from kr36 import Kr
 from command import Command
 from check_in import CheckIn
@@ -14,7 +14,7 @@ class AlexBot(object):
     """
 
     def __init__(self):
-        self.bot = Bot(cache_path=True)
+        self.bot = Bot(cache_path=False)
         self.bot.enable_puid()
         self.command = Command()
         print(self.bot.groups())
@@ -77,26 +77,49 @@ class AlexBot(object):
 
         return None#"not found~ reply: %s" % text
 
+if __name__ == '__main__':
+    try:
+        signal.signal(signal.SIGINT, quit)
+        signal.signal(signal.SIGTERM, quit)
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     alex_bot = AlexBot()
     schedule.every(15).to(25).minutes.do(alex_bot.keep_alive)
     alex_bot.schedule_of_weekdays()
     schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
+=======
+        alex_bot = AlexBot()
+        schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
+        alex_bot.schedule_of_weekdays()
+        schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
+>>>>>>> f4671de9d2ff0940c398d537bb68e35c1de06d1b
 
-    @alex_bot.bot.register(alex_bot.group, TEXT)
-    def iOS_router(msg):
-        # 打印消息
-        print("puid = %s" % msg.member.puid)  #puid
-        return alex_bot.resolve_command(msg.text, msg.member, '1')
+        @alex_bot.bot.register(alex_bot.group, TEXT)
+        def iOS_router(msg):
+            # 打印消息
+            print("puid = %s" % msg.member.puid)  #puid
+            return alex_bot.resolve_command(msg.text, msg.member, '1')
 
+<<<<<<< HEAD
     @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
     def check_in_router(msg):
         print("checkin group puid = %s" % msg.member.puid)  #puid
         return alex_bot.resolve_command(msg.text, msg.member, '2')
     
     # embed()
+=======
+        @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
+        def check_in_router(msg):
+            print("checkin group puid = %s" % msg.member.puid)#puid
+            return alex_bot.resolve_command(msg.text, msg.member, '2')
+>>>>>>> f4671de9d2ff0940c398d537bb68e35c1de06d1b
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+        # embed()
+
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+
+    except Exception, exc:
+        print exc

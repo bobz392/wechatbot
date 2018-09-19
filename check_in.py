@@ -1,7 +1,7 @@
 #! /usr/bin/env python2.7
 #coding=utf-8
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import strptime
 import json
 import requests
@@ -34,9 +34,16 @@ class CheckIn(object):
                         return u'@%s 请注意 还没打上班卡\n' % user.name
                     elif check_in_time == check_out_time:
                         now = datetime.now()
-                        # check_out_date = strptime(check_out_time, "%Y-%m-%d %H:%M:%S")
                         if now.hour >= 19:
-                            return u'@%s 请注意 还没打下班卡\n' % user.name
+                            check_in_date = datetime.strptime(check_in_time, \
+                                "%Y-%m-%d %H:%M:%S")
+                            if now - check_in_date >= timedelta(hours=9):
+                                return u'@%s 请注意 还没打下班卡\n' % user.name
+                            else:
+                                can_check_date = check_in_date + timedelta(hours=9)
+                                offset_seconds = can_check_date - now
+                                offset_mins = int(offset_seconds.seconds / 60)
+                                return u'@%s 还没到打下班卡时间，再忍受 %s 分钟\n' % (user.name, offset_mins)
                         else:
                             print('还没到打下班卡时间，上班卡已经打')
                 except ValueError as e:
@@ -52,7 +59,6 @@ class CheckIn(object):
                         没有消息是好的消息。
         """
         now = datetime.now()
-        print(now.weekday())
         if now.weekday() == 5 or now.weekday() == 6:
             return None
 

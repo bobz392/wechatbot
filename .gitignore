@@ -7,6 +7,7 @@ __pycache__/
 *.so
 *.png
 *.PNG
+*.lock
 *.DS_Store
 *.pkl
 *.sqlite
