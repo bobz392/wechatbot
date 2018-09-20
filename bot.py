@@ -14,7 +14,7 @@ class AlexBot(object):
     """
 
     def __init__(self):
-        self.bot = Bot(cache_path=False)
+        self.bot = Bot(cache_path=True)
         self.bot.enable_puid()
         self.command = Command()
         print(self.bot.groups())
