@@ -17,13 +17,13 @@ class AlexBot(object):
         self.bot = Bot(cache_path=False)
         self.bot.enable_puid()
         self.command = Command()
-
+        print(self.bot.groups())
         group_name = 'iOS group'
         self.group = ensure_one(self.bot.groups().search(group_name))
-        self.group.update_group(True)
+        # self.group.update_group(True)
         self.checkin = CheckIn()
 
-        checkin_group_name = 'checkin_notify'
+        checkin_group_name = 'checkin notify'
         self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
 
         self.friend_keeplive = \
@@ -42,7 +42,6 @@ class AlexBot(object):
         print('检查打卡组打卡信息！！！！！')
         msg = self.checkin.check_all_user('2')
         if msg:
-            time.sleep(5)
             self.checkin_group.send(msg)
 
     def load_kr_data(self):
@@ -57,6 +56,7 @@ class AlexBot(object):
         for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
                     '20:00', '20:30', '20:45', '21:00', '21:30']:
             schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
+            time.sleep(5)
             schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
 
     def resolve_command(self, text, sender, allow_group=None):
