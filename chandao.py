@@ -113,18 +113,18 @@ class Chandao(object):
         禅道请求的 post 中所携带的 payload 拼接。
         """
         date = time.strftime('%Y-%m-%d', time.localtime())
-        
+
         payload = {}
         for idx in xrange(1, 2):
             id_key = 'id[%d]' % idx
             payload[id_key] = idx
-            
+
             date_key = 'dates[%d]' % idx
             payload[date_key] = date
-            
+
             consumed_key = 'consumed[%d]' % idx
             payload[consumed_key] = '%d' % self.consumed
-            
+
             left_key = 'left[%d]' % idx
             payload[left_key] = '%d' % self.left
 

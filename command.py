@@ -139,6 +139,8 @@ Example:
     -user/sender-check （## 仅仅查询）
     -user/sender-setme （## 更新为当前的用户发送）
     -user/airplane?open=[$open]  (## 飞行模式，目前功能为不会检查打卡，1 代表开启飞行模式)
+    -user/slience?open=[$open]  (## 全员飞行模式，目前功能为不会检查打卡，1 代表开启飞行模式)
+    
 '''
 
     def __call__(self, router_parse, sender, allow_group):
@@ -169,6 +171,11 @@ Example:
             is_open_text = open_dict.get('open', '0')
             is_open = True if is_open_text == '1' else False
             return User.set_user_airplane_mode(sender, is_open)
+        if path == '/slience':
+            open_dict = parse_query_2_dict(query)
+            is_slience_text = open_dict.get('open', '0')
+            is_slience = True if is_slience_text == '1' else False
+            return User.set_slience_mode(is_slience, allow_group)
 
         return UserCommand.helper_info()
 

@@ -100,6 +100,18 @@ class User(Base):
         return u'%s：设置勿扰模式失败'
 
     @staticmethod
+    def set_slience_mode(mode, group):
+        for user in User.all_users(group):
+            user.airplane_mode = mode
+        session.commit()
+        msg = None
+        if mode:
+            msg = u'关闭所有人提醒'
+        else:
+            msg = u'打开所有提醒'
+        return msg
+
+    @staticmethod
     def update_user_group_id(name, group_id):
         """更新用户的 group 
         
