@@ -55,8 +55,11 @@ class AlexBot(object):
     def write_image2file(self, data):
         import os
         import datetime
-        file_name = os.getcwd() + '/beauty/' \
-                    + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s")
+        
+        file_path = os.getcwd() + '/beauty/'
+        file_name = file_path + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s")
+        if os.path.exists(file_path) is False:
+            os.makedirs(file_path)
         f = open(file_name, 'ab')
         f.write(data)
         f.close()

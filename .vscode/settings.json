@@ -1,5 +1,5 @@
 {
-    "python.jediEnabled": true,
+    "python.jediEnabled": false,
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
@@ -8,6 +8,8 @@
         "**/.DS_Store": true,
         "**/*.pkl": true,
         "**/*.png": true,
+        "**/beauty": true,
     },
-    "python.pythonPath": "/usr/local/opt/python@2/bin/python2.7"
+    "python.pythonPath": "/usr/local/opt/python@2/bin/python2.7",
+    "python.linting.pylintEnabled": true
 }
