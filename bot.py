@@ -23,8 +23,8 @@ class AlexBot(object):
         # self.group.update_group(True)
         self.checkin = CheckIn()
 
-        # checkin_group_name = 'checkin notify'
-        # self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
+        checkin_group_name = 'checkin notify'
+        self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
 
         # self.friend_keeplive = \
         #     ensure_one(self.bot.friends().search('keep-alive-bot'))
@@ -38,11 +38,11 @@ class AlexBot(object):
         if msg:
             self.group.send(msg)
 
-    # def notify_checkgroup_checkin(self):
-    #     print('检查打卡组打卡信息！！！！！')
-    #     msg = self.checkin.check_all_user('2')
-    #     if msg:
-    #         self.checkin_group.send(msg)
+    def notify_checkgroup_checkin(self):
+        print('检查打卡组打卡信息！！！！！')
+        msg = self.checkin.check_all_user('2')
+        if msg:
+            self.checkin_group.send(msg)
 
     def load_kr_data(self):
         kr = Kr()
@@ -69,8 +69,8 @@ class AlexBot(object):
         for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
                     '20:00', '20:30', '20:45', '21:00', '21:30']:
             schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
-            # time.sleep(5)
-            # schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
+            time.sleep(5)
+            schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
 
     def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command
@@ -90,7 +90,10 @@ class AlexBot(object):
             else:
                 print('result type = %s' % type(result))
                 file_name = self.write_image2file(result)
-                self.group.send_image(file_name)
+                if allow_group == 1:
+                    self.group.send_image(file_name)
+                else:
+                    self.checkin_group.send_image(file_name)
                 result = None
             return result
 
@@ -112,10 +115,10 @@ if __name__ == '__main__':
             print("puid = %s" % msg.member.puid)  #puid
             return alex_bot.resolve_command(msg.text, msg.member, '1')
 
-        # @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
-        # def check_in_router(msg):
-        #     print("checkin group puid = %s" % msg.member.puid)#puid
-        #     return alex_bot.resolve_command(msg.text, msg.member, '2')
+        @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
+        def check_in_router(msg):
+            print("checkin group puid = %s" % msg.member.puid)#puid
+            return alex_bot.resolve_command(msg.text, msg.member, '2')
 
         # embed()
 
