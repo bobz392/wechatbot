@@ -82,10 +82,10 @@ class AlexBot(object):
         print('parpre to solove text = %s, sender = %s' % (text, sender.name))
         if self.command.vaild(text):
             result = self.command.analysis(text, sender.name, allow_group)
-            if result is str:
+            if isinstance(result, unicode):
                 print('solove %s result = %s' % (text, result))
             else:
-                # send_image
+                print('result type = %s' % type(result))
                 file_name = self.write_image2file(result)
                 self.group.send_image(file_name)
                 result = None
