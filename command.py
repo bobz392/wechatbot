@@ -8,6 +8,7 @@ from mail import DailyMail, WeeklyMail
 from chandao import Chandao
 from check_in import CheckIn
 from week_report import WeekReporter
+from meizi import BeautyFucker
 
 def parse_query_2_dict(query):
     return dict((k.lower(), v if len(v) > 1 else v[0]) \
@@ -140,7 +141,7 @@ Example:
     -user/sender-setme （## 更新为当前的用户发送）
     -user/airplane?open=[$open]  (## 飞行模式，目前功能为不会检查打卡，1 代表开启飞行模式)
     -user/slience?open=[$open]  (## 全员飞行模式，目前功能为不会检查打卡，1 代表开启飞行模式)
-    
+    -user/meizi  (## 邪恶一指尖)
 '''
 
     def __call__(self, router_parse, sender, allow_group):
@@ -176,6 +177,9 @@ Example:
             is_slience_text = open_dict.get('open', '0')
             is_slience = True if is_slience_text == '1' else False
             return User.set_slience_mode(is_slience, allow_group)
+        if path == '/meizi':
+            bf = BeautyFucker()
+            return bf.prepare_page()
 
         return UserCommand.helper_info()
 

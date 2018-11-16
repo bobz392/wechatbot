@@ -23,14 +23,14 @@ class AlexBot(object):
         # self.group.update_group(True)
         self.checkin = CheckIn()
 
-        checkin_group_name = 'checkin notify'
-        self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
+        # checkin_group_name = 'checkin notify'
+        # self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
 
-        self.friend_keeplive = \
-            ensure_one(self.bot.friends().search('keep-alive-bot'))
+        # self.friend_keeplive = \
+        #     ensure_one(self.bot.friends().search('keep-alive-bot'))
 
-    def keep_alive(self):
-        self.friend_keeplive.send('i am alive')
+    # def keep_alive(self):
+    #     self.friend_keeplive.send('i am alive')
 
     def notify_iOS_checkin(self):
         print('检查 iOS 打卡信息！！！！！')
@@ -38,26 +38,36 @@ class AlexBot(object):
         if msg:
             self.group.send(msg)
 
-    def notify_checkgroup_checkin(self):
-        print('检查打卡组打卡信息！！！！！')
-        msg = self.checkin.check_all_user('2')
-        if msg:
-            self.checkin_group.send(msg)
+    # def notify_checkgroup_checkin(self):
+    #     print('检查打卡组打卡信息！！！！！')
+    #     msg = self.checkin.check_all_user('2')
+    #     if msg:
+    #         self.checkin_group.send(msg)
 
     def load_kr_data(self):
         kr = Kr()
         msg = kr.loadData()
         if msg:
             self.group.send(msg)
-            time.sleep(5)
-            self.checkin_group.send(msg)
+            # time.sleep(5)
+            # self.checkin_group.send(msg)
+
+    def write_image2file(self, data):
+        import os
+        import datetime
+        file_name = os.getcwd() + '/beauty/' \
+                    + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s")
+        f = open(file_name, 'ab')
+        f.write(data)
+        f.close()
+        return file_name
 
     def schedule_of_weekdays(self):
         for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
                     '20:00', '20:30', '20:45', '21:00', '21:30']:
             schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
-            time.sleep(5)
-            schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
+            # time.sleep(5)
+            # schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
 
     def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command
@@ -72,7 +82,13 @@ class AlexBot(object):
         print('parpre to solove text = %s, sender = %s' % (text, sender.name))
         if self.command.vaild(text):
             result = self.command.analysis(text, sender.name, allow_group)
-            print('solove %s result = %s' % (text, result))
+            if result is str:
+                print('solove %s result = %s' % (text, result))
+            else:
+                # send_image
+                file_name = self.write_image2file(result)
+                self.group.send_image(file_name)
+                result = None
             return result
 
         return None#"not found~ reply: %s" % text
@@ -83,7 +99,7 @@ if __name__ == '__main__':
         signal.signal(signal.SIGTERM, quit)
 
         alex_bot = AlexBot()
-        schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
+        # schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
         alex_bot.schedule_of_weekdays()
         schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
@@ -93,10 +109,10 @@ if __name__ == '__main__':
             print("puid = %s" % msg.member.puid)  #puid
             return alex_bot.resolve_command(msg.text, msg.member, '1')
 
-        @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
-        def check_in_router(msg):
-            print("checkin group puid = %s" % msg.member.puid)#puid
-            return alex_bot.resolve_command(msg.text, msg.member, '2')
+        # @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
+        # def check_in_router(msg):
+        #     print("checkin group puid = %s" % msg.member.puid)#puid
+        #     return alex_bot.resolve_command(msg.text, msg.member, '2')
 
         # embed()
 

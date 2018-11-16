@@ -11,6 +11,7 @@ __pycache__/
 *.DS_Store
 *.pkl
 *.sqlite
+beauty
 # Distribution / packaging
 .Python
 build/
