@@ -31,14 +31,14 @@ class AlexBot(object):
         #     self.checkin_group = None
 
         self.friend_keeplive = \
-            ensure_one(self.bot.friends().search('keep-alive-bot'))
+            ensure_one(self.bot.friends().search(u'阿力木'))
 
     def keep_alive(self):
         self.friend_keeplive.send('i am alive')
-
+    
+    import datetime
     def hour_notify(self):
-        import datetime
-        self.group.send(u'整点报时：%s:00' % datetime.datetime.now().strftime("%H"))
+        self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' % datetime.datetime.now().strftime("%H"))
 
     def notify_iOS_checkin(self):
         print('检查 iOS 打卡信息！！！！！')
@@ -57,6 +57,7 @@ class AlexBot(object):
         msg = kr.loadData()
         if msg:
             self.group.send(msg)
+            # print(ms)
             # time.sleep(5)
             # self.checkin_group.send(msg)
 
@@ -79,6 +80,8 @@ class AlexBot(object):
         for check_time in ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', \
             '17:00', '18:00', '19:00', '20:00', '21:00']:
             schedule.every().days.at(check_time).do(self.hour_notify)
+            if check_time == '10:00' or check_time == '14:00' or check_time == '16:00':
+                schedule.every().days.at(check_time).do(self.load_kr_data)
             # schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
             # time.sleep(5)
             # schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
@@ -116,9 +119,9 @@ if __name__ == '__main__':
         signal.signal(signal.SIGTERM, quit)
 
         alex_bot = AlexBot()
-        schedule.every(1).to(2).hours.do(alex_bot.keep_alive)
+        schedule.every(5).to(10).minutes.do(alex_bot.keep_alive)
         alex_bot.schedule_of_weekdays()
-        # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
+        schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
         @alex_bot.bot.register(alex_bot.group, TEXT)
         def iOS_router(msg):
@@ -132,6 +135,7 @@ if __name__ == '__main__':
         #     return alex_bot.resolve_command(msg.text, msg.member, '2')
 
         # embed()
+        alex_bot.load_kr_data()
 
         while True:
             schedule.run_pending()

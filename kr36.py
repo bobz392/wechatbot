@@ -13,19 +13,21 @@ class Kr:
         feed_ul = self.dr.find_element_by_class_name('feed_ul')
         msg = u''
         i = 1
-        while  i <= 10:
+        add_count = 0
+        while  i <= 30 and add_count < 10:
             try:
                 xpath_head = "/html/body/div[@id='app']/div/div[@class='index_36kr']/div[@class='pagewrap']/div[@class='mainlib_flex_wapper']/div[@class=' mainlib']/div[@class='center_content']/div[@class='content-wrapper']/div[@class='list_con']/div[2]/div/div/div[@class='kr_article_list']/div/ul[@class='feed_ul']/li[" + str(i) + "]/div[@class='am-cf inner_li']/a/div[@class='intro']/h3"
                 xpath_detail = "/html/body/div[@id='app']/div/div[@class='index_36kr']/div[@class='pagewrap']/div[@class='mainlib_flex_wapper']/div[@class=' mainlib']/div[@class='center_content']/div[@class='content-wrapper']/div[@class='list_con']/div[2]/div/div/div[@class='kr_article_list']/div/ul[@class='feed_ul']/li[" + str(i) + "]/div[@class='am-cf inner_li']/a/div[@class='intro']/div[@class='abstract']"
-                # xpath_href = "//li[" + str(i) + "]/div[@class='am-cf inner_li inner_li_abtest']/a/div[@class='img_box']/div"
+                xpath_href = "/html/body/div[@id='app']/div/div[@class='index_36kr']/div[@class='pagewrap']/div[@class='mainlib_flex_wapper']/div[@class=' mainlib']/div[@class='center_content']/div[@class='content-wrapper']/div[@class='list_con']/div[2]/div/div/div[@class='kr_article_list']/div/ul[@class='feed_ul']/li[" + str(i) + "]/div[@class='am-cf inner_li']/a"
                 # xpath_img  = "//li[" + str(i) + "]/div[@class='am-cf inner_li inner_li_abtest']/a/div[@class='img_box']/div/img"
-
+# "//li[" + str(i) + "]/div[@class='am-cf inner_li inner_li_abtest']/a/div[@class='img_box']/div"
                 head  = feed_ul.find_element_by_xpath(xpath_head)
                 title = head.text
-
                 detail  = feed_ul.find_element_by_xpath(xpath_detail)
 
-                # href  = feed_ul.find_element_by_xpath(xpath_href)
+                href = feed_ul.find_element_by_xpath(xpath_href)
+                href_link = href.get_attribute('href')
+                # print("herf %s" % href.get_attribute('href'))
                 # url   = 'http://36kr.com' + href.get_attribute('href')
 
                 # img   = feed_ul.find_element_by_xpath(xpath_img)
@@ -44,14 +46,15 @@ class Kr:
             except Exception as e:
                 print('error:%s' % e)
             else:
-                msg += self.saveData(i, title, detail.text)#, src)
+                add_count += 1
+                msg += self.saveData(add_count, title, detail.text, href_link)
 
             i += 1
         self.quit()
         return msg
 
     def saveData(self, index, title, detail=None, src=None):
-        return u'%d、%s\n%s\n\n' % (index, title, detail)
+        return u'%d、%s\n%s\n%s \n\n' % (index, title, detail, src)
 
     def quit(self):
         self.dr.quit()
