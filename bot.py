@@ -6,6 +6,7 @@ import schedule
 import time, signal
 from kr36 import Kr
 from command import Command
+from wxpy import Tuling
 from check_in import CheckIn
 
 class AlexBot(object):
@@ -18,26 +19,19 @@ class AlexBot(object):
         self.bot.enable_puid()
         self.command = Command()
         print(self.bot.groups())
-        # group_name = 'iOS group'
         group_name = 'notify_group'
         self.group = ensure_one(self.bot.groups().search(group_name))
-        # self.group.update_group(True)
+        self.group.update_group(True)
         self.checkin = CheckIn()
-
-        # checkin_group_name = 'checkin notify'
-        # try:
-        #     self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
-        # except ValueError:
-        #     self.checkin_group = None
-
+        self.tuling = Tuling('02518a2c4b004145bdea82ae0440d715')
         self.friend_keeplive = \
             ensure_one(self.bot.friends().search(u'阿力木'))
 
     def keep_alive(self):
         self.friend_keeplive.send('i am alive')
     
-    import datetime
     def hour_notify(self):
+        import datetime
         self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' % datetime.datetime.now().strftime("%H"))
 
     def notify_iOS_checkin(self):
@@ -46,20 +40,11 @@ class AlexBot(object):
         if msg:
             self.group.send(msg)
 
-    # def notify_checkgroup_checkin(self):
-    #     print('检查打卡组打卡信息！！！！！')
-    #     msg = self.checkin.check_all_user('2')
-    #     if msg:
-    #         self.checkin_group.send(msg)
-
     def load_kr_data(self):
         kr = Kr()
         msg = kr.loadData()
         if msg:
             self.group.send(msg)
-            # print(ms)
-            # time.sleep(5)
-            # self.checkin_group.send(msg)
 
     def write_image2file(self, data):
         import os
@@ -75,16 +60,11 @@ class AlexBot(object):
         return file_name
 
     def schedule_of_weekdays(self):
-        # for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
-        #             '20:00', '20:30', '20:45', '21:00', '21:30']:
-        for check_time in ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', \
-            '17:00', '18:00', '19:00', '20:00', '21:00']:
+        for check_time in ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00', \
+            '17:00', '18:00', '19:00', '20:00']:
             schedule.every().days.at(check_time).do(self.hour_notify)
-            if check_time == '10:00' or check_time == '14:00' or check_time == '16:00':
+            if check_time == '10:00' or check_time == '14:00' or check_time == '16:00' or check_time == '19:00':
                 schedule.every().days.at(check_time).do(self.load_kr_data)
-            # schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
-            # time.sleep(5)
-            # schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
 
     def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command
@@ -104,14 +84,11 @@ class AlexBot(object):
             else:
                 print('result type = %s' % type(result))
                 file_name = self.write_image2file(result)
-                # if allow_group == 1:
                 self.group.send_image(file_name)
-                # else:
-                #     self.checkin_group.send_image(file_name)
                 result = None
             return result
 
-        return None#"not found~ reply: %s" % text
+        return None
 
 if __name__ == '__main__':
     try:
@@ -127,15 +104,16 @@ if __name__ == '__main__':
         def iOS_router(msg):
             # 打印消息
             print("puid = %s" % msg.member.puid)  #puid
-            return alex_bot.resolve_command(msg.text, msg.member, '1')
+            if msg.is_at:
+                alex_bot.tuling.do_reply(msg)
+            else:
+                return alex_bot.resolve_command(msg.text, msg.member, '1')
 
-        # @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
-        # def check_in_router(msg):
-        #     print("checkin group puid = %s" % msg.member.puid)#puid
-        #     return alex_bot.resolve_command(msg.text, msg.member, '2')
-
-        # embed()
-        alex_bot.load_kr_data()
+        # @alex_bot.bot.register(alex_bot.friend_keeplive)
+        # def reply_my_friend(msg):
+        #     print(msg)
+        #     if msg.is_at:
+        #         alex_bot.tuling.do_reply(msg)
 
         while True:
             schedule.run_pending()
