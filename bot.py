@@ -51,13 +51,15 @@ class AlexBot(object):
         import datetime
         
         file_path = os.getcwd() + '/beauty/'
-        file_name = file_path + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s.png")
-        if os.path.exists(file_path) is False:
-            os.makedirs(file_path)
-        f = open(file_name, 'ab')
-        f.write(data)
-        f.close()
-        return file_name
+        # file_name = file_path + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s.png")
+        # if os.path.exists(file_path) is False:
+        #     os.makedirs(file_path)
+        # f = open(file_name, 'ab')
+        # f.write(data)
+        # f.close()
+        # return file_name
+        from random import randint
+        return file_path + ('%d.jpg' % randint(1, 4))
 
     def schedule_of_weekdays(self):
         for check_time in ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00', \
