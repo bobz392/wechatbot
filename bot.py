@@ -31,8 +31,10 @@ class AlexBot(object):
         self.friend_keeplive.send('i am alive')
     
     def hour_notify(self):
-        import datetime
-        self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' % datetime.datetime.now().strftime("%H"))
+        from datetime import datetime
+        week_day = datetime.today().weekday()
+        if week_day != 6 and week_day != 5: 
+            self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' % datetime.now().strftime("%H"))
 
     def notify_iOS_checkin(self):
         print('检查 iOS 打卡信息！！！！！')
@@ -100,7 +102,7 @@ if __name__ == '__main__':
         alex_bot = AlexBot()
         schedule.every(5).to(10).minutes.do(alex_bot.keep_alive)
         alex_bot.schedule_of_weekdays()
-        schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
+        # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
         @alex_bot.bot.register(alex_bot.group, TEXT)
         def iOS_router(msg):
