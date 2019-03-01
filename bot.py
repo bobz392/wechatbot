@@ -8,6 +8,7 @@ from kr36 import Kr
 from command import Command
 from wxpy import Tuling
 from check_in import CheckIn
+from notify_work import notify_work_instance
 
 class AlexBot(object):
     """
@@ -18,7 +19,9 @@ class AlexBot(object):
         self.bot = Bot(cache_path=True)
         self.bot.enable_puid()
         self.command = Command()
+
         print(self.bot.groups())
+
         group_name = 'notify_group'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
@@ -100,6 +103,8 @@ if __name__ == '__main__':
         signal.signal(signal.SIGTERM, quit)
 
         alex_bot = AlexBot()
+        notify_work_instance.set_group(alex_bot.group)
+        
         schedule.every(5).to(10).minutes.do(alex_bot.keep_alive)
         alex_bot.schedule_of_weekdays()
         # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)

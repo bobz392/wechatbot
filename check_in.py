@@ -2,7 +2,6 @@
 #coding=utf-8
 
 from datetime import datetime, timedelta
-from time import strptime
 import json
 import requests
 from model import User, Session

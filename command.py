@@ -9,6 +9,7 @@ from chandao import Chandao
 from check_in import CheckIn
 from week_report import WeekReporter
 from meizi import BeautyFucker
+from notify_work import notify_work_instance
 
 def parse_query_2_dict(query):
     return dict((k.lower(), v if len(v) > 1 else v[0]) \
@@ -36,7 +37,7 @@ class Command(object):
         self.weekly_report_path = '-weekly'
 
         self.commands = {
-            self.user_path: ['password', 'email', 'realname', 'sender-setme', 'sender-check'],
+            self.user_path: ['password', 'email', 'realname', 'sender-setme', 'sender-check', 'notify-delete', 'notify'],
             self.note_path: ['message', 'id', 'week'],
             self.sendmail_path: ['empty', 'chandao'],
             self.help_path: ['-'],
@@ -142,6 +143,8 @@ Example:
     -user/airplane?open=[$open]  (## 飞行模式，目前功能为不会检查打卡，1 代表开启飞行模式)
     -user/slience?open=[$open]  (## 全员飞行模式，目前功能为不会检查打卡，1 代表开启飞行模式)
     -user/meizi  (## 邪恶一指尖)
+    -user/notify-delete
+    -user/notify?do=some-things&at=11:30
 '''
 
     def __call__(self, router_parse, sender, allow_group):
@@ -180,6 +183,11 @@ Example:
         if path == '/meizi':
             bf = BeautyFucker()
             return bf.prepare_page()
+        if path == '/notify-delete':
+            return notify_work_instance.remove_notify(sender)
+        if path == '/notify':
+            open_dict = parse_query_2_dict(query)
+            return notify_work_instance.notify_me_at(open_dict['at'], sender, open_dict['do'])
 
         return UserCommand.helper_info()
 
