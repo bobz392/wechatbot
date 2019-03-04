@@ -29,6 +29,7 @@ class AlexBot(object):
         self.tuling = Tuling('02518a2c4b004145bdea82ae0440d715')
         self.friend_keeplive = \
             ensure_one(self.bot.friends().search(u'阿力木'))
+        self.admin = ensure_one(self.bot.friends().search(u'M_zhou'))
 
     def keep_alive(self):
         self.friend_keeplive.send('i am alive')
@@ -108,6 +109,12 @@ if __name__ == '__main__':
         schedule.every(5).to(10).minutes.do(alex_bot.keep_alive)
         alex_bot.schedule_of_weekdays()
         # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
+
+        @alex_bot.bot.register(alex_bot.admin, TEXT)
+        def transfer(msg):
+            if msg.text.startswith(u'-t'):
+                transfer_msg = msg.text.replace(u'-t', u'')
+                alex_bot.group.send(transfer_msg)
 
         @alex_bot.bot.register(alex_bot.group, TEXT)
         def iOS_router(msg):
