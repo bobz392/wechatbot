@@ -1,14 +1,16 @@
 #! /usr/bin/env python2.7
-#coding=utf-8
+# coding=utf-8
 
 from wxpy import *
 import schedule
-import time, signal
+import time
+import signal
 from kr36 import Kr
 from command import Command
 from wxpy import Tuling
 from check_in import CheckIn
 from notify_work import notify_work_instance
+
 
 class AlexBot(object):
     """
@@ -23,6 +25,7 @@ class AlexBot(object):
         print(self.bot.groups())
 
         group_name = 'notify_group'
+        # group_name = 'test'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
         self.checkin = CheckIn()
@@ -33,12 +36,13 @@ class AlexBot(object):
 
     def keep_alive(self):
         self.friend_keeplive.send('i am alive')
-    
+
     def hour_notify(self):
         from datetime import datetime
         week_day = datetime.today().weekday()
-        if week_day != 6 and week_day != 5: 
-            self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' % datetime.now().strftime("%H"))
+        if week_day != 6 and week_day != 5:
+            self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' %
+                            datetime.now().strftime("%H"))
 
     def notify_iOS_checkin(self):
         print('检查 iOS 打卡信息！！！！！')
@@ -55,24 +59,24 @@ class AlexBot(object):
     def write_image2file(self, data):
         import os
         import datetime
-        
+
         file_path = os.getcwd() + '/beauty/'
-        # file_name = file_path + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s.png")
-        # if os.path.exists(file_path) is False:
-        #     os.makedirs(file_path)
-        # f = open(file_name, 'ab')
-        # f.write(data)
-        # f.close()
-        # return file_name
-        from random import randint
-        return file_path + ('%d.jpg' % randint(1, 4))
+        file_name = file_path + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s.png")
+        if os.path.exists(file_path) is False:
+            os.makedirs(file_path)
+        f = open(file_name, 'ab')
+        f.write(data)
+        f.close()
+        return file_name
+        # from random import randint
+        # return file_path + ('%d.jpg' % randint(1, 4))
 
     def schedule_of_weekdays(self):
-        for check_time in ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00', \
-            '17:00', '18:00', '19:00', '20:00']:
+        for check_time in ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00',
+                           '17:00', '18:00', '19:00', '20:00']:
             schedule.every().days.at(check_time).do(self.hour_notify)
-            if check_time == '10:00' or check_time == '14:00' or check_time == '16:00' or check_time == '19:00':
-                schedule.every().days.at(check_time).do(self.load_kr_data)
+            # if check_time == '10:00' or check_time == '14:00' or check_time == '16:00' or check_time == '19:00':
+            #     schedule.every().days.at(check_time).do(self.load_kr_data)
 
     def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command
@@ -84,19 +88,25 @@ class AlexBot(object):
         Returns:
             [string, None] -- 当解析成功的时候返回 string 否者返回 none
         """
+        if sender.name == 'M_zhou' and text == u'-36kr':
+            print('load 36kr data')
+            return alex_bot.load_kr_data()
+
         print('parpre to solove text = %s, sender = %s' % (text, sender.name))
         if self.command.vaild(text):
             result = self.command.analysis(text, sender.name, allow_group)
             if isinstance(result, unicode):
                 print('solove %s result = %s' % (text, result))
+                return result
+
             else:
                 print('result type = %s' % type(result))
                 file_name = self.write_image2file(result)
-                self.group.send_image(file_name)
-                result = None
-            return result
+                print(file_name)
+                print(self.group.send_image(file_name))
 
         return None
+
 
 if __name__ == '__main__':
     try:
@@ -105,7 +115,7 @@ if __name__ == '__main__':
 
         alex_bot = AlexBot()
         notify_work_instance.set_group(alex_bot.group)
-        
+
         schedule.every(5).to(10).minutes.do(alex_bot.keep_alive)
         alex_bot.schedule_of_weekdays()
         # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
@@ -119,7 +129,7 @@ if __name__ == '__main__':
         @alex_bot.bot.register(alex_bot.group, TEXT)
         def iOS_router(msg):
             # 打印消息
-            print("puid = %s" % msg.member.puid)  #puid
+            print("puid = %s" % msg.member.puid)  # puid
             if msg.is_at:
                 alex_bot.tuling.do_reply(msg)
             else:
@@ -131,6 +141,7 @@ if __name__ == '__main__':
         #     if msg.is_at:
         #         alex_bot.tuling.do_reply(msg)
 
+        alex_bot.group.send('我是小赖同学，您的霸霸，为您服务')
         while True:
             schedule.run_pending()
             time.sleep(1)

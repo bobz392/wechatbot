@@ -1,4 +1,4 @@
-#coding=utf-8
+# coding=utf-8
 
 from urlparse import urlparse, parse_qs
 from datetime import datetime
@@ -7,13 +7,15 @@ from model import User, Message, Report
 from mail import DailyMail, WeeklyMail
 from chandao import Chandao
 from check_in import CheckIn
-from week_report import WeekReporter
+# from week_report import WeekReporter
 from meizi import BeautyFucker
 from notify_work import notify_work_instance
 
+
 def parse_query_2_dict(query):
-    return dict((k.lower(), v if len(v) > 1 else v[0]) \
-            for k, v in parse_qs(query).iteritems())
+    return dict((k.lower(), v if len(v) > 1 else v[0])
+                for k, v in parse_qs(query).iteritems())
+
 
 class Command(object):
     """命令辅助 class
@@ -108,11 +110,11 @@ class Command(object):
         if not self.commands.has_key(command):
             return HelpCommand()()
         message = None
-        print('command = %s, path = %s, query = %s' \
-            % (command, parse.path, parse.query))
+        print('command = %s, path = %s, query = %s'
+              % (command, parse.path, parse.query))
 
-        class_name = self.to_str(command[1:2].upper() \
-            + command[2:] + 'Command')
+        class_name = self.to_str(command[1:2].upper()
+                                 + command[2:] + 'Command')
         command_class = self.command_class(class_name)
         command_class_object = command_class()
         # print(type(class_object))
@@ -121,6 +123,7 @@ class Command(object):
         message = command_class_object(parse, sender, allow_group)
 
         return message
+
 
 class UserCommand(object):
     """
@@ -182,7 +185,8 @@ Example:
             return User.set_slience_mode(is_slience, allow_group)
         if path == '/meizi':
             bf = BeautyFucker()
-            return bf.prepare_page()
+            # return bf.prepare_page()
+            return bf.get_b_fun_image()
         if path == '/notify-delete':
             return notify_work_instance.remove_notify(sender)
         if path == '/notify':
@@ -212,13 +216,14 @@ Example:
         """
         if not update_dict:
             return u'瞎更你mb'
-        
-        return User.create_user(sender, \
-                    update_dict.get('email', None), \
-                    update_dict.get('password', None), \
-                    update_dict.get('realname', None), \
-                    update_dict.get('group', None), \
-                    update_dict.get('tel', None))
+
+        return User.create_user(sender,
+                                update_dict.get('email', None),
+                                update_dict.get('password', None),
+                                update_dict.get('realname', None),
+                                update_dict.get('group', None),
+                                update_dict.get('tel', None))
+
 
 class NoteCommand(object):
     """
@@ -246,7 +251,7 @@ Example:
 
     def __call__(self, router_parse, sender, allow_group):
         """ 日志相关的逻辑
-        
+
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的站报指令
@@ -283,6 +288,7 @@ Example:
                 msg = u'%s：删除日志失败' % sender
 
         return msg if msg else NoteCommand.helper_info()
+
 
 class ChandaoCommand(object):
     """
@@ -329,12 +335,13 @@ Example:
         if path == '/update':
             # return u'/update %s, query = %s' % (sender, query)
             qs = parse_query_2_dict(query)
-            return User.update_chandao(sender, \
-                        chandao_name=qs.get('name', None), \
-                        password=qs.get('password', None), \
-                        object_id=qs.get('oid', None))
+            return User.update_chandao(sender,
+                                       chandao_name=qs.get('name', None),
+                                       password=qs.get('password', None),
+                                       object_id=qs.get('oid', None))
 
         return ChandaoCommand.helper_info()
+
 
 class CheckinCommand(object):
     """
@@ -350,16 +357,17 @@ class CheckinCommand(object):
 
     def __call__(self, router_parse, sender, allow_group):
         """打卡信息
-        
+
         Arguments:
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送打卡指令
         """
         if allow_group and not User.check_user_group_id(sender, allow_group):
             return u'恭喜您没有权限。哈哈哈哈。'
-            
+
         checkin = CheckIn()
         return checkin.check_all_user(allow_group)
+
 
 class SendmailCommand(object):
     """
@@ -377,6 +385,7 @@ Example:
     -sendmail?chandao=[1|0]&empty=[$empty] （## chaodao = 1 会发送禅道，这个参数可以省略 1 也是默认值。空记录会被设置为 empty 指定的内容）
     -sendmail/check （## 检查今日日志更新情况）
 '''
+
     @classmethod
     def sendmail(cls, default_note, allow_group):
         daily_mail = DailyMail()
@@ -387,10 +396,10 @@ Example:
         if now.weekday() == 4:
             return None
         if mail_sender:
-            return daily_mail.build_daily_report_html(notes, \
-                        sender=mail_sender.email, \
-                        pwd=mail_sender.password, \
-                        empty_holder=default_note)
+            return daily_mail.build_daily_report_html(notes,
+                                                      sender=mail_sender.email,
+                                                      pwd=mail_sender.password,
+                                                      empty_holder=default_note)
         # 如果没有设置发送者
         return u'当前还未设置邮件发送者，邮件发送失败'
 
@@ -447,7 +456,7 @@ class WeeklyCommand(object):
 
     @classmethod
     def helper_info(cls):
-        return  u'''周报相关（计算相对复杂，目前开发阶段未启用多线程，请一个一个运行，发送前请务必确认）
+        return u'''周报相关（计算相对复杂，目前开发阶段未启用多线程，请一个一个运行，发送前请务必确认）
 
 Example：
     -weekly/create?todo&title&desc=[$] （##  用户周报构建，todo 为下周的任务，多个任务务必以中文逗号分隔，有默认值【继续完成下周任务】，title和desc分别为项目名和内容描述）
@@ -465,43 +474,44 @@ Example：
             router_parse {urlparse} -- url parse 解析出来的 router
             sender {string} -- 由谁发出的发送邮件指令
         """
-        if allow_group == '1' and not User.check_user_group_id(sender, allow_group):
-            return u'恭喜您没有权限。哈哈哈哈。'
+        # if allow_group == '1' and not User.check_user_group_id(sender, allow_group):
+        return u'恭喜您没有权限。哈哈哈哈。'
 
-        path = router_parse.path
-        query = router_parse.query
-        query_dict = parse_query_2_dict(query)
-        msg = None
-        if path == '/create':
-            report = WeekReporter(name=sender, \
-                next_week=query_dict.get('todo', u'继续完成相应需求'), \
-                title=query_dict.get('title'), \
-                desc=query_dict.get('desc'))
-            msg = report.create_report()
-        else:
-            w_pr = Report.query_weekly_report(sender)
-            if not w_pr:
-                return u'%s：本周周报还未创建' % sender
-            elif path == '/review':
-                report_fix = w_pr.fix_report if w_pr.fix_report \
-                    else w_pr.origin_report
-                msg = u'周报标题：%s、描述：%s。\n%s\n下周任务：%s' \
-                    % (w_pr.project_title, w_pr.description, \
-                        report_fix, w_pr.next_week_todo)
-            elif path == '/check':
-                w_pr.report_checked()
-                msg = u'%s：可以发送周报啦' % sender
-            elif path == '/send':
-                if w_pr.checked:
-                    w_mail = WeeklyMail()
-                    msg = w_mail.build_weekly_report_html(sender)
-                else:
-                    msg = u'%s：请确认周报无误后再发送' % sender
-            elif path == '/update':
-                msg = w_pr.update_report(done=query_dict.get('done'), \
-                    todo=query_dict.get('todo'), title=query_dict.get('title'), \
-                    desc=query_dict.get('desc'))
-        return msg if msg else WeeklyCommand.helper_info()
+        # path = router_parse.path
+        # query = router_parse.query
+        # query_dict = parse_query_2_dict(query)
+        # msg = None
+        # if path == '/create':
+        #     report = WeekReporter(name=sender, \
+        #         next_week=query_dict.get('todo', u'继续完成相应需求'), \
+        #         title=query_dict.get('title'), \
+        #         desc=query_dict.get('desc'))
+        #     msg = report.create_report()
+        # else:
+        #     w_pr = Report.query_weekly_report(sender)
+        #     if not w_pr:
+        #         return u'%s：本周周报还未创建' % sender
+        #     elif path == '/review':
+        #         report_fix = w_pr.fix_report if w_pr.fix_report \
+        #             else w_pr.origin_report
+        #         msg = u'周报标题：%s、描述：%s。\n%s\n下周任务：%s' \
+        #             % (w_pr.project_title, w_pr.description, \
+        #                 report_fix, w_pr.next_week_todo)
+        #     elif path == '/check':
+        #         w_pr.report_checked()
+        #         msg = u'%s：可以发送周报啦' % sender
+        #     elif path == '/send':
+        #         if w_pr.checked:
+        #             w_mail = WeeklyMail()
+        #             msg = w_mail.build_weekly_report_html(sender)
+        #         else:
+        #             msg = u'%s：请确认周报无误后再发送' % sender
+        #     elif path == '/update':
+        #         msg = w_pr.update_report(done=query_dict.get('done'), \
+        #             todo=query_dict.get('todo'), title=query_dict.get('title'), \
+        #             desc=query_dict.get('desc'))
+        # return msg if msg else WeeklyCommand.helper_info()
+
 
 class HelpCommand(object):
 

@@ -7,7 +7,24 @@ import time
 class Kr:
     def __init__(self):
         self.dr = webdriver.Chrome()
+        
         self.dr.get('http://36kr.com/')
+        self.dr.add_cookie(cookie_dict={'name': 'new_user_guidance', 'value': True})#, 'domain': '.36kr.com', 'path': '/', 'secure': False})
+        # time.sleep(1.5)
+        self.dr.refresh()
+        # self.dr.get('http://36kr.com/')
+
+        # cookie = self.dr.get_cookies()
+        # self.skip_guide()
+
+    def skip_guide(self):
+        # xpath_next = "/html/body/div[@class='kr-portal']/div/div[@class='page-first-wrapper']/div[@class='page-first-content']/div[@class='next']/span"
+        # span_next = self.dr.find_element_by_xpath(xpath_next)
+        # print(span_next)
+        # span_next.click()
+        self.dr.find_element_by_class_name('next').click()
+        # print(guide_div)
+
 
     def loadData(self):
         feed_ul = self.dr.find_element_by_class_name('feed_ul')
