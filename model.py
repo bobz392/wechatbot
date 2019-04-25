@@ -1,5 +1,5 @@
 #! /usr/bin/env python2.7
-#coding=utf-8
+# coding=utf-8
 
 from sqlalchemy import Column, String, ForeignKey,\
     DateTime, Integer, BigInteger, Boolean, Text
@@ -14,16 +14,19 @@ engine = create_engine('sqlite:///shit-email.sqlite', echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
 class DBError(RuntimeError):
     def __init__(self, arg):
         self.args = arg
+
 
 def first_date_of_week():
     now = datetime.now()
     weekday_of_today = now.weekday()
     first_day = now - timedelta(days=weekday_of_today)
-    return datetime(first_day.year, first_day.month, first_day.day, \
-                hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+    return datetime(first_day.year, first_day.month, first_day.day,
+                    hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+
 
 class User(Base):
 
@@ -51,7 +54,7 @@ class User(Base):
     @staticmethod
     def all_users(allow_group, sess=session):
         return sess.query(User)\
-                .filter(User.group == allow_group).all()
+            .filter(User.group == allow_group).all()
 
     @staticmethod
     def query_user(name):
@@ -61,7 +64,7 @@ class User(Base):
     def query_user_group(name):
         group_id = User.query_user_group_id(name)
         msg = None
-        if group_id :
+        if group_id:
             group = Group.query_group_name(group_id)
             if group:
                 msg = u'用户:%s，分组（id = %s）为%s。' \
@@ -75,17 +78,17 @@ class User(Base):
     @staticmethod
     def query_user_group_id(name):
         """查询当前用户的 group id
-        
+
         Arguments:
             name {string} --  用户名
-        
+
         Returns:
              string --  当前的用户 group id 没有返回 none
         """
         user = User.query_user(name)
         if user:
             return user.group
-    
+
         return None
 
     @staticmethod
@@ -96,7 +99,7 @@ class User(Base):
             session.commit()
             return u'%s：设置飞行模式成功，当前 %s' % \
                 (name, u'开启' if mode else u'关闭')
-            
+
         return u'%s：设置勿扰模式失败'
 
     @staticmethod
@@ -114,11 +117,11 @@ class User(Base):
     @staticmethod
     def update_user_group_id(name, group_id):
         """更新用户的 group 
-        
+
         Arguments:
             name {string} -- 用户名
             group_id {string} -- 用户的 group id
-        
+
         Returns:
             string -- 返回的消息
         """
@@ -127,7 +130,7 @@ class User(Base):
         if user and group:
             user.group = group_id
             session.commit()
-            return  u'用户：%s 分组更新为 id = %s' \
+            return u'用户：%s 分组更新为 id = %s' \
                 % (name, group_id)
 
         return u'用户：%s 不存在或者分组 id = %s 不存在。' \
@@ -149,15 +152,15 @@ class User(Base):
     @staticmethod
     def update_chandao(name, chandao_name=None, password=None, object_id=None):
         """更新禅道的相关信息
-        
+
         Arguments:
             name {string} -- 用户名
-        
+
         Keyword Arguments:
             chandao_name {string} -- 禅道的用户名 (default: {None})
             password {string} -- 禅道的密码 (default: {None})
             object_id {string} -- 禅道的 object id，通过web页面去获取 (default: {None})
-        
+
         Returns:
             string -- 返回更新的结果
         """
@@ -177,7 +180,7 @@ class User(Base):
         return msg
 
     @staticmethod
-    def create_user(name, email=None, password=None, \
+    def create_user(name, email=None, password=None,
                     realname=None, group=None, tel=None):
         """创建一个 user 如果必要的话，如果当前 user 已经存在，那么会更新不为空的信息。
 
@@ -211,8 +214,8 @@ class User(Base):
                 emailnames = email.split('@')
                 emailname = emailnames[0] if len(emailnames) >= 1 else email
                 realname = realname if realname is not None else emailname
-                user = User(name=name, email=email, \
-                    password=password, realname=realname)
+                user = User(name=name, email=email,
+                            password=password, realname=realname)
                 user.group = group
                 user.phone_number = tel
                 user.airplane_mode = False
@@ -265,7 +268,8 @@ class User(Base):
         """
         maybe_sender = User.query_user(name)
         if maybe_sender:
-            current_sender = session.query(User).filter(User.sender == True).first()
+            current_sender = session.query(User).filter(
+                User.sender == True).first()
             msg = u''
             if current_sender:
                 if current_sender.name == maybe_sender.name:
@@ -289,7 +293,7 @@ class User(Base):
     @staticmethod
     def show_sender():
         """ 查询当前的邮件发送者是谁
-        
+
         Returns:
             {string} -- 返回发送者的名字信息
         """
@@ -323,7 +327,7 @@ class User(Base):
             group = Group.query_group_name(user.group)
             if group:
                 group_info = u'分组为(id=%s-%s)，' % \
-                            (user.group, group.group_name)
+                    (user.group, group.group_name)
             else:
                 group_info = u''
         else:
@@ -350,7 +354,7 @@ class User(Base):
 
     def __str__(self):
         return '%s(%s)' % (self.name, self.email)
-        
+
 
 class Message(Base):
 
@@ -374,18 +378,18 @@ class Message(Base):
     @staticmethod
     def update_message(id, sender, message):
         """创建或者更新一条记录
-        
+
         Arguments:
             id {string} -- 如果需要更新的话会指定一个记录的 id，创建则不传递这个字段
             sender {string} -- 发送者的名字
             message {string} -- 一条记录的内容
-        
+
         Returns:
             [string] -- 创建或者更新的结果文字
         """
         m = session.query(Message) \
-                .filter(and_(Message.sender == sender, Message.id == id)) \
-                .first()
+            .filter(and_(Message.sender == sender, Message.id == id)) \
+            .first()
         if m is None:
             return u'id = %s 的记录不存在' % id
         else:
@@ -403,15 +407,14 @@ class Message(Base):
             sender {[type]} -- 确保删除的消息是自己的
         """
         msg = session.query(Message) \
-                .filter(and_(Message.sender == sender, Message.id == msg_id)) \
-                .first()
+            .filter(and_(Message.sender == sender, Message.id == msg_id)) \
+            .first()
         if msg is None:
             return u'id = %s 的记录不存在' % msg_id
         else:
             session.delete(msg)
             session.commit()
             return u'id = %s 的消息删除成功' % msg_id
-            
 
     @staticmethod
     def query_today_message(sender):
@@ -422,16 +425,16 @@ class Message(Base):
             sender {string} -- 查询日志的用户名
         """
         now = datetime.now()
-        today = datetime(now.year, now.month, now.day, \
-                hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+        today = datetime(now.year, now.month, now.day,
+                         hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
         return session.query(Message) \
-                .filter(and_(Message.sender == sender, Message.date_create > today))
+            .filter(and_(Message.sender == sender, Message.date_create > today))
 
     @staticmethod
     def check_today_message(allow_group):
         """
         检查当前所有用户的日志情况
-        """ 
+        """
         msg = u''
         for user in User.all_users(allow_group):
             msg += u'%s' % user.name
@@ -464,7 +467,7 @@ class Message(Base):
         """
         first_day_of_week = first_date_of_week()
         return session.query(Message) \
-                .filter(and_(Message.sender == sender, Message.date_create > first_day_of_week))
+            .filter(and_(Message.sender == sender, Message.date_create > first_day_of_week))
 
     @staticmethod
     def week_messages(sender):
@@ -489,7 +492,8 @@ class Message(Base):
         for m in Message.query_today_message(sender):
             s += 'id=%s, content=%s\n' % (m.id, m.message)
 
-        return  u'今日无%s的记录' % sender if len(s) <= 0 else s
+        return u'今日无%s的记录' % sender if len(s) <= 0 else s
+
 
 class Report(Base):
     """
@@ -497,7 +501,8 @@ class Report(Base):
     """
     __tablename__ = 'weekly_report'
 
-    report_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
+    report_id = Column(BigInteger().with_variant(
+        Integer, "sqlite"), primary_key=True)
     reporter = Column(String(50), ForeignKey('user.name'))
 
     origin_report = Column(Text, default=None)
@@ -514,8 +519,8 @@ class Report(Base):
     description = Column(String(40), default=None)
 
     @staticmethod
-    def create_report(reporter, origin_report, todo, \
-        project_title=None, description=None):
+    def create_report(reporter, origin_report, todo,
+                      project_title=None, description=None):
         """
         创建一个指定用户的原始周报。
 
@@ -536,8 +541,8 @@ class Report(Base):
 
         if Report.query_weekly_report(reporter):
             raise DBError('report')
-        report = Report(reporter=reporter, origin_report=origin_report, \
-            next_week_todo=todo, project_title=title, description=desc)
+        report = Report(reporter=reporter, origin_report=origin_report,
+                        next_week_todo=todo, project_title=title, description=desc)
         session.add(report)
         session.commit()
         if report in session:
@@ -558,9 +563,9 @@ class Report(Base):
         """
         first_day_of_week = first_date_of_week()
         return session.query(Report) \
-                .filter(and_(Report.reporter == reporter, \
-                    Report.start_date >= first_day_of_week)) \
-                .first()
+            .filter(and_(Report.reporter == reporter,
+                         Report.start_date >= first_day_of_week)) \
+            .first()
 
     @staticmethod
     def week_date_duration():
@@ -581,8 +586,8 @@ class Report(Base):
             self.fix_report = self.origin_report
         session.commit()
 
-    def update_report(self, done=None, \
-                todo=None, title=None, desc=None):
+    def update_report(self, done=None,
+                      todo=None, title=None, desc=None):
         """
         更新本周的周报
 
@@ -613,7 +618,8 @@ class Group(Base):
     """
     __tablename__ = 'group'
 
-    group_id = Column(BigInteger().with_variant(Integer, "sqlite"), primary_key=True)
+    group_id = Column(BigInteger().with_variant(
+        Integer, "sqlite"), primary_key=True)
     group_name = Column(String(50))
 
     @staticmethod
@@ -627,8 +633,8 @@ class Group(Base):
             [Group] -- 查询到的分组模型或者 None
         """
         return session.query(Group) \
-                .filter(Group.group_id == gid)\
-                .first()
+            .filter(Group.group_id == gid)\
+            .first()
 
 
 Base.metadata.create_all(engine)

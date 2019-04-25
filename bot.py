@@ -12,6 +12,7 @@ from check_in import CheckIn
 from notify_work import notify_work_instance
 import os
 import datetime
+import chat
 
 
 class AlexBot(object):
@@ -32,6 +33,7 @@ class AlexBot(object):
         self.group.update_group(True)
         self.checkin = CheckIn()
         self.tuling = Tuling('02518a2c4b004145bdea82ae0440d715')
+        self.tengxun = chat.TencentChat()
         self.xiaobing = ensure_one(self.bot.mps().search(u'小冰'))
         self.friend_keeplive = \
             ensure_one(self.bot.friends().search(u'阿力木'))
@@ -142,7 +144,7 @@ if __name__ == '__main__':
         def transfer(msg):
             alex_bot.admin.send(msg)
 
-        @alex_bot.bot.register(alex_bot.xiaobing, TEXT)
+        @alex_bot.bot.register(alex_bot.xiaobing, [TEXT, PICTURE])
         def transfer_xiaobing(msg):
             print('recive xiaobing reply' + msg.text)
             alex_bot.group.send(msg)
@@ -152,12 +154,15 @@ if __name__ == '__main__':
             # 打印消息
             print("puid = %s" % msg.member.puid)  # puid
             if msg.is_at:
-                remove_at_msg = msg.text.replace(u'@Alex', u'')
-                if Command.use_xiaobing:
-                    print('send to xiaobing' + remove_at_msg)
+                remove_at_msg = msg.text.replace(u'@ALEX ', u'')
+                if Command.use_chat_type == 0:
+                    print('send to xiaobing ' + remove_at_msg)
                     alex_bot.xiaobing.send(remove_at_msg)
-                else:
+                elif Command.use_chat_type == 1:
                     alex_bot.tuling.do_reply(msg)
+                elif Command.use_chat_type == 2:
+                    tx_reply = alex_bot.tengxun.request(remove_at_msg)
+                    alex_bot.group.send(tx_reply)
             else:
                 return alex_bot.resolve_command(msg.text, msg.member, '1')
 
