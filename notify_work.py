@@ -1,8 +1,9 @@
 #! /usr/bin/env python2.7
-#coding=utf-8
+# coding=utf-8
 
 import schedule
 from datetime import datetime
+
 
 class NotifyWork (object):
 
@@ -19,7 +20,7 @@ class NotifyWork (object):
         print('worked')
         if self.notify_group:
             do_things = do_things.replace(u'=at=', u'@')
-            notify_content = u'@%s %s' % (by_who, do_things) 
+            notify_content = u'%s' % (do_things)
             self.notify_group.send(notify_content)
 
     def can_notify(self, by_who):
@@ -36,7 +37,7 @@ class NotifyWork (object):
         try:
             date_time = datetime.strptime(time, '%H:%M')
             print(date_time)
-            return date_time    
+            return date_time
         except ValueError as excp:
             print('error')
             return None
@@ -50,6 +51,7 @@ class NotifyWork (object):
             return u'%s 已设置 %s 的提醒，还有 %s 这么长时间。' % (by_who, time, offset)
 
         return u'@%s 你傻不傻' % by_who
+
 
 notify_work_instance = NotifyWork()
 

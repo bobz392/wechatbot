@@ -11,7 +11,7 @@
         "**/beauty": true,
     },
     "python.pythonPath": "/usr/bin/python",
-    "python.linting.pylintEnabled": true,
+    "python.linting.pylintEnabled": false,
     "python.formatting.provider": "autopep8",
     "editor.formatOnSave": true,
 }

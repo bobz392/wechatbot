@@ -1,46 +1,65 @@
 #! /usr/bin/env python2.7
-#coding=utf-8
+# coding=utf-8
 
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 import time
+
 
 class Kr:
     def __init__(self):
+        print('init')
+        # chrome_options.add_argument("user-data-dir=selenium")
         self.dr = webdriver.Chrome()
-        
+        print(self.dr)
         self.dr.get('http://36kr.com/')
-        self.dr.add_cookie(cookie_dict={'name': 'new_user_guidance', 'value': True})#, 'domain': '.36kr.com', 'path': '/', 'secure': False})
-        # time.sleep(1.5)
-        self.dr.refresh()
+
         # self.dr.get('http://36kr.com/')
 
         # cookie = self.dr.get_cookies()
-        # self.skip_guide()
+        # print(cookie)
+
+        # self.dr.add_cookie(
+        #     cookie_dict={'name': 'new_user_guidance', 'value': True,
+        #                  'domain': '.36kr.com', 'path': '/'})
+
+        # time.sleep(1.5)
+        # self.dr.refresh()
+        WebDriverWait(self.dr, 15)
+        self.skip_guide()
 
     def skip_guide(self):
-        # xpath_next = "/html/body/div[@class='kr-portal']/div/div[@class='page-first-wrapper']/div[@class='page-first-content']/div[@class='next']/span"
-        # span_next = self.dr.find_element_by_xpath(xpath_next)
-        # print(span_next)
-        # span_next.click()
-        self.dr.find_element_by_class_name('next').click()
-        # print(guide_div)
+        xpath_next = "/html/body/div[@class='kr-portal']/div/div[@class='page-first-wrapper']/div[@class='page-first-content']/div[@class='next']/span"
+        span_next = self.dr.find_element_by_xpath(xpath_next)
+        span_next.click()
 
+        xpath_close = "/html/body/div[@class='kr-portal']/div/div[@class='page-second-wrapper']/div[@class='page-second-content']/div[@class='close']/span"
+        span_close = self.dr.find_element_by_xpath(xpath_close)
+        span_close.click()
+        print('close guide')
 
     def loadData(self):
-        feed_ul = self.dr.find_element_by_class_name('feed_ul')
+        print('start load data')
+        feed_ul = self.dr.find_element_by_class_name('kr-home-flow-list')
         msg = u''
         i = 1
         add_count = 0
-        while  i <= 30 and add_count < 10:
+        while i <= 30 and add_count < 10:
             try:
-                xpath_head = "/html/body/div[@id='app']/div/div[@class='index_36kr']/div[@class='pagewrap']/div[@class='mainlib_flex_wapper']/div[@class=' mainlib']/div[@class='center_content']/div[@class='content-wrapper']/div[@class='list_con']/div[2]/div/div/div[@class='kr_article_list']/div/ul[@class='feed_ul']/li[" + str(i) + "]/div[@class='am-cf inner_li']/a/div[@class='intro']/h3"
-                xpath_detail = "/html/body/div[@id='app']/div/div[@class='index_36kr']/div[@class='pagewrap']/div[@class='mainlib_flex_wapper']/div[@class=' mainlib']/div[@class='center_content']/div[@class='content-wrapper']/div[@class='list_con']/div[2]/div/div/div[@class='kr_article_list']/div/ul[@class='feed_ul']/li[" + str(i) + "]/div[@class='am-cf inner_li']/a/div[@class='intro']/div[@class='abstract']"
-                xpath_href = "/html/body/div[@id='app']/div/div[@class='index_36kr']/div[@class='pagewrap']/div[@class='mainlib_flex_wapper']/div[@class=' mainlib']/div[@class='center_content']/div[@class='content-wrapper']/div[@class='list_con']/div[2]/div/div/div[@class='kr_article_list']/div/ul[@class='feed_ul']/li[" + str(i) + "]/div[@class='am-cf inner_li']/a"
+                xpath_head = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-home']/div[@class='kr-home-main clearfloat']/div[@class='kr-home-flow']/div[@class='kr-home-flow-list']/div[@class='kr-home-flow-item'][" + str(
+                    i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/div[@class='article-item-info clearfloat']/p[@class='feed-title-wrapper ellipsis-2']/a[@class='article-item-title weight-bold']"
+
+                xpath_detail = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-home']/div[@class='kr-home-main clearfloat']/div[@class='kr-home-flow']/div[@class='kr-home-flow-list']/div[@class='kr-home-flow-item'][ " + str(
+                    + i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/div[@class='article-item-info clearfloat']/a[@class='article-item-description ellipsis-2']"
+
+                xpath_href = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-home']/div[@class='kr-home-main clearfloat']/div[@class='kr-home-flow']/div[@class='kr-home-flow-list']/div[@class='kr-home-flow-item'][" + str(
+                    i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/a[@class='article-item-pic']"
+
                 # xpath_img  = "//li[" + str(i) + "]/div[@class='am-cf inner_li inner_li_abtest']/a/div[@class='img_box']/div/img"
 # "//li[" + str(i) + "]/div[@class='am-cf inner_li inner_li_abtest']/a/div[@class='img_box']/div"
-                head  = feed_ul.find_element_by_xpath(xpath_head)
+                head = feed_ul.find_element_by_xpath(xpath_head)
                 title = head.text
-                detail  = feed_ul.find_element_by_xpath(xpath_detail)
+                detail = feed_ul.find_element_by_xpath(xpath_detail)
 
                 href = feed_ul.find_element_by_xpath(xpath_href)
                 href_link = href.get_attribute('href')

@@ -10,6 +10,8 @@ from command import Command
 from wxpy import Tuling
 from check_in import CheckIn
 from notify_work import notify_work_instance
+import os
+import datetime
 
 
 class AlexBot(object):
@@ -30,9 +32,13 @@ class AlexBot(object):
         self.group.update_group(True)
         self.checkin = CheckIn()
         self.tuling = Tuling('02518a2c4b004145bdea82ae0440d715')
+        self.xiaobing = ensure_one(self.bot.mps().search(u'小冰'))
         self.friend_keeplive = \
             ensure_one(self.bot.friends().search(u'阿力木'))
         self.admin = ensure_one(self.bot.friends().search(u'M_zhou'))
+
+        group_ml_name = u'ML集训营1期VIP-周博'
+        self.group_ml = ensure_one(self.bot.groups().search(group_ml_name))
 
     def keep_alive(self):
         self.friend_keeplive.send('i am alive')
@@ -57,9 +63,6 @@ class AlexBot(object):
             self.group.send(msg)
 
     def write_image2file(self, data):
-        import os
-        import datetime
-
         file_path = os.getcwd() + '/beauty/'
         file_name = file_path + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s.png")
         if os.path.exists(file_path) is False:
@@ -88,9 +91,18 @@ class AlexBot(object):
         Returns:
             [string, None] -- 当解析成功的时候返回 string 否者返回 none
         """
-        if sender.name == 'M_zhou' and text == u'-36kr':
-            print('load 36kr data')
-            return alex_bot.load_kr_data()
+        if sender.name == u'M_zhou' and text == u'-36kr':
+            return self.load_kr_data()
+        if text == u'-user/boy':
+            print(text, sender.name)
+            file_path = os.getcwd() + '/beauty/'
+            if sender.name == u'M_zhou':
+                print(self.group.send_image(file_path + 'boy1.png'))
+            else:
+                print(self.group.send_image(file_path + 'boy2.png'))
+
+            print('load boy finish')
+            return None
 
         print('parpre to solove text = %s, sender = %s' % (text, sender.name))
         if self.command.vaild(text):
@@ -126,12 +138,26 @@ if __name__ == '__main__':
                 transfer_msg = msg.text.replace(u'-t', u'')
                 alex_bot.group.send(transfer_msg)
 
+        @alex_bot.bot.register(alex_bot.group_ml, TEXT)
+        def transfer(msg):
+            alex_bot.admin.send(msg)
+
+        @alex_bot.bot.register(alex_bot.xiaobing, TEXT)
+        def transfer_xiaobing(msg):
+            print('recive xiaobing reply' + msg.text)
+            alex_bot.group.send(msg)
+
         @alex_bot.bot.register(alex_bot.group, TEXT)
         def iOS_router(msg):
             # 打印消息
             print("puid = %s" % msg.member.puid)  # puid
             if msg.is_at:
-                alex_bot.tuling.do_reply(msg)
+                remove_at_msg = msg.text.replace(u'@Alex', u'')
+                if Command.use_xiaobing:
+                    print('send to xiaobing' + remove_at_msg)
+                    alex_bot.xiaobing.send(remove_at_msg)
+                else:
+                    alex_bot.tuling.do_reply(msg)
             else:
                 return alex_bot.resolve_command(msg.text, msg.member, '1')
 
@@ -141,7 +167,7 @@ if __name__ == '__main__':
         #     if msg.is_at:
         #         alex_bot.tuling.do_reply(msg)
 
-        alex_bot.group.send('我是小赖同学，您的霸霸，为您服务')
+        # alex_bot.group.send('我是小赖同学，您的霸霸，为您服务')
         while True:
             schedule.run_pending()
             time.sleep(1)

@@ -22,6 +22,7 @@ class Command(object):
     Arguments:
         object {[object]} -- [description]
     """
+    use_xiaobing = True
 
     def __init__(self):
         """ 初始化当前可以使用的所有 commands
@@ -192,6 +193,20 @@ Example:
         if path == '/notify':
             open_dict = parse_query_2_dict(query)
             return notify_work_instance.notify_me_at(open_dict['at'], sender, open_dict['do'])
+        if path == '/xiaobing':
+            if Command.use_xiaobing == False:
+                print('xiaobing')
+                Command.use_xiaobing = True
+                return u'我是犯病病，您的小冰'
+            print('in xiaobing')
+            return None
+        if path == '/tuling':
+            if Command.use_xiaobing:
+                print('tuling')
+                Command.use_xiaobing = False
+                return u'我似小赖同学，侬的霸霸，干哈'
+            print('in tuling')
+            return None
 
         return UserCommand.helper_info()
 
