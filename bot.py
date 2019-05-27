@@ -1,8 +1,9 @@
 #! /usr/bin/env python2.7
 # coding=utf-8
 
-from wxpy import *
+import chat
 import schedule
+from wxpy import *
 import time
 import signal
 from kr36 import Kr
@@ -13,6 +14,7 @@ from notify_work import notify_work_instance
 import os
 import datetime
 import chat
+import random
 
 
 class AlexBot(object):
@@ -39,7 +41,7 @@ class AlexBot(object):
             ensure_one(self.bot.friends().search(u'阿力木'))
         self.admin = ensure_one(self.bot.friends().search(u'M_zhou'))
 
-        group_ml_name = u'ML集训营1期VIP-周博'
+        group_ml_name = u'ML集训营1期VIP-NLP-周博'
         self.group_ml = ensure_one(self.bot.groups().search(group_ml_name))
 
     def keep_alive(self):
@@ -47,10 +49,14 @@ class AlexBot(object):
 
     def hour_notify(self):
         from datetime import datetime
-        week_day = datetime.today().weekday()
+        today = datetime.today()
+        week_day = today.weekday()
         if week_day != 6 and week_day != 5:
             self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' %
                             datetime.now().strftime("%H"))
+        if today.hour == 18:
+            file_path = os.getcwd() + '/beauty/'
+            self.group.send_image(file_path + 'work.jpg')
 
     def notify_iOS_checkin(self):
         print('检查 iOS 打卡信息！！！！！')
@@ -153,7 +159,8 @@ if __name__ == '__main__':
         def iOS_router(msg):
             # 打印消息
             print("puid = %s" % msg.member.puid)  # puid
-            if msg.is_at:
+            prosbolity = random.randint(0, 100)
+            if msg.is_at or prosbolity < 10:
                 remove_at_msg = msg.text.replace(u'@ALEX ', u'')
                 if Command.use_chat_type == 0:
                     print('send to xiaobing ' + remove_at_msg)
