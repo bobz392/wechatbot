@@ -54,7 +54,7 @@ class AlexBot(object):
         if week_day != 6 and week_day != 5:
             self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' %
                             datetime.now().strftime("%H"))
-        if today.hour == 18:
+        if today.hour >= 18:
             file_path = os.getcwd() + '/beauty/'
             self.group.send_image(file_path + 'work.jpg')
 
