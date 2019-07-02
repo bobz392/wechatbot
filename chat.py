@@ -21,7 +21,7 @@ class TencentChat(object):
         self.apiplat.data.clear()
         str_text = text.encode('UTF-8')
         print('request ' + str_text)
-        _type = 0
+        _type = 1
         rsp = self.apiplat.getNlpTextTrans(str_text, _type)
         if rsp['ret'] == 0:
             print json.dumps(rsp, encoding="UTF-8",

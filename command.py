@@ -22,7 +22,7 @@ class Command(object):
     Arguments:
         object {[object]} -- [description]
     """
-    use_chat_type = 0
+    use_chat_type = 1
 
     def __init__(self):
         """ 初始化当前可以使用的所有 commands

@@ -29,20 +29,20 @@ class AlexBot(object):
 
         print(self.bot.groups())
 
-        group_name = 'notify_group'
-        # group_name = 'test'
+        # group_name = 'notify_group'
+        group_name = 'test'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
         self.checkin = CheckIn()
         self.tuling = Tuling('02518a2c4b004145bdea82ae0440d715')
         self.tengxun = chat.TencentChat()
-        self.xiaobing = ensure_one(self.bot.mps().search(u'小冰'))
+        # self.xiaobing = ensure_one(self.bot.mps().search(u'小冰'))
         self.friend_keeplive = \
             ensure_one(self.bot.friends().search(u'阿力木'))
         self.admin = ensure_one(self.bot.friends().search(u'M_zhou'))
 
-        group_ml_name = u'ML集训营1期VIP-NLP-周博'
-        self.group_ml = ensure_one(self.bot.groups().search(group_ml_name))
+        # group_ml_name = u'ML集训营1期VIP-NLP-周博'
+        # self.group_ml = ensure_one(self.bot.groups().search(group_ml_name))
 
     def keep_alive(self):
         self.friend_keeplive.send('i am alive')
@@ -146,14 +146,14 @@ if __name__ == '__main__':
                 transfer_msg = msg.text.replace(u'-t', u'')
                 alex_bot.group.send(transfer_msg)
 
-        @alex_bot.bot.register(alex_bot.group_ml, TEXT)
-        def transfer(msg):
-            alex_bot.admin.send(msg)
+        # @alex_bot.bot.register(alex_bot.group_ml, TEXT)
+        # def transfer(msg):
+        #     alex_bot.admin.send(msg)
 
-        @alex_bot.bot.register(alex_bot.xiaobing, [TEXT, PICTURE])
-        def transfer_xiaobing(msg):
-            print('recive xiaobing reply' + msg.text)
-            alex_bot.group.send(msg)
+        # @alex_bot.bot.register(alex_bot.xiaobing, [TEXT, PICTURE])
+        # def transfer_xiaobing(msg):
+        #     print('recive xiaobing reply' + msg.text)
+        #     alex_bot.group.send(msg)
 
         @alex_bot.bot.register(alex_bot.group, TEXT)
         def iOS_router(msg):
@@ -162,10 +162,12 @@ if __name__ == '__main__':
             prosbolity = random.randint(0, 100)
             if msg.is_at or prosbolity < 10:
                 remove_at_msg = msg.text.replace(u'@ALEX ', u'')
-                if Command.use_chat_type == 0:
-                    print('send to xiaobing ' + remove_at_msg)
-                    alex_bot.xiaobing.send(remove_at_msg)
-                elif Command.use_chat_type == 1:
+                # if Command.use_chat_type == 0:
+                print('send to bot %s ,%d' %
+                      (remove_at_msg, Command.use_chat_type))
+                #     alex_bot.xiaobing.send(remove_at_msg)
+                # el
+                if Command.use_chat_type == 1:
                     alex_bot.tuling.do_reply(msg)
                 elif Command.use_chat_type == 2:
                     tx_reply = alex_bot.tengxun.request(remove_at_msg)
