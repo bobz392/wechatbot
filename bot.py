@@ -29,8 +29,8 @@ class AlexBot(object):
 
         print(self.bot.groups())
 
-        # group_name = 'notify_group'
-        group_name = 'test'
+        group_name = 'notify_group'
+        # group_name = 'test'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
         self.checkin = CheckIn()
@@ -72,6 +72,10 @@ class AlexBot(object):
 
     def write_image2file(self, data):
         file_path = os.getcwd() + '/beauty/'
+        p = random.randint(0, 100)
+        if p < 5:
+            return file_path + 'problem.jpg'
+
         file_name = file_path + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s.png")
         if os.path.exists(file_path) is False:
             os.makedirs(file_path)
@@ -86,8 +90,8 @@ class AlexBot(object):
         for check_time in ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00',
                            '17:00', '18:00', '19:00', '20:00']:
             schedule.every().days.at(check_time).do(self.hour_notify)
-            # if check_time == '10:00' or check_time == '14:00' or check_time == '16:00' or check_time == '19:00':
-            #     schedule.every().days.at(check_time).do(self.load_kr_data)
+            if check_time == '10:00' or check_time == '14:00' or check_time == '16:00' or check_time == '19:00':
+                schedule.every().days.at(check_time).do(self.load_kr_data)
 
     def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command

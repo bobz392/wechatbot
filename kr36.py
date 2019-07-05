@@ -12,7 +12,7 @@ class Kr:
         # chrome_options.add_argument("user-data-dir=selenium")
         self.dr = webdriver.Chrome()
         print(self.dr)
-        self.dr.get('http://36kr.com/')
+        self.dr.get('https://36kr.com/information/web_news')
 
         # self.dr.get('http://36kr.com/')
 
@@ -26,7 +26,7 @@ class Kr:
         # time.sleep(1.5)
         # self.dr.refresh()
         WebDriverWait(self.dr, 15)
-        self.skip_guide()
+        # self.skip_guide()
 
     def skip_guide(self):
         xpath_next = "/html/body/div[@class='kr-portal']/div/div[@class='page-first-wrapper']/div[@class='page-first-content']/div[@class='next']/span"
@@ -40,20 +40,21 @@ class Kr:
 
     def loadData(self):
         print('start load data')
-        feed_ul = self.dr.find_element_by_class_name('kr-home-flow-list')
+        feed_ul = self.dr.find_element_by_class_name('information-flow-list')
+        print(feed_ul)
         msg = u''
         i = 1
         add_count = 0
         while i <= 30 and add_count < 10:
             try:
-                xpath_head = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-home']/div[@class='kr-home-main clearfloat']/div[@class='kr-home-flow']/div[@class='kr-home-flow-list']/div[@class='kr-home-flow-item'][" + str(
-                    i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/div[@class='article-item-info clearfloat']/p[@class='feed-title-wrapper ellipsis-2']/a[@class='article-item-title weight-bold']"
+                xpath_head = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-information clearfloat']/div[@class='kr-information-left']/div[@class='kr-information-flow']/div[@class='kr-loading-more']/div[@class='information-flow-list']/div[@class='information-flow-item'][" + str(
+                    i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/div[@class='article-item-info clearfloat']/p[@class='title-wrapper ellipsis-2']/a[@class='article-item-title weight-bold']"
 
-                xpath_detail = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-home']/div[@class='kr-home-main clearfloat']/div[@class='kr-home-flow']/div[@class='kr-home-flow-list']/div[@class='kr-home-flow-item'][ " + str(
-                    + i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/div[@class='article-item-info clearfloat']/a[@class='article-item-description ellipsis-2']"
+                xpath_detail = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-information clearfloat']/div[@class='kr-information-left']/div[@class='kr-information-flow']/div[@class='kr-loading-more']/div[@class='information-flow-list']/div[@class='information-flow-item'][" + str(
+                    + i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/div[@class='article-item-info clearfloat']/div[@class='kr-flow-bar']/span[@class='kr-flow-bar-motif']/a"
 
-                xpath_href = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-home']/div[@class='kr-home-main clearfloat']/div[@class='kr-home-flow']/div[@class='kr-home-flow-list']/div[@class='kr-home-flow-item'][" + str(
-                    i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/a[@class='article-item-pic']"
+                xpath_href = "/html/body/div[@id='app']/div[@class='kr-layout']/div[@class='kr-layout-main clearfloat']/div[@class='main-right']/div[@class='kr-layout-content']/div[@class='kr-information clearfloat']/div[@class='kr-information-left']/div[@class='kr-information-flow']/div[@class='kr-loading-more']/div[@class='information-flow-list']/div[@class='information-flow-item'][" + str(
+                    i) + "]/div[@class='kr-flow-article-item']/div[@class='kr-shadow-wrapper']/div[@class='kr-shadow-content']/div[@class='article-item-pic-wrapper']/a[@class='article-item-pic']"
 
                 # xpath_img  = "//li[" + str(i) + "]/div[@class='am-cf inner_li inner_li_abtest']/a/div[@class='img_box']/div/img"
 # "//li[" + str(i) + "]/div[@class='am-cf inner_li inner_li_abtest']/a/div[@class='img_box']/div"
@@ -90,7 +91,7 @@ class Kr:
         return msg
 
     def saveData(self, index, title, detail=None, src=None):
-        return u'%d、%s\n%s\n%s \n\n' % (index, title, detail, src)
+        return u'%d、%s\n主题:%s\n%s \n\n' % (index, title, detail, src)
 
     def quit(self):
         self.dr.quit()
