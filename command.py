@@ -7,7 +7,7 @@ from model import User, Message, Report
 from mail import DailyMail, WeeklyMail
 from chandao import Chandao
 from check_in import CheckIn
-# from week_report import WeekReporter
+from week_report import WeekReporter
 from meizi import BeautyFucker
 from notify_work import notify_work_instance
 
@@ -494,42 +494,42 @@ Example：
             sender {string} -- 由谁发出的发送邮件指令
         """
         # if allow_group == '1' and not User.check_user_group_id(sender, allow_group):
-        return u'恭喜您没有权限。哈哈哈哈。'
+            # return u'恭喜您没有权限。哈哈哈哈。'
 
-        # path = router_parse.path
-        # query = router_parse.query
-        # query_dict = parse_query_2_dict(query)
-        # msg = None
-        # if path == '/create':
-        #     report = WeekReporter(name=sender, \
-        #         next_week=query_dict.get('todo', u'继续完成相应需求'), \
-        #         title=query_dict.get('title'), \
-        #         desc=query_dict.get('desc'))
-        #     msg = report.create_report()
-        # else:
-        #     w_pr = Report.query_weekly_report(sender)
-        #     if not w_pr:
-        #         return u'%s：本周周报还未创建' % sender
-        #     elif path == '/review':
-        #         report_fix = w_pr.fix_report if w_pr.fix_report \
-        #             else w_pr.origin_report
-        #         msg = u'周报标题：%s、描述：%s。\n%s\n下周任务：%s' \
-        #             % (w_pr.project_title, w_pr.description, \
-        #                 report_fix, w_pr.next_week_todo)
-        #     elif path == '/check':
-        #         w_pr.report_checked()
-        #         msg = u'%s：可以发送周报啦' % sender
-        #     elif path == '/send':
-        #         if w_pr.checked:
-        #             w_mail = WeeklyMail()
-        #             msg = w_mail.build_weekly_report_html(sender)
-        #         else:
-        #             msg = u'%s：请确认周报无误后再发送' % sender
-        #     elif path == '/update':
-        #         msg = w_pr.update_report(done=query_dict.get('done'), \
-        #             todo=query_dict.get('todo'), title=query_dict.get('title'), \
-        #             desc=query_dict.get('desc'))
-        # return msg if msg else WeeklyCommand.helper_info()
+        path = router_parse.path
+        query = router_parse.query
+        query_dict = parse_query_2_dict(query)
+        msg = None
+        if path == '/create':
+            report = WeekReporter(name=sender, \
+                next_week=query_dict.get('todo', u'继续完成相应需求'), \
+                title=query_dict.get('title'), \
+                desc=query_dict.get('desc'))
+            msg = report.create_report()
+        else:
+            w_pr = Report.query_weekly_report(sender)
+            if not w_pr:
+                return u'%s：本周周报还未创建' % sender
+            elif path == '/review':
+                report_fix = w_pr.fix_report if w_pr.fix_report \
+                    else w_pr.origin_report
+                msg = u'周报标题：%s、描述：%s。\n%s\n下周任务：%s' \
+                    % (w_pr.project_title, w_pr.description, \
+                        report_fix, w_pr.next_week_todo)
+            elif path == '/check':
+                w_pr.report_checked()
+                msg = u'%s：可以发送周报啦' % sender
+            elif path == '/send':
+                if w_pr.checked:
+                    w_mail = WeeklyMail()
+                    msg = w_mail.build_weekly_report_html(sender)
+                else:
+                    msg = u'%s：请确认周报无误后再发送' % sender
+            elif path == '/update':
+                msg = w_pr.update_report(done=query_dict.get('done'), \
+                    todo=query_dict.get('todo'), title=query_dict.get('title'), \
+                    desc=query_dict.get('desc'))
+        return msg if msg else WeeklyCommand.helper_info()
 
 
 class HelpCommand(object):

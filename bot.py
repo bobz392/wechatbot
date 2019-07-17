@@ -29,8 +29,8 @@ class AlexBot(object):
 
         print(self.bot.groups())
 
-        group_name = 'notify_group'
-        # group_name = 'test'
+        # group_name = 'notify_group'
+        group_name = 'test'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
         self.checkin = CheckIn()
