@@ -30,7 +30,10 @@ class AlexBot(object):
         print(self.bot.groups())
 
         # group_name = 'notify_group'
-        group_name = 'test'
+        group_name = 'new_notify'
+        # group_name = u'tom备孕群'
+        # group_name = 'test'
+        # group_name = u'好好的群'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
         self.checkin = CheckIn()
@@ -56,7 +59,7 @@ class AlexBot(object):
                             datetime.now().strftime("%H"))
         if today.hour >= 18:
             file_path = os.getcwd() + '/beauty/'
-            self.group.send_image(file_path + 'work.jpg')
+            self.group.send_image(file_path + 'work.png')
 
     def notify_iOS_checkin(self):
         print('检查 iOS 打卡信息！！！！！')
@@ -70,7 +73,7 @@ class AlexBot(object):
         if msg:
             self.group.send(msg)
 
-    def write_image2file(self, data):
+    def write_image2file(self, data, sender_name):
         file_path = os.getcwd() + '/beauty/'
         p = random.randint(0, 100)
         if p < 5:
@@ -125,7 +128,7 @@ class AlexBot(object):
 
             else:
                 print('result type = %s' % type(result))
-                file_name = self.write_image2file(result)
+                file_name = self.write_image2file(result, sender.name)
                 print(file_name)
                 print(self.group.send_image(file_name))
 
@@ -162,22 +165,22 @@ if __name__ == '__main__':
         @alex_bot.bot.register(alex_bot.group, TEXT)
         def iOS_router(msg):
             # 打印消息
-            print("puid = %s" % msg.member.puid)  # puid
-            prosbolity = random.randint(0, 100)
-            if msg.is_at or prosbolity < 10:
-                remove_at_msg = msg.text.replace(u'@ALEX ', u'')
-                # if Command.use_chat_type == 0:
-                print('send to bot %s ,%d' %
-                      (remove_at_msg, Command.use_chat_type))
-                #     alex_bot.xiaobing.send(remove_at_msg)
-                # el
-                if Command.use_chat_type == 1:
-                    alex_bot.tuling.do_reply(msg)
-                elif Command.use_chat_type == 2:
-                    tx_reply = alex_bot.tengxun.request(remove_at_msg)
-                    alex_bot.group.send(tx_reply)
-            else:
-                return alex_bot.resolve_command(msg.text, msg.member, '1')
+            # print("puid = %s" % msg.member.puid)  # puid
+            # prosbolity = random.randint(0, 100)
+            # if msg.is_at or prosbolity < 10:
+            #     remove_at_msg = msg.text.replace(u'@ALEX ', u'')
+            #     # if Command.use_chat_type == 0:
+            #     print('send to bot %s ,%d' %
+            #           (remove_at_msg, Command.use_chat_type))
+            #     #     alex_bot.xiaobing.send(remove_at_msg)
+            #     # el
+            #     if Command.use_chat_type == 1:
+            #         alex_bot.tuling.do_reply(msg)
+            #     elif Command.use_chat_type == 2:
+            #         tx_reply = alex_bot.tengxun.request(remove_at_msg)
+            #         alex_bot.group.send(tx_reply)
+            # else:
+            return alex_bot.resolve_command(msg.text, msg.member, '1')
 
         # @alex_bot.bot.register(alex_bot.friend_keeplive)
         # def reply_my_friend(msg):

@@ -186,8 +186,8 @@ Example:
             return User.set_slience_mode(is_slience, allow_group)
         if path == '/meizi':
             bf = BeautyFucker()
-            # return bf.prepare_page()
-            return bf.get_b_fun_image()
+            return bf.prepare_page()
+            # return bf.get_b_fun_image()
         if path == '/notify-delete':
             return notify_work_instance.remove_notify(sender)
         if path == '/notify':
@@ -494,17 +494,18 @@ Example：
             sender {string} -- 由谁发出的发送邮件指令
         """
         # if allow_group == '1' and not User.check_user_group_id(sender, allow_group):
-            # return u'恭喜您没有权限。哈哈哈哈。'
+        # return u'恭喜您没有权限。哈哈哈哈。'
 
         path = router_parse.path
         query = router_parse.query
         query_dict = parse_query_2_dict(query)
         msg = None
         if path == '/create':
-            report = WeekReporter(name=sender, \
-                next_week=query_dict.get('todo', u'继续完成相应需求'), \
-                title=query_dict.get('title'), \
-                desc=query_dict.get('desc'))
+            report = WeekReporter(name=sender,
+                                  next_week=query_dict.get(
+                                      'todo', u'继续完成相应需求'),
+                                  title=query_dict.get('title'),
+                                  desc=query_dict.get('desc'))
             msg = report.create_report()
         else:
             w_pr = Report.query_weekly_report(sender)
@@ -514,7 +515,7 @@ Example：
                 report_fix = w_pr.fix_report if w_pr.fix_report \
                     else w_pr.origin_report
                 msg = u'周报标题：%s、描述：%s。\n%s\n下周任务：%s' \
-                    % (w_pr.project_title, w_pr.description, \
+                    % (w_pr.project_title, w_pr.description,
                         report_fix, w_pr.next_week_todo)
             elif path == '/check':
                 w_pr.report_checked()
@@ -526,9 +527,9 @@ Example：
                 else:
                     msg = u'%s：请确认周报无误后再发送' % sender
             elif path == '/update':
-                msg = w_pr.update_report(done=query_dict.get('done'), \
-                    todo=query_dict.get('todo'), title=query_dict.get('title'), \
-                    desc=query_dict.get('desc'))
+                msg = w_pr.update_report(done=query_dict.get('done'),
+                                         todo=query_dict.get('todo'), title=query_dict.get('title'),
+                                         desc=query_dict.get('desc'))
         return msg if msg else WeeklyCommand.helper_info()
 
 
