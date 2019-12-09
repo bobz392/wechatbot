@@ -44,19 +44,19 @@ class JenkinsXiaoMi(object):
         if self.is_running:
             return u"正在打包中。请明天加入任务"
         msg = None
-        device = '%s' % device_model
+        _device = '%s' % device_model
         _tag = '%s' % tag
 
-        if self.modules.get(device) is None:
+        if self.modules.get(_device) is None:
             return u'未知的 device: %s' % device_model
-            
-        get_device = self.jenkins_dict.get(device)
+
+        get_device = self.jenkins_dict.get(_device)
         if get_device is None:
-            msg = u'已经创建 %s %s 的任务' % (device, _tag)
+            msg = u'已经创建 %s %s 的任务' % (_device, _tag)
         else:
-            self.jenkins_dict[device] = _tag
-            msg = u'已经更新 %s %s 的任务' % (device, _tag)
-        self.jenkins_dict[device] = _tag
+            self.jenkins_dict[_device] = _tag
+            msg = u'已经更新 %s %s 的任务' % (_device, _tag)
+        self.jenkins_dict[_device] = _tag
         print(msg)
         return msg
 
@@ -85,18 +85,20 @@ class JenkinsXiaoMi(object):
         if self.device_repo_dict[device] is None:
             return
 
-        git_path = '/Users/zhoubobo/Work/xiaomi/mihomeinternal'
+        print('開始處理合作開發的代碼')
+        git_co_path = '/Users/zhoubobo/Work/xiaomi/operation/%s' % self.device_repo_dict.get(device)
+        os.system('git -C %s reset --hard' % git_co_path)
+        os.system('git -C %s fetch origin' % git_co_path)
+        os.system('git -C %s checkout %s' % (git_co_path, tag))
+
         print('開始處理主工程')
+        git_path = '/Users/zhoubobo/Work/xiaomi/mihomeinternal'
         os.system('git -C %s reset --hard' % git_path)
         os.system('git -C %s checkout master' % git_path)
         os.system('git -C %s pull origin master --rebase' % git_path)
         branch_name = 'jenkins_%s_%s' % (device, tag)
         os.system('git -C %s checkout -b %s' % (git_path, branch_name))
-        print('開始處理合作開發的代碼')
-        git_coo_path = '/Users/zhoubobo/Work/xiaomi/operation/%s' % self.device_repo_dict.get(device)
-        os.system('git -C %s reset --hard' % git_coo_path)
-        os.system('git -C %s fetch origin' % git_coo_path)
-        os.system('git -C %s checkout %s' % (git_coo_path, tag))
+
         print('開始處理 jenkins 脚本')
         os.system('cd /Users/zhoubobo/Work/xiaomi/MiHomePackageTool;sh ./make_device_package.sh %s %s %s' %
                   (device, tag, branch_name))

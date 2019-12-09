@@ -18,7 +18,7 @@ class AlexBot(object):
         self.bot.enable_puid()
         self.command = Command()
         print(self.bot.groups())
-        group_name = 'test'
+        group_name = u'米家iOS合作开发沟通群'
         self.group = ensure_one(self.bot.groups().search(group_name))
         # self.group.update_group(True)
         # self.checkin = CheckIn()
@@ -66,11 +66,11 @@ class AlexBot(object):
     #     return file_name
 
     def jenkins_opertaion(self):
-        self.group.send(u'开始打包，所有包打完之前不接受新的任务了')
+        # self.group.send(u'开始打包，所有包打完之前不接受新的任务了')
         self.command.jenkins_operation()
 
     def schedule_of_weekdays(self):
-        for check_time in ['18:00']:
+        for check_time in ['06:00', '23:00']:
             schedule.every().days.at(check_time).do(self.jenkins_opertaion)
             # time.sleep(5)
     #         schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
