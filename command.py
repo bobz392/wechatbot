@@ -509,8 +509,6 @@ Example：
                     desc=query_dict.get('desc'))
         return msg if msg else WeeklyCommand.helper_info()
 
-class 
-
 
 class HelpCommand(object):
 

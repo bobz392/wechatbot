@@ -30,10 +30,9 @@ class JenkinsXiaoMi(object):
         os.system('git -C %s reset --hard' % git_path)
         os.system('git -C %s checkout master' % git_path)
         os.system('git -C %s pull origin master --rebase' % git_path)
-        branch_name = 'jenkins_%s_%s' % (git_path, device, tag)
-        os.system('git -C %s checkout -b %s' % (branch_name))
-        os.system('cd ../MiHomePackageTool')
-        os.system('/Users/zhoubobo/Work/xiaomi/make_device_package.sh %s %s %s' % (device, tag, branch_name))
+        branch_name = 'jenkins_%s_%s' % (device, tag)
+        os.system('git -C %s checkout -b %s' % (git_path, branch_name))
+        os.system('sh /Users/zhoubobo/Work/xiaomi/MiHomePackageTool/make_device_package.sh %s %s %s' % (device, tag, branch_name))
         
 
 jenkins = JenkinsXiaoMi()
