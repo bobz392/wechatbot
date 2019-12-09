@@ -65,11 +65,13 @@ class AlexBot(object):
     #     f.close()
     #     return file_name
 
-    # def schedule_of_weekdays(self):
-    #     for check_time in ['10:00', '10:15', '10:30', '19:00', '19:15', '19:30', '19:45', \
-    #                 '20:00', '20:30', '20:45', '21:00', '21:30']:
-    #         schedule.every().days.at(check_time).do(self.notify_iOS_checkin)
-    #         time.sleep(5)
+    def jenkins_opertaion(self):
+        self.command.jenkins_operation()
+
+    def schedule_of_weekdays(self):
+        for check_time in ['18:00']:
+            schedule.every().days.at(check_time).do(self.jenkins_opertaion)
+            # time.sleep(5)
     #         schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
 
     def resolve_command(self, text, sender, allow_group=None):
@@ -106,7 +108,7 @@ if __name__ == '__main__':
 
         alex_bot = AlexBot()
         # schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
-        # alex_bot.schedule_of_weekdays()
+        alex_bot.schedule_of_weekdays()
         # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
         @alex_bot.bot.register(alex_bot.group, TEXT)

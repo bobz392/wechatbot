@@ -124,6 +124,9 @@ class Command(object):
 
         return message
 
+    def jenkins_operation(self):
+        jenkins.exec_command_queue()
+
 class UserCommand(object):
     """
     用户相关的命令，不需要检查 group
@@ -439,7 +442,9 @@ class JenkinsCommand(object):
         if path == '/create':
             tag = query_dict.get('tag')
             device = query_dict.get('device')
-            jenkins.exec_command(device, tag)
+            jenkins.add2jenkins(device, tag)
+        elif path == '/do':
+            jenkins.exec_command_queue()
 
 
 class WeeklyCommand(object):
