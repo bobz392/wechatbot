@@ -9,6 +9,7 @@ from chandao import Chandao
 from check_in import CheckIn
 from week_report import WeekReporter
 from meizi import BeautyFucker
+from jenkins_xiaomi import jenkins
 
 def parse_query_2_dict(query):
     return dict((k.lower(), v if len(v) > 1 else v[0]) \
@@ -34,6 +35,7 @@ class Command(object):
         self.chandao_path = '-chandao'
         self.checkin_path = '-checkin'
         self.weekly_report_path = '-weekly'
+        self.jenkins_path = '-jenkins'
 
         self.commands = {
             self.user_path: ['password', 'email', 'realname', 'sender-setme', 'sender-check'],
@@ -43,6 +45,7 @@ class Command(object):
             self.chandao_path: ['-'],
             self.checkin_path: ['-'],
             self.weekly_report_path: ['-'],
+            self.jenkins_path: ['-'],
         }
 
     def vaild(self, text):
@@ -427,6 +430,17 @@ Example:
 
         return msg
 
+class JenkinsCommand(object):
+    def __call__(self, router_parse, sender, allow_group):
+        path = router_parse.path
+        query = router_parse.query
+        query_dict = parse_query_2_dict(query)
+        msg = None
+        if path == '/create':
+            tag = query_dict.get('tag')
+            device = query_dict.get('device')
+            jenkins.exec_command(device, tag)
+
 
 class WeeklyCommand(object):
     """
@@ -494,6 +508,9 @@ Example：
                     todo=query_dict.get('todo'), title=query_dict.get('title'), \
                     desc=query_dict.get('desc'))
         return msg if msg else WeeklyCommand.helper_info()
+
+class 
+
 
 class HelpCommand(object):
 
