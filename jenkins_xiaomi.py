@@ -64,6 +64,14 @@ class JenkinsXiaoMi(object):
         self.jenkins_dict = dict()
         self.is_running = False
 
+    def query_device_name(self, repo):
+        repo = '%s' % repo
+        for device, rp in self.modules.items():
+            if rp == repo:
+                return device
+        return u'Unknown git repo: %s' % repo
+                
+
     def __exec_command(self, device, tag):
         if self.device_repo_dict[device] is None:
             return

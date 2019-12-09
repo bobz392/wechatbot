@@ -442,9 +442,17 @@ class JenkinsCommand(object):
         if path == '/create':
             tag = query_dict.get('tag')
             device = query_dict.get('device')
-            jenkins.add2jenkins(device, tag)
+            return jenkins.add2jenkins(device, tag)
+        elif path == '/query':
+            repo = query_dict.get('repo')
+            return jenkins.query_device_name(repo)
         elif path == '/do':
-            jenkins.exec_command_queue()
+            if sender == 'M_zhou':
+                jenkins.exec_command_queue()
+
+    @classmethod
+    def helper_info(cls):
+        return u'Example: \n\t\t-jenkins/create?device=Chuangmi&tag=0.1.2\n\t\t-jenkins/query?repo=github.com'
 
 
 class WeeklyCommand(object):
@@ -549,5 +557,7 @@ weekly      周报任务相关
             helper = CheckinCommand.helper_info()
         elif submodule == 'weekly':
             helper = WeeklyCommand.helper_info()
-
+        helper = None
+        if submodule == 'jenkins':
+            helper = JenkinsCommand.helper_info()
         return helper
