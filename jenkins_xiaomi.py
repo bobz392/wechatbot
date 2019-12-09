@@ -46,6 +46,10 @@ class JenkinsXiaoMi(object):
         msg = None
         device = '%s' % device_model
         _tag = '%s' % tag
+
+        if self.modules.get(device) is None:
+            return u'未知的 device: %s' % device_model
+            
         get_device = self.jenkins_dict.get(device)
         if get_device is None:
             msg = u'已经创建 %s %s 的任务' % (device, _tag)
