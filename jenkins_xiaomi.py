@@ -66,9 +66,14 @@ class JenkinsXiaoMi(object):
 
     def query_device_name(self, repo):
         repo = '%s' % repo
+        found_device = None
         for device, rp in self.modules.items():
+            print(device, rp)
             if rp == repo:
-                return device
+                found_device = device
+                break
+        if found_device:
+            return u'repo: %s 对应 device 为: %s' % (repo, found_device)
         return u'Unknown git repo: %s' % repo
                 
 

@@ -438,7 +438,7 @@ class JenkinsCommand(object):
         path = router_parse.path
         query = router_parse.query
         query_dict = parse_query_2_dict(query)
-        msg = None
+
         if path == '/create':
             tag = query_dict.get('tag')
             device = query_dict.get('device')
@@ -452,7 +452,7 @@ class JenkinsCommand(object):
 
     @classmethod
     def helper_info(cls):
-        return u'Example: \n\t\t-jenkins/create?device=Chuangmi&tag=0.1.2\n\t\t-jenkins/query?repo=github.com'
+        return u'Example: \n\t\t-jenkins/create?device=Chuangmi&tag=0.1.2\n\t\t-jenkins/query?repo=git@github.com:derekhuangxu/MJCatEye.git'
 
 
 class WeeklyCommand(object):

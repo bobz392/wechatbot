@@ -66,6 +66,7 @@ class AlexBot(object):
     #     return file_name
 
     def jenkins_opertaion(self):
+        self.group.send(u'开始打包，所有包打完之前不接受新的任务了')
         self.command.jenkins_operation()
 
     def schedule_of_weekdays(self):
