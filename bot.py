@@ -26,11 +26,11 @@ class AlexBot(object):
         # checkin_group_name = 'checkin notify'
         # self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
 
-        # self.friend_keeplive = \
-        #     ensure_one(self.bot.friends().search('keep-alive-bot'))
+        self.friend_keeplive = \
+            ensure_one(self.bot.friends().search(u'阿力木'))
 
-    # def keep_alive(self):
-    #     self.friend_keeplive.send('i am alive')
+    def keep_alive(self):
+        self.friend_keeplive.send('i am alive')
 
     # def notify_iOS_checkin(self):
     #     print('检查 iOS 打卡信息！！！！！')
@@ -108,7 +108,7 @@ if __name__ == '__main__':
         signal.signal(signal.SIGTERM, quit)
 
         alex_bot = AlexBot()
-        # schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
+        schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
         alex_bot.schedule_of_weekdays()
         # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
