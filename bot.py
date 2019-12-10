@@ -66,7 +66,7 @@ class AlexBot(object):
     #     return file_name
 
     def jenkins_opertaion(self):
-        # self.group.send(u'开始打包，所有包打完之前不接受新的任务了')
+        self.group.send(u'开始打包，所有包打完之前不接受新的任务了')
         self.command.jenkins_operation()
 
     def schedule_of_weekdays(self):
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         def iOS_router(msg):
             # 打印消息
             print("puid = %s" % msg.member.puid)  #puid
-            return alex_bot.resolve_command(msg.text, msg.member, '1')
+            return alex_bot.resolve_command(msg.text, msg.member, '3')
 
         # @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
         # def check_in_router(msg):

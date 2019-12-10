@@ -447,12 +447,12 @@ class JenkinsCommand(object):
             repo = query_dict.get('repo')
             return jenkins.query_device_name(repo)
         elif path == '/do':
-            if sender == 'M_zhou':
+            if sender == 'M_zhou' and allow_group != '3':
                 jenkins.exec_command_queue()
 
     @classmethod
     def helper_info(cls):
-        return u'Example: \n\t\t-jenkins/create?device=Chuangmi&tag=0.1.2\n\t\t-jenkins/query?repo=git@github.com:derekhuangxu/MJCatEye.git'
+        return u'06:00, 23:00两个时间点会进行打包操作\n\nExample: \n\t\t-jenkins/create?device=Chuangmi&tag=0.1.2\n\t\t-jenkins/query?repo=git@github.com:derekhuangxu/MJCatEye.git'
 
 
 class WeeklyCommand(object):
