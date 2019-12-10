@@ -10,7 +10,7 @@
         "**/*.png": true,
         "**/beauty": true,
     },
-    "python.pythonPath": "/usr/bin/python",
+    "python.pythonPath": "/usr/local/opt/python@2/bin/python2.7",
     "python.linting.pylintEnabled": false,
     "python.formatting.provider": "autopep8",
     "editor.formatOnSave": true,
