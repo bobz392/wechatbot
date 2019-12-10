@@ -23,21 +23,23 @@ class JenkinsXiaoMi(object):
             'Repeater': 'Repeater',
             'DunCateye': 'dun-cateye-ios',
             'ChuangMi': 'ipc-plug-ios',
+            'YDCatY': 'YDCatY'
         }
 
         self.modules = {
             'ChuangMi': 'ssh://git@dev.imilab.com:222/ipc-plug/ipc-plug-ios.git',
-            'MIOWLDoorRing': 'git@github.com:MADV360/MiHomePlugin_MIDingLing.git',
-            'Lumi': 'git@github.com:lumigit/Mijia-Dailybuild-Lumi.git',
-            'ismartalarm': 'git@github.com:hualaikeji/miPluginCamera.git',
-            'XinAnVehicle': 'git@github.com:ZhangPan0825/XinAnVehicle.git',
-            'MJCatEye': 'git@github.com:derekhuangxu/MJCatEye.git',
-            'SimCamCamera': 'git@github.com:XingTuZhiKong/SimCamCamera.git',
-            'DunCateye': 'git@github.com:idunmi/dun-cateye-ios.git',
-            'HTPrinter': 'git@github.com:Hannto/ht_ios_for_mi.git',
-            'MXDevices': 'git@github.com:552322771/MXDevices.git',
-            'MGCamera': 'git@github.com:laughmaker/MGCamera_iOS.git',
-            'Xiaovv': 'git@github.com:hongshiforgit/Xiaovv.git'
+            'MIOWLDoorRing': 'git@githubxiaomi.com:MADV360/MiHomePlugin_MIDingLing.git',
+            'Lumi': 'git@githubxiaomi.com:lumigit/Mijia-Dailybuild-Lumi.git',
+            'ismartalarm': 'git@githubxiaomi.com:hualaikeji/miPluginCamera.git',
+            'XinAnVehicle': 'git@githubxiaomi.com:ZhangPan0825/XinAnVehicle.git',
+            'MJCatEye': 'git@githubxiaomi.com:derekhuangxu/MJCatEye.git',
+            'SimCamCamera': 'git@githubxiaomi.com:XingTuZhiKong/SimCamCamera.git',
+            'DunCateye': 'git@githubxiaomi.com:idunmi/dun-cateye-ios.git',
+            'HTPrinter': 'git@githubxiaomi.com:Hannto/ht_ios_for_mi.git',
+            'MXDevices': 'git@githubxiaomi.com:552322771/MXDevices.git',
+            'MGCamera': 'git@githubxiaomi.com:laughmaker/MGCamera_iOS.git',
+            'Xiaovv': 'git@githubxiaomi.com:hongshiforgit/Xiaovv.git',
+            'YDCatY': 'git@githubxiaomi.com:zhaolios/YDCatY.git'
         }
 
     def add2jenkins(self, device_model, tag):
@@ -67,6 +69,7 @@ class JenkinsXiaoMi(object):
             self.__exec_command(device, tag)
         self.jenkins_dict = dict()
         self.is_running = False
+        print('所有 repo 都已经处理完')
 
     def query_device_name(self, repo):
         repo = '%s' % repo

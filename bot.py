@@ -20,6 +20,8 @@ class AlexBot(object):
         print(self.bot.groups())
         group_name = u'米家iOS合作开发沟通群'
         self.group = ensure_one(self.bot.groups().search(group_name))
+        self.admin = ensure_one(self.bot.friends().search(u'M_zhou'))
+
         # self.group.update_group(True)
         # self.checkin = CheckIn()
 
@@ -64,6 +66,8 @@ class AlexBot(object):
     #     f.write(data)
     #     f.close()
     #     return file_name
+
+    
 
     def jenkins_opertaion(self):
         self.group.send(u'开始打包，所有包打完之前不接受新的任务了')
@@ -118,6 +122,10 @@ if __name__ == '__main__':
             print("puid = %s" % msg.member.puid)  #puid
             return alex_bot.resolve_command(msg.text, msg.member, '3')
 
+
+        @alex_bot.bot.register(alex_bot.admin, TEXT)
+        def transfer(msg):
+            return alex_bot.resolve_command(msg.text, alex_bot.admin, '1')
         # @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
         # def check_in_router(msg):
         #     print("checkin group puid = %s" % msg.member.puid)#puid
