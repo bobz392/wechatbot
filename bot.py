@@ -67,15 +67,19 @@ class AlexBot(object):
     #     f.close()
     #     return file_name
 
-    
+    def jenkins_check_fir(self):
+        msg = self.command.jenkins_check_fir()
+        if msg:
+            self.group.send(msg)
 
-    def jenkins_opertaion(self):
-        self.group.send(u'开始打包，所有包打完之前不接受新的任务了')
-        self.command.jenkins_operation()
+    def jenkins_operation_schedule(self):
+        if self.command.has_jenkins_task():
+            self.group.send(u'开始打包，所有包打完之前不接受新的任务了')
+            self.command.jenkins_operation()
 
     def schedule_of_weekdays(self):
         for check_time in ['06:00', '23:00']:
-            schedule.every().days.at(check_time).do(self.jenkins_opertaion)
+            schedule.every().days.at(check_time).do(self.jenkins_operation_schedule)
             # time.sleep(5)
     #         schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
 
@@ -113,6 +117,7 @@ if __name__ == '__main__':
 
         alex_bot = AlexBot()
         schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
+        schedule.every(30).to(40).minutes.do(alex_bot.check_fir)
         alex_bot.schedule_of_weekdays()
         # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 

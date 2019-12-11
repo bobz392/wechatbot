@@ -124,6 +124,12 @@ class Command(object):
 
         return message
 
+    def jenkins_check_fir(self):
+        return jenkins.request_fir_info()
+
+    def has_jenkins_task(self):
+        return jenkins.has_jenkins_task()
+
     def jenkins_operation(self):
         jenkins.exec_command_queue()
 
