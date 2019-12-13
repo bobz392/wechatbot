@@ -48,7 +48,7 @@ class JenkinsXiaoMi(object):
         }
 
     def has_jenkins_task(self):
-        return not self.jenkins_dict
+        return len(self.jenkins_dict) > 0
 
     def add2jenkins(self, device_model, tag):
         if self.is_running:
@@ -75,7 +75,7 @@ class JenkinsXiaoMi(object):
         for device, tag in self.jenkins_dict.items():
             print(device, tag)
             self.__exec_command(device, tag)
-            self.install_tag_list.append('company: jenkins_%s_%s' \
+            self.install_tag_list.append('company:jenkins_%s_%s' \
                 % (device, tag))
         self.jenkins_dict = dict()
         self.is_running = False
@@ -134,8 +134,10 @@ class JenkinsXiaoMi(object):
                 changelog = json_data.get('changelog', None)
                 check_log = None
                 if changelog:
+                    changelog = self.to_str(changelog)
+                    print('最新的 change log: %s' % changelog)
                     for log in self.install_tag_list:
-                        if changelog.startswith(log):
+                        if changelog.startswith('%s' % log):
                             check_log = log
                             break
                 if check_log:
@@ -147,16 +149,37 @@ class JenkinsXiaoMi(object):
                         json_data = json.loads(r.content)
                         master_release_id = \
                             json_data.get('master_release_id', None)
-                        return u'%s下载地址: https://fir.im/tes5?release_id=%s' \
+                        if master_release_id:
+                            master_release_id = self.to_str(master_release_id)
+                            master_release_id = '%s' % master_release_id
+                            print('%s下载地址: https://fir.im/tes5?release_id=%s' \
+                                % (changelog, master_release_id))
+                            return u'%s下载地址: https://fir.im/tes5?release_id=%s' \
                             % (changelog, master_release_id)
+                else:
+                    print('最新的 change log: %s 不在 tag list 中，没有打包历史' % changelog)
             except ValueError as e:
                 print('value error %s', e)
 
         return None
 
+    def to_str(self, unicode_or_str):
+        if isinstance(unicode_or_str, unicode):
+            value = unicode_or_str.encode('utf-8')
+        else:
+            value = unicode_or_str
+        return value
+
 jenkins = JenkinsXiaoMi()
 
 if __name__ == "__main__":
-    jenkins.install_tag_list.append('company: jenkins_ChuangMi_0.0.71')
+    jenkins.install_tag_list.append('company:jenkins_Xiaovv_1.0.8')
     print(jenkins.request_fir_info())
+    git_co_path = '/Users/zhoubobo/Work/xiaomi/operation/%s' \
+            % jenkins.device_repo_dict.get('ChuangMi')
+    tag = '0.0.70'
+    os.system('git -C %s reset --hard' % git_co_path)
+    os.system('git -C %s fetch origin' % git_co_path)
+    print(os.system('git -C %s checkout %s' % (git_co_path, tag)))
+
     pass

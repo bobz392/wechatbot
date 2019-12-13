@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
         alex_bot = AlexBot()
         schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
-        schedule.every(30).to(40).minutes.do(alex_bot.check_fir)
+        schedule.every(30).to(40).minutes.do(alex_bot.jenkins_check_fir)
         alex_bot.schedule_of_weekdays()
         # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
