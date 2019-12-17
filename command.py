@@ -455,6 +455,17 @@ class JenkinsCommand(object):
         elif path == '/do':
             if sender == 'M_zhou' and allow_group != '3':
                 jenkins.exec_command_queue()
+        elif path == '/fir':
+            if sender == 'M_zhou' and allow_group != '3':
+                tag = query_dict.get('tag', d=None)
+                device = query_dict.get('device', d=None)
+                print(tag)
+                print(device)
+                if tag and device:
+                    jenkins.create_fir_check(device, tag)
+                else:
+                    print('query in command')
+                    return jenkins.query_fir_check()
 
     @classmethod
     def helper_info(cls):

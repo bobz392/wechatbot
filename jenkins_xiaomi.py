@@ -12,7 +12,7 @@ class JenkinsXiaoMi(object):
     def __init__(self):
         self.jenkins_dict = dict()
         self.is_running = False
-        self.install_tag_list = []
+        self.install_tags = set()
         self.fir_token = 'ce8c5bc4174a562917c538fc704d90c1'
         self.fir_id = '5c64c7e1ca87a82dc88f257c'
 
@@ -50,12 +50,24 @@ class JenkinsXiaoMi(object):
     def has_jenkins_task(self):
         return len(self.jenkins_dict) > 0
 
-    def add2jenkins(self, device_model, tag):
+    def create_fir_check(self, device, git_tag):
+        self.install_tags.add('company:jenkins_%s_%s' \
+                % (device, git_tag))
+
+    def query_fir_check(self):
+        print('query')
+        msg = None
+        for fir_check in self.install_tags:
+            msg += fir_check + '\n'
+        print(msg)
+        return u'%s' % msg
+
+    def add2jenkins(self, device_model, git_tag):
         if self.is_running:
             return u"正在打包中。请明天加入任务"
         msg = None
         _device = '%s' % device_model
-        _tag = '%s' % tag
+        _tag = '%s' % git_tag
 
         if self.modules.get(_device) is None:
             return u'未知的 device: %s' % device_model
@@ -72,11 +84,10 @@ class JenkinsXiaoMi(object):
 
     def exec_command_queue(self):
         self.is_running = True
-        for device, tag in self.jenkins_dict.items():
-            print(device, tag)
-            self.__exec_command(device, tag)
-            self.install_tag_list.append('company:jenkins_%s_%s' \
-                % (device, tag))
+        for device, git_tag in self.jenkins_dict.items():
+            print(device, git_tag)
+            self.__exec_command(device, git_tag)
+            self.create_fir_check(device, git_tag)
         self.jenkins_dict = dict()
         self.is_running = False
         print('所有 repo 都已经处理完')
@@ -121,7 +132,7 @@ class JenkinsXiaoMi(object):
                   (device, tag, branch_name))
 
     def request_fir_info(self):
-        if not self.install_tag_list:
+        if not self.install_tags:
             print('不需要检查 fir 信息，因为没有打包历史')
             return None
 
@@ -136,12 +147,12 @@ class JenkinsXiaoMi(object):
                 if changelog:
                     changelog = self.to_str(changelog)
                     print('最新的 change log: %s' % changelog)
-                    for log in self.install_tag_list:
+                    for log in self.install_tags:
                         if changelog.startswith('%s' % log):
                             check_log = log
                             break
                 if check_log:
-                    self.install_tag_list.remove(check_log)
+                    self.install_tags.remove(check_log)
                     get_release_url = 'http://api.fir.im/apps/%s?api_token=%s' \
                         % (self.fir_id, self.fir_token)
                     r = requests.get(get_release_url)
@@ -172,14 +183,16 @@ class JenkinsXiaoMi(object):
 
 jenkins = JenkinsXiaoMi()
 
-if __name__ == "__main__":
-    jenkins.install_tag_list.append('company:jenkins_Xiaovv_1.0.8')
-    print(jenkins.request_fir_info())
-    git_co_path = '/Users/zhoubobo/Work/xiaomi/operation/%s' \
-            % jenkins.device_repo_dict.get('ChuangMi')
-    tag = '0.0.70'
-    os.system('git -C %s reset --hard' % git_co_path)
-    os.system('git -C %s fetch origin' % git_co_path)
-    print(os.system('git -C %s checkout %s' % (git_co_path, tag)))
+# if __name__ == "__main__":
+#     jenkins.install_tags.add('company:jenkins_Xiaovv_1.0.8')
+#     print(jenkins.request_fir_info())
+#     git_co_path = '/Users/zhoubobo/Work/xiaomi/operation/%s' \
+#             % jenkins.device_repo_dict.get('ChuangMi')
+#     tag = '0.0.70'
+#     os.system('git -C %s reset --hard' % git_co_path)
+#     os.system('git -C %s fetch origin' % git_co_path)
+#     print(os.system('git -C %s checkout %s' % (git_co_path, tag)))
 
-    pass
+#     print(len(jenkins.install_tags))
+#     jenkins.install_tags.remove('company:jenkins_Xiaovv_1.0.8')
+#     print(len(jenkins.install_tags))
