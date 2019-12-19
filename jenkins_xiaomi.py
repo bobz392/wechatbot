@@ -84,6 +84,8 @@ class JenkinsXiaoMi(object):
 
     def exec_command_queue(self):
         self.is_running = True
+        main_project_path = '/Users/zhoubobo/Work/xiaomi/mihomeinternal/MiHome'
+        os.system('cd %s; pod repo update')
         for device, git_tag in self.jenkins_dict.items():
             print(device, git_tag)
             self.__exec_command(device, git_tag)
@@ -103,7 +105,6 @@ class JenkinsXiaoMi(object):
         if found_device:
             return u'repo: %s 对应 device 为: %s' % (repo, found_device)
         return u'Unknown git repo: %s' % repo
-                
 
     def __exec_command(self, device, tag):
         if self.device_repo_dict[device] is None:
@@ -115,6 +116,7 @@ class JenkinsXiaoMi(object):
         os.system('git -C %s reset --hard' % git_co_path)
         os.system('git -C %s fetch origin' % git_co_path)
         os.system('git -C %s checkout %s' % (git_co_path, tag))
+        os.system('git -C %s pull origin %s' % (git_co_path, tag))
 
         print('開始處理主工程')
         git_path = '/Users/zhoubobo/Work/xiaomi/mihomeinternal'
@@ -183,16 +185,16 @@ class JenkinsXiaoMi(object):
 
 jenkins = JenkinsXiaoMi()
 
-# if __name__ == "__main__":
-#     jenkins.install_tags.add('company:jenkins_Xiaovv_1.0.8')
-#     print(jenkins.request_fir_info())
-#     git_co_path = '/Users/zhoubobo/Work/xiaomi/operation/%s' \
-#             % jenkins.device_repo_dict.get('ChuangMi')
-#     tag = '0.0.70'
-#     os.system('git -C %s reset --hard' % git_co_path)
-#     os.system('git -C %s fetch origin' % git_co_path)
-#     print(os.system('git -C %s checkout %s' % (git_co_path, tag)))
+if __name__ == "__main__":
+    jenkins.install_tags.add('company:jenkins_Xiaovv_1.0.8')
+    print(jenkins.request_fir_info())
+    git_co_path = '/Users/zhoubobo/Work/xiaomi/operation/%s' \
+            % jenkins.device_repo_dict.get('ChuangMi')
+    tag = '0.0.70'
+    os.system('git -C %s reset --hard' % git_co_path)
+    os.system('git -C %s fetch origin' % git_co_path)
+    print(os.system('git -C %s checkout %s' % (git_co_path, tag)))
 
-#     print(len(jenkins.install_tags))
-#     jenkins.install_tags.remove('company:jenkins_Xiaovv_1.0.8')
-#     print(len(jenkins.install_tags))
+    print(len(jenkins.install_tags))
+    jenkins.install_tags.remove('company:jenkins_Xiaovv_1.0.8')
+    print(len(jenkins.install_tags))
