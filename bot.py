@@ -1,71 +1,33 @@
 #! /usr/bin/env python2.7
 #coding=utf-8
 
+import time, signal
 from wxpy import *
 import schedule
-import time, signal
-from kr36 import Kr
+
 from command import Command
-from check_in import CheckIn
+from config import Config
 
 class AlexBot(object):
     """
     机器人的主要逻辑
     """
-
     def __init__(self):
         self.bot = Bot(cache_path=True)
         self.bot.enable_puid()
         self.command = Command()
-        print(self.bot.groups())
-        group_name = u'米家iOS合作开发沟通群'
-        self.group = ensure_one(self.bot.groups().search(group_name))
-        self.admin = ensure_one(self.bot.friends().search(u'M_zhou'))
-
-        # self.group.update_group(True)
-        # self.checkin = CheckIn()
-
-        # checkin_group_name = 'checkin notify'
-        # self.checkin_group = ensure_one(self.bot.groups().search(checkin_group_name))
-
-        self.friend_keeplive = \
-            ensure_one(self.bot.friends().search(u'阿力木'))
+        self.group = \
+            ensure_one(self.bot.groups().search(Config.group_name))
+        self.admin = \
+            ensure_one(self.bot.friends().search(Config.admin))
+        if Config.keep_alive_user:
+            self.friend_keeplive = \
+                ensure_one(self.bot.friends().search(Config.keep_alive_user))
+        print(self.group, self.admin, self.friend_keeplive)
 
     def keep_alive(self):
-        self.friend_keeplive.send('i am alive')
-
-    # def notify_iOS_checkin(self):
-    #     print('检查 iOS 打卡信息！！！！！')
-    #     msg = self.checkin.check_all_user('1')
-    #     if msg:
-    #         self.group.send(msg)
-
-    # def notify_checkgroup_checkin(self):
-    #     print('检查打卡组打卡信息！！！！！')
-    #     msg = self.checkin.check_all_user('2')
-    #     if msg:
-    #         self.checkin_group.send(msg)
-
-    # def load_kr_data(self):
-    #     kr = Kr()
-    #     msg = kr.loadData()
-    #     if msg:
-    #         self.group.send(msg)
-            # time.sleep(5)
-            # self.checkin_group.send(msg)
-
-    # def write_image2file(self, data):
-    #     import os
-    #     import datetime
-        
-    #     file_path = os.getcwd() + '/beauty/'
-    #     file_name = file_path + datetime.datetime.now().strftime("%Y-%m-%d-%H-%m-%s")
-    #     if os.path.exists(file_path) is False:
-    #         os.makedirs(file_path)
-    #     f = open(file_name, 'ab')
-    #     f.write(data)
-    #     f.close()
-    #     return file_name
+        if Config.keep_alive_user:
+            self.friend_keeplive.send('i am alive')
 
     def jenkins_check_fir(self):
         msg = self.command.jenkins_check_fir()
@@ -78,10 +40,9 @@ class AlexBot(object):
             self.command.jenkins_operation()
 
     def schedule_of_weekdays(self):
-        for check_time in ['06:00', '23:00']:
-            schedule.every().days.at(check_time).do(self.jenkins_operation_schedule)
-            # time.sleep(5)
-    #         schedule.every().days.at(check_time).do(self.notify_checkgroup_checkin)
+        for check_time in Config.build_times:
+            schedule.every().days.at(check_time)\
+                .do(self.jenkins_operation_schedule)
 
     def resolve_command(self, text, sender, allow_group=None):
         """解析当前的 message 中的 command
@@ -99,48 +60,24 @@ class AlexBot(object):
             if isinstance(result, unicode):
                 print('solove %s result = %s' % (text, result))
             else:
-            #     print('result type = %s' % type(result))
-            #     file_name = self.write_image2file(result)
-            #     if allow_group == 1:
-            #         self.group.send_image(file_name)
-                # else:
-                #     self.checkin_group.send_image(file_name)
                 result = None
             return result
-
-        return None#"not found~ reply: %s" % text
+        return None
 
 if __name__ == '__main__':
-    try:
-        signal.signal(signal.SIGINT, quit)
-        signal.signal(signal.SIGTERM, quit)
+    alex_bot = AlexBot()
+    schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
+    schedule.every(30).to(40).minutes.do(alex_bot.jenkins_check_fir)
+    alex_bot.schedule_of_weekdays()
 
-        alex_bot = AlexBot()
-        schedule.every(2).to(3).hours.do(alex_bot.keep_alive)
-        schedule.every(30).to(40).minutes.do(alex_bot.jenkins_check_fir)
-        alex_bot.schedule_of_weekdays()
-        # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
+    @alex_bot.bot.register(alex_bot.group, TEXT)
+    def iOS_router(msg):
+        return alex_bot.resolve_command(msg.text, msg.member, Config.group_identity)
 
-        @alex_bot.bot.register(alex_bot.group, TEXT)
-        def iOS_router(msg):
-            # 打印消息
-            print("puid = %s" % msg.member.puid)  #puid
-            return alex_bot.resolve_command(msg.text, msg.member, '3')
+    @alex_bot.bot.register(alex_bot.admin, TEXT)
+    def transfer(msg):
+        return alex_bot.resolve_command(msg.text, alex_bot.admin, '1')
 
-
-        @alex_bot.bot.register(alex_bot.admin, TEXT)
-        def transfer(msg):
-            return alex_bot.resolve_command(msg.text, alex_bot.admin, '1')
-        # @alex_bot.bot.register(alex_bot.checkin_group, TEXT)
-        # def check_in_router(msg):
-        #     print("checkin group puid = %s" % msg.member.puid)#puid
-        #     return alex_bot.resolve_command(msg.text, msg.member, '2')
-
-        # embed()
-
-        while True:
-            schedule.run_pending()
-            time.sleep(1)
-
-    except Exception, exc:
-        print exc
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
