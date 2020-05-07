@@ -126,5 +126,5 @@ if __name__ == '__main__':
             schedule.run_pending()
             time.sleep(1)
 
-    except Exception, exc:
-        print exc
+    except Exception:
+        print(Exception)

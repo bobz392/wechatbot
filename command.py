@@ -1,6 +1,6 @@
 #coding=utf-8
 
-from urlparse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs
 from datetime import datetime
 import sys
 from model import User, Message, Report

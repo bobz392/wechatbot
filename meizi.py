@@ -6,9 +6,9 @@ import os
 import bs4
 from bs4 import BeautifulSoup
 from random import randint
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
+# import sys
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 class BeautyFucker(object):
     
