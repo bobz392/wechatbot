@@ -51,7 +51,7 @@ class WeekReporter(object):
             sims = index[query_lsi]
             sim_records = None
             records = []
-            print list(enumerate(sims))
+            print(list(enumerate(sims)))
             for sim_idx, sim in enumerate(sims):
                 # 如果已经添加到相似的数据中的话
                 if sim_idx in sim_set:
@@ -113,10 +113,10 @@ class WeekReporter(object):
         for indexs in indexs_list:
             texts = []
             for index in indexs:
-                print index
+                print(index)
                 texts.append(messages[index].message)
             message_text = ' '.join(texts)
-            print message_text
+            print(message_text)
             result_messages.append(texts)
             keywords.append(''.join( \
                 jieba.analyse.textrank(message_text)[0:3]))

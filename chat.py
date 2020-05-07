@@ -4,7 +4,7 @@
 import requests
 import hashlib
 import urllib
-import urllib2
+# import urllib2
 import base64
 import json
 import time
@@ -24,15 +24,15 @@ class TencentChat(object):
         _type = 1
         rsp = self.apiplat.getNlpTextTrans(str_text, _type)
         if rsp['ret'] == 0:
-            print json.dumps(rsp, encoding="UTF-8",
-                             ensure_ascii=False, sort_keys=False, indent=4)
-            print '----------------------API SUCC----------------------'
+            print(json.dumps(rsp, encoding="UTF-8",
+                             ensure_ascii=False, sort_keys=False, indent=4))
+            print('----------------------API SUCC----------------------')
             return unicode(rsp['data']['answer'])
         else:
-            print json.dumps(rsp, encoding="UTF-8",
-                             ensure_ascii=False, sort_keys=False, indent=4)
-            # print rsp
-            print '----------------------API FAIL----------------------'
+            print(json.dumps(rsp, encoding="UTF-8",
+                             ensure_ascii=False, sort_keys=False, indent=4))
+
+            print('----------------------API FAIL----------------------')
             return None
 
 
@@ -58,14 +58,14 @@ class AiPlat(object):
         self.data = {}
 
     def invoke(self, params):
-        self.url_data = urllib.urlencode(params)
-        req = urllib2.Request(self.url, self.url_data)
+        self.url_data = urllib.encode(params)
+        req = urllib.Request(self.url, self.url_data)
         try:
-            rsp = urllib2.urlopen(req)
+            rsp = urllib.urlopen(req)
             str_rsp = rsp.read()
             dict_rsp = json.loads(str_rsp)
             return dict_rsp
-        except urllib2.URLError, e:
+        except urllib.URLError as e:
             dict_error = {}
             if hasattr(e, "code"):
                 dict_error = {}
