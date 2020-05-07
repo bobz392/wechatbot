@@ -1,20 +1,20 @@
 #! /usr/bin/env python2.7
 # coding=utf-8
 
-import chat
 import schedule
-from wxpy import *
 import time
+import os
+import datetime
+import random
 import signal
+import chat
+
+from wxpy import *
 from kr36 import Kr
 from command import Command
 from wxpy import Tuling
-from check_in import CheckIn
+# from check_in import CheckIn
 from notify_work import notify_work_instance
-import os
-import datetime
-import chat
-import random
 
 
 class AlexBot(object):
@@ -30,13 +30,13 @@ class AlexBot(object):
         print(self.bot.groups())
 
         # group_name = 'notify_group'
-        group_name = 'new_notify'
-        # group_name = u'tom备孕群'
+        # group_name = 'new_notify'
+        # group_name = u'不是那个沃尔玛'
         # group_name = 'test'
-        # group_name = u'好好的群'
+        group_name = u'开挂的IT'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
-        self.checkin = CheckIn()
+        # self.checkin = CheckIn()
         self.tuling = Tuling('02518a2c4b004145bdea82ae0440d715')
         self.tengxun = chat.TencentChat()
         # self.xiaobing = ensure_one(self.bot.mps().search(u'小冰'))
@@ -50,22 +50,22 @@ class AlexBot(object):
     def keep_alive(self):
         self.friend_keeplive.send('i am alive')
 
-    def hour_notify(self):
-        from datetime import datetime
-        today = datetime.today()
-        week_day = today.weekday()
-        if week_day != 6 and week_day != 5:
-            self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' %
-                            datetime.now().strftime("%H"))
-        if today.hour >= 18:
-            file_path = os.getcwd() + '/beauty/'
-            self.group.send_image(file_path + 'work.png')
+    # def hour_notify(self):
+    #     from datetime import datetime
+    #     today = datetime.today()
+    #     week_day = today.weekday()
+    #     if week_day != 6 and week_day != 5:
+    #         self.group.send(u'吃了吗，日报写了吗，喝水了吗，如厕了吗。%s:00 点啦。' %
+    #                         datetime.now().strftime("%H"))
+    #     if today.hour >= 18:
+    #         file_path = os.getcwd() + '/beauty/'
+    #         self.group.send_image(file_path + 'work.png')
 
-    def notify_iOS_checkin(self):
-        print('检查 iOS 打卡信息！！！！！')
-        msg = self.checkin.check_all_user('1')
-        if msg:
-            self.group.send(msg)
+    # def notify_iOS_checkin(self):
+    #     print('检查 iOS 打卡信息！！！！！')
+    #     msg = self.checkin.check_all_user('1')
+    #     if msg:
+    #         self.group.send(msg)
 
     def load_kr_data(self):
         kr = Kr()
@@ -92,7 +92,7 @@ class AlexBot(object):
     def schedule_of_weekdays(self):
         for check_time in ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00',
                            '17:00', '18:00', '19:00', '20:00']:
-            schedule.every().days.at(check_time).do(self.hour_notify)
+            # schedule.every().days.at(check_time).do(self.hour_notify)
             if check_time == '10:00' or check_time == '14:00' or check_time == '16:00' or check_time == '19:00':
                 schedule.every().days.at(check_time).do(self.load_kr_data)
 
@@ -125,6 +125,13 @@ class AlexBot(object):
             if isinstance(result, unicode):
                 print('solove %s result = %s' % (text, result))
                 return result
+            elif isinstance(result, tuple):
+                print('result_type = %s' % type(result))
+                if result[0] == 'file':
+                    # if sender.name == u'M_zhou' or sender.name == u'园园':
+                    self.group.send_file(result[1])
+                    # else:
+                    #     return u'现在流量有限抱歉了，只有园园老师来操作'
 
             else:
                 print('result type = %s' % type(result))
@@ -144,7 +151,7 @@ if __name__ == '__main__':
         notify_work_instance.set_group(alex_bot.group)
 
         schedule.every(5).to(10).minutes.do(alex_bot.keep_alive)
-        alex_bot.schedule_of_weekdays()
+        # alex_bot.schedule_of_weekdays()
         # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
 
         @alex_bot.bot.register(alex_bot.admin, TEXT)
@@ -167,20 +174,20 @@ if __name__ == '__main__':
             # 打印消息
             # print("puid = %s" % msg.member.puid)  # puid
             # prosbolity = random.randint(0, 100)
-            # if msg.is_at or prosbolity < 10:
-            #     remove_at_msg = msg.text.replace(u'@ALEX ', u'')
-            #     # if Command.use_chat_type == 0:
-            #     print('send to bot %s ,%d' %
-            #           (remove_at_msg, Command.use_chat_type))
-            #     #     alex_bot.xiaobing.send(remove_at_msg)
-            #     # el
-            #     if Command.use_chat_type == 1:
-            #         alex_bot.tuling.do_reply(msg)
-            #     elif Command.use_chat_type == 2:
-            #         tx_reply = alex_bot.tengxun.request(remove_at_msg)
-            #         alex_bot.group.send(tx_reply)
-            # else:
-            return alex_bot.resolve_command(msg.text, msg.member, '1')
+            if msg.is_at:  # or prosbolity < 10:
+                remove_at_msg = msg.text.replace(u'@ALEX ', u'')
+                # if Command.use_chat_type == 0:
+                print('send to bot %s ,%d' %
+                      (remove_at_msg, Command.use_chat_type))
+                #     alex_bot.xiaobing.send(remove_at_msg)
+                # el
+                if Command.use_chat_type == 1:
+                    alex_bot.tuling.do_reply(msg)
+                elif Command.use_chat_type == 2:
+                    tx_reply = alex_bot.tengxun.request(remove_at_msg)
+                    alex_bot.group.send(tx_reply)
+            else:
+                return alex_bot.resolve_command(msg.text, msg.member, '1')
 
         # @alex_bot.bot.register(alex_bot.friend_keeplive)
         # def reply_my_friend(msg):
