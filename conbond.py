@@ -24,6 +24,7 @@ class ConbondData(object):
         if os.path.exists(file_path):
             os.remove(file_path)
         print(file_path)
+        # df.rename(columns={"A": "a", "B": "c"})
         df.to_csv(file_path, encoding='utf-8')
         logout()
         return file_path
@@ -50,13 +51,22 @@ conbond_data = ConbondData()
 
 if __name__ == "__main__":
 
-    # auth('18827420512', '1397160Zb@@')
+    auth('18827420512', '1397160Zb@@')
 
-    # df = bond.run_query(query(bond.CONBOND_DAILY_PRICE).filter(
-    #     bond.CONBOND_DAILY_PRICE.code == '128086')
-    #     .filter(bond.CONBOND_DAILY_PRICE.date > '2020-03-01'))
-    # df.to_csv('file_name.csv', encoding='utf-8')
-    # print(df)
+    df = bond.run_query(query(bond.CONBOND_DAILY_PRICE).filter(
+        bond.CONBOND_DAILY_PRICE.code == '128086')
+        .filter(bond.CONBOND_DAILY_PRICE.date > '2020-03-01'))
+    df.drop(columns='id', inplace=True)
+    columns = {'date':'交易日期', 'code':'债券代码', 'name':'债券简称', \
+        'exchange_code':'证券市场编码（XSHG-上交所；XSHE-深交所）', 'pre_close':'昨收价', \
+            'open':'开盘价', 'high':'最高价', 'low':'最低价', 'close':'收盘价', \
+                'volume':'成交量（手）', 'money':'成交额', 'deal_number':'成交笔数', 'change_pct':'涨跌幅'}
+    df.rename(columns=columns, inplace=True)
+    df2 = bond.run_query(query(bond.CONBOND_DAILY_CONVERT)
+        .filter(bond.CONBOND_DAILY_CONVERT.code == '128086'))
+    # print(df2.head())
+    df.to_csv('file_name.csv', encoding='utf-8')
+    print(df.head())
 
     ####
     # df2 = bond.run_query(query(bond.CONBOND_DAILY_PRICE)).filter(
@@ -64,10 +74,10 @@ if __name__ == "__main__":
     # print(df2.head())
 
     ###
-    now = datetime.now() - timedelta(days=int('15'))
-    time = now.strftime("%Y-%m-%d")
-    print("time:", time)
-    print(type(('file', 'asdasdsa')))
-    s = ('file', 'asdasdsa')
-    print(isinstance(s, tuple))
-    print(s[0])
+    # now = datetime.now() - timedelta(days=int('15'))
+    # time = now.strftime("%Y-%m-%d")
+    # print("time:", time)
+    # print(type(('file', 'asdasdsa')))
+    # s = ('file', 'asdasdsa')
+    # print(isinstance(s, tuple))
+    # print(s[0])
