@@ -32,8 +32,8 @@ class AlexBot(object):
         # group_name = 'notify_group'
         # group_name = 'new_notify'
         # group_name = u'不是那个沃尔玛'
-        # group_name = 'test'
-        group_name = u'开挂的IT'
+        group_name = 'test'
+        # group_name = u'开挂的IT'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
         # self.checkin = CheckIn()
