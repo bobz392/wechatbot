@@ -4,15 +4,15 @@
 from jqdatasdk import *
 from datetime import datetime, timedelta
 import os
-
+import pandas as pd
 
 class ConbondData(object):
 
     def __init__(self):
         self.codes = []
-        self._all_codes()
+        self._all_conbond_codes()
 
-    def _all_codes(self):
+    def _all_conbond_codes(self):
         with open('jisilu.txt', 'r') as fp:
             line = fp.readline()
             while line:
@@ -37,7 +37,6 @@ class ConbondData(object):
         if os.path.exists(file_path):
             os.remove(file_path)
         print(file_path)
-        # df.rename(columns={"A": "a", "B": "c"})
         df.to_csv(file_path, encoding='utf-8')
         logout()
         return file_path
@@ -59,7 +58,7 @@ class ConbondData(object):
         print('out daily_before_price: %s' % date)
         return self.daily_price(code, date)
 
-    def basic_info(self, query_code: str):
+    def conbond_basic_info(self, query_code: str):
         """
         CONBOND_BASIC_INFO，可转债基本资料
         """
@@ -67,105 +66,59 @@ class ConbondData(object):
             .filter(bond.CONBOND_BASIC_INFO.code == query_code))
         return info_df
 
-    def _30_day_before(self):
-        """
-        计算当前往前30个交易日的起始时间， 5 * 6 相当于 6 周
-        """
-        today_30 = datetime.today() - timedelta(weeks=6)
-        today_30_str = today_30.strftime("%Y-%m-%d")
-        print(today_30_str)
-        return today_30_str
-
-    def daily_conbond_df(self, query_code):
+    def daily_conbond_df(self, query_code, start_date_str):
         """
         可转债日行情，从2018-09-13开始（CONBOND_DAILY_PRICE）
         """
-        today_30_str = conbond_data._30_day_before()
         df = bond.run_query(query(bond.CONBOND_DAILY_PRICE)
                 .filter(bond.CONBOND_DAILY_PRICE.code == query_code, \
-                    bond.CONBOND_DAILY_PRICE.date > today_30_str))
+                    bond.CONBOND_DAILY_PRICE.date > start_date_str))
         if df.empty:
             print(query_code, ' is empty')
             return None
         df.drop(columns='id', inplace=True)
         return df
 
-    def save_df_2_file(self, data_df):
+#####
+###
+## 当前第二版每天去获取所有转债的活动率
+###
+####
+    def _conbond_margin_calculation(self, data_df):
         """
-        把 dataframe 写入到本地的 csv file
+        计算波动率和振幅等，最终返回的是一个字典，用于拼到 series 里面
         """
-        path = "./conbond_folder"
-        try:
-            os.makedirs(path)
-        except FileExistsError:
-            print('csv folder already exist')
-        data_df.to_csv('%s/%s.csv' % (path, datetime.today().strftime("%Y-%m-%d")), encoding='utf-8')
-
-
-conbond_data = ConbondData()
-
-if __name__ == "__main__":
-
-    
-    from wxpy import embed
-    import pandas as pd
-
-    conbond_data._login()
-    
-    data_df = None
-
-    for query_code in conbond_data.codes:
-        # 获取时间的数据
-        df = conbond_data.daily_conbond_df(query_code)
-
-        # rename 成中文，导出用
         close = '收盘价'
         low = '最低价'
         high = '最高价'
         pre_close = '昨收价'
         change_pct = '日涨幅'
+        # rename 成中文，导出用
         columns = {'date':'交易日期', 'code':'债券代码', 'name':'债券简称', \
             'exchange_code':'XSHG-上；XSHE-深）', 'pre_close':pre_close, \
                 'open':'开盘价', 'high':high, 'low':low, 'close':close, \
                     'volume':'成交量（手）', 'money':'成交额', 'deal_number':'成交笔数', 'change_pct':change_pct}
-        df.rename(columns=columns, inplace=True)
-        
-        # df.to_csv('file_name.csv', encoding='utf-8')
-        # print(df.head(), query_code)
-
-        # 溢价率啥的
-        # last_third_day_str = (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d")
-        # info_df = bond.run_query(query(bond.BOND_BASIC_INFO).filter(bond.BOND_BASIC_INFO.code == query_code))
-        # finance_code = info_df['company_code']
-    # 1. 转股价值
-    # 转股价值 = 100 / 转股价 x 正股现价
-    # 2. 溢价率
-    # 溢价率 =（转债现价 - 转股价值）/ 转股价值
-        # info_df.drop(columns='id', inplace=True)
-        # print(info_df)
-
+        data_df.rename(columns=columns, inplace=True)
         # 计算月涨幅和周涨幅
-        day_last = df.loc[df.index[-1]]
+        day_last = data_df.loc[data_df.index[-1]]
         day_last_close = day_last[close]
-        day_month_close = df.loc[df.index[0]][close]
-        day_week_close = df.loc[df.index[-5]][close]
-        day_month_raise = (day_last_close - day_month_close) / day_month_close
-        day_week_raise = (day_last_close - day_week_close) / day_week_close
-        
+        day_month_close = data_df.loc[data_df.index[0]][close]
+        day_week_close = data_df.loc[data_df.index[-5]][close]
+        day_month_raise = (day_last_close - day_month_close) / day_month_close \
+            if day_last_close != day_month_close else 0
+        day_week_raise = (day_last_close - day_week_close) / day_week_close \
+            if day_last_close != day_week_close else 0
         # 计算月振幅和周振幅
         # 真实波动频率 https://zh.wikipedia.org/wiki/%E7%9C%9F%E5%AF%A6%E6%B3%A2%E5%8B%95%E5%B9%85%E5%BA%A6%E5%9D%87%E5%80%BC
         # https://www.dailyfxasia.com/cn/feaarticle/20170727-6033.html how to use atr
         # {\displaystyle TR=max(H_{t},C_{t-1})-min(L_{t},C_{t-1})}
         atr = '日波动'
-        df[atr] = df.apply(lambda x: max(x[high], x[pre_close]) - min(x[low], x[pre_close]) , axis=1)
-        week_atr = df.loc[df.index[-7:]][atr].mean()
-        fourteenth_atr = df.loc[df.index[-14:]][atr].mean()
-        month_atr = df[atr].mean()
-        week_variable = df.loc[df.index[-5:]][change_pct].var()
-        month_variable = df[change_pct].var()
-        # 合并成一个新的 series
-        today_series = df.loc[df.index[-1]]
-        basic_info_df = conbond_data.basic_info(query_code)
+        data_df[atr] = data_df.apply(lambda x: max(x[high], x[pre_close]) - min(x[low], x[pre_close]) , axis=1)
+        week_atr = data_df.loc[data_df.index[-7:]][atr].mean()
+        fourteenth_atr = data_df.loc[data_df.index[-14:]][atr].mean()
+        month_atr = data_df[atr].mean()
+        week_variable = data_df.loc[data_df.index[-5:]][change_pct].var()
+        month_variable = data_df[change_pct].var()
         data = {
             '月涨幅': day_month_raise,
             '周涨幅': day_week_raise,
@@ -174,18 +127,74 @@ if __name__ == "__main__":
             '月波动': month_atr,
             '周涨幅方差': week_variable,
             '月涨幅方差': month_variable,
-            '剩余规模(万元)': '无' if basic_info_df.empty else basic_info_df['actual_raise_fund'][0]
         }
-        today_series = today_series.append(pd.Series(data))
+        return data
 
-        if data_df is None:
-            data_df = pd.DataFrame([today_series])
-        else:
-            data_df = data_df.append(today_series, ignore_index=True)
-
-    conbond_data.save_df_2_file(data_df=data_df)
-    embed()
+    def _save_df_2_file(self, data_df):
+        """
+        把 dataframe 写入到本地的 csv file
+        """
+        conbond_folder_path = os.getcwd() + '/conbond_folder/'
+        try:
+            os.makedirs(conbond_folder_path)
+        except FileExistsError:
+            print('csv folder already exist')
+        file_path = '%s/%s.csv' % \
+            (conbond_folder_path, datetime.today().strftime("%Y-%m-%d"))
+        data_df.to_csv(file_path, encoding='utf-8')
+        return file_path
     
+    def _6week_before(self):
+        """
+        计算当前往前30个交易日的起始时间， 5 * 6 相当于 6 周
+        """
+        today_30 = datetime.today() - timedelta(weeks=6)
+        today_30_str = today_30.strftime("%Y-%m-%d")
+        return today_30_str
+
+    def generate_preday_csv(self):
+        self._login()
+        data_df = None
+        date_str = self._6week_before()
+        for query_code in self.codes:
+            # 获取时间的数据
+            df = self.daily_conbond_df(query_code=query_code, start_date_str=date_str)
+            if df is None:
+                continue
+            # 获取波动数据
+            data = self._conbond_margin_calculation(data_df=df)
+            # 获取剩余规模
+            basic_info_df = self.conbond_basic_info(query_code)
+            data['剩余规模(万元)'] = '无' if basic_info_df.empty \
+                else basic_info_df['actual_raise_fund'][0]
+            # 合并成一个新的 series
+            today_series = df.loc[df.index[-1]]
+            today_series = today_series.append(pd.Series(data))
+            if data_df is None:
+                data_df = pd.DataFrame([today_series])
+            else:
+                data_df = data_df.append(today_series, ignore_index=True)
+        logout()
+        return self._save_df_2_file(data_df=data_df)
+
+conbond_data = ConbondData()
+
+if __name__ == "__main__":
+    from wxpy import embed
+    import pandas as pd
+    filepath = conbond_data.generate_preday_csv()
+    embed()
+    # 溢价率啥的
+    # last_third_day_str = (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d")
+    # info_df = bond.run_query(query(bond.BOND_BASIC_INFO).filter(bond.BOND_BASIC_INFO.code == query_code))
+    # finance_code = info_df['company_code']
+# 1. 转股价值
+# 转股价值 = 100 / 转股价 x 正股现价
+# 2. 溢价率
+# 溢价率 =（转债现价 - 转股价值）/ 转股价值
+    # info_df.drop(columns='id', inplace=True)
+    # print(info_df)
+
     ####
     # df2 = bond.run_query(query(bond.CONBOND_DAILY_PRICE)).filter(
     #     bond.BOND_BASIC_INFO.code == '113579')

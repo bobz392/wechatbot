@@ -30,9 +30,9 @@ class AlexBot(object):
         print(self.bot.groups())
 
         # group_name = 'notify_group'
-        # group_name = 'new_notify'
+        group_name = 'new_notify'
         # group_name = u'不是那个沃尔玛'
-        group_name = 'test'
+        # group_name = 'test'
         # group_name = u'开挂的IT'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
@@ -115,7 +115,6 @@ class AlexBot(object):
                 print(self.group.send_image(file_path + 'boy1.png'))
             else:
                 print(self.group.send_image(file_path + 'boy2.png'))
-
             print('load boy finish')
             return None
 
@@ -196,6 +195,8 @@ if __name__ == '__main__':
         #         alex_bot.tuling.do_reply(msg)
 
         # alex_bot.group.send('我是小赖同学，您的霸霸，为您服务')
+        from conbond import conbond_data
+        alex_bot.group.send_file(conbond_data.generate_preday_csv())
         while True:
             schedule.run_pending()
             time.sleep(1)
