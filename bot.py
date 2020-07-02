@@ -33,7 +33,7 @@ class AlexBot(object):
         # group_name = 'new_notify'
         # group_name = u'不是那个沃尔玛'
         # group_name = 'test'
-        group_name = u'开挂的IT'
+        # group_name = u'开挂的IT'
         self.group = ensure_one(self.bot.groups().search(group_name))
         self.group.update_group(True)
         # self.checkin = CheckIn()
@@ -68,10 +68,12 @@ class AlexBot(object):
     #         self.group.send(msg)
 
     def load_kr_data(self):
-        kr = Kr()
-        msg = kr.loadData()
-        if msg:
-            self.group.send(msg)
+        from conbond import conbond_data
+        alex_bot.group.send_file(conbond_data.generate_preday_csv())
+        # kr = Kr()
+        # msg = kr.loadData()
+        # if msg:
+        #     self.group.send(msg)
 
     def write_image2file(self, data, sender_name):
         file_path = os.getcwd() + '/beauty/'
@@ -115,7 +117,6 @@ class AlexBot(object):
                 print(self.group.send_image(file_path + 'boy1.png'))
             else:
                 print(self.group.send_image(file_path + 'boy2.png'))
-
             print('load boy finish')
             return None
 
@@ -152,7 +153,7 @@ if __name__ == '__main__':
 
         schedule.every(5).to(10).minutes.do(alex_bot.keep_alive)
         # alex_bot.schedule_of_weekdays()
-        # schedule.every().days.at('9:40').do(alex_bot.load_kr_data)
+        schedule.every().days.at('18:00').do(alex_bot.load_kr_data)
 
         @alex_bot.bot.register(alex_bot.admin, TEXT)
         def transfer(msg):
@@ -196,9 +197,10 @@ if __name__ == '__main__':
         #         alex_bot.tuling.do_reply(msg)
 
         # alex_bot.group.send('我是小赖同学，您的霸霸，为您服务')
+        
         while True:
             schedule.run_pending()
             time.sleep(1)
-
-    except Exception, exc:
-        print exc
+            
+    except Exception:
+        print(Exception)
