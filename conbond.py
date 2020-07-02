@@ -103,21 +103,37 @@ class ConbondData(object):
         day_last = data_df.loc[data_df.index[-1]]
         day_last_close = day_last[close]
         day_month_close = data_df.loc[data_df.index[0]][close]
-        day_week_close = data_df.loc[data_df.index[-5]][close]
-        day_month_raise = (day_last_close - day_month_close) / day_month_close \
-            if day_last_close != day_month_close else 0
-        day_week_raise = (day_last_close - day_week_close) / day_week_close \
-            if day_last_close != day_week_close else 0
+        length_df_index = len(data_df.index)
+        if length_df_index >= 5:
+            day_week_close = data_df.loc[data_df.index[-5]][close]
+            day_month_raise = (day_last_close - day_month_close) / day_month_close \
+                if day_last_close != day_month_close else 0
+            day_week_raise = (day_last_close - day_week_close) / day_week_close \
+                if day_last_close != day_week_close else 0
+        else:
+            day_week_close = 0
+            day_month_raise = 0
+            day_week_raise = 0
         # 计算月振幅和周振幅
         # 真实波动频率 https://zh.wikipedia.org/wiki/%E7%9C%9F%E5%AF%A6%E6%B3%A2%E5%8B%95%E5%B9%85%E5%BA%A6%E5%9D%87%E5%80%BC
         # https://www.dailyfxasia.com/cn/feaarticle/20170727-6033.html how to use atr
         # {\displaystyle TR=max(H_{t},C_{t-1})-min(L_{t},C_{t-1})}
         atr = '日波动'
         data_df[atr] = data_df.apply(lambda x: max(x[high], x[pre_close]) - min(x[low], x[pre_close]) , axis=1)
-        week_atr = data_df.loc[data_df.index[-7:]][atr].mean()
-        fourteenth_atr = data_df.loc[data_df.index[-14:]][atr].mean()
+        if length_df_index >= 7:
+            week_atr = data_df.loc[data_df.index[-7:]][atr].mean()
+        else:
+            week_atr = 0
+        if length_df_index >= 14:
+            fourteenth_atr = data_df.loc[data_df.index[-14:]][atr].mean()
+        else:
+            fourteenth_atr = 0
         month_atr = data_df[atr].mean()
-        week_variable = data_df.loc[data_df.index[-5:]][change_pct].var()
+        if length_df_index >= 5:
+            week_variable = data_df.loc[data_df.index[-5:]][change_pct].var()
+        else:
+            week_variable = 0
+        
         month_variable = data_df[change_pct].var()
         data = {
             '月涨幅': day_month_raise,
