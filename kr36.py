@@ -95,3 +95,18 @@ class Kr:
 
     def quit(self):
         self.dr.quit()
+
+
+# if __name__ == "__main__":
+    # from wxpy import embed
+    # dr = webdriver.Chrome()
+    # dr.get('http://data.eastmoney.com/kzz/default.html')
+    # frame = dr.find_element_by_class_name('mainFrame')
+    # print(frame)
+    # # dr.switchTo().fame("id")
+    # xpath = '''
+    # /html/body/div[@class='mainContent']/div[@class='maincont']/div[@class='contentBox']/div[@class='content']/table[@id='dt_1']/tbody/tr[@class='over']/td[15]
+    # '''
+    # # feed_ul = dr.find_element_by_xpath(xpath)
+    # # print(feed_ul)
+    # embed()
