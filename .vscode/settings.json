@@ -11,7 +11,7 @@
         "**/beauty": true,
         "**/*.csv": true,
     },
-    "python.pythonPath": "/usr/local/bin/python3",
+    "python.pythonPath": "/Users/zhoubobo/.pyenv/versions/3.7.8/bin/python",
     "python.linting.pylintEnabled": true,
     "python.languageServer": "Microsoft",
     "python.formatting.provider": "autopep8",

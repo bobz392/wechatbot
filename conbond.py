@@ -74,10 +74,22 @@ class ConbondData(object):
                             .filter(bond.CONBOND_DAILY_PRICE.code == query_code,
                                     bond.CONBOND_DAILY_PRICE.date > start_date_str))
         if df.empty:
+            return None
+        return df
+
+    def days_conbond_df(self, query_code, days: [str]):
+        """
+        可转债日行情，从2018-09-13开始（CONBOND_DAILY_PRICE）
+        """
+        df = bond.run_query(query(bond.CONBOND_DAILY_PRICE)
+                            .filter(bond.CONBOND_DAILY_PRICE.code == query_code,
+                                    bond.CONBOND_DAILY_PRICE.date.in_(days)))
+        if df.empty:
             print(query_code, ' is empty')
             return None
-        df.drop(columns=['id', 'exchange_code',
-                         'money', 'deal_number'], inplace=True)
+        df.drop(columns=['id', 'exchange_code', 'volume', 'change_pct', 'high', 'low',
+                         'money', 'deal_number', 'pre_close'], inplace=True)
+        df['date'] = df['date'].astype(str)
         return df
 
 #####
@@ -120,8 +132,8 @@ class ConbondData(object):
         # https://www.dailyfxasia.com/cn/feaarticle/20170727-6033.html how to use atr
         # {\displaystyle TR=max(H_{t},C_{t-1})-min(L_{t},C_{t-1})}
         atr = '日波动'
-        data_df[atr] = data_df.apply(lambda x: max(
-            x[high], x[pre_close]) - min(x[low], x[pre_close]), axis=1)
+        data_df[atr] = round(data_df.apply(lambda x: max(
+            x[high], x[pre_close]) - min(x[low], x[pre_close]), axis=1), 4)
         if length_df_index >= 7:
             week_atr = data_df.loc[data_df.index[-7:]][atr].mean()
         else:
@@ -138,17 +150,17 @@ class ConbondData(object):
 
         month_variable = data_df[change_pct].var()
         data = {
-            '月涨幅': day_month_raise,
-            '周涨幅': day_week_raise,
-            '周波动': week_atr,
-            '14天波动': fourteenth_atr,
-            '月波动': month_atr,
-            '周涨幅方差': week_variable,
-            '月涨幅方差': month_variable,
+            '周涨幅': round(day_week_raise, 4),
+            '月涨幅': round(day_month_raise, 4),
+            '周波动': round(week_atr, 4),
+            '两周波动': round(fourteenth_atr, 4),
+            '月波动': round(month_atr, 4),
+            '周涨幅方差': round(week_variable, 4),
+            '月涨幅方差': round(month_variable, 4),
         }
         return data
 
-    def _save_df_2_file(self, data_df):
+    def _save_df_2_file(self, data_df, name=None):
         """
         把 dataframe 写入到本地的 csv file
         """
@@ -159,7 +171,7 @@ class ConbondData(object):
             print('csv folder already exist')
 
         file_path = '%s/%s.csv' % \
-            (conbond_folder_path, data_df.iloc[0]['交易日期'])
+            (conbond_folder_path, name if name else data_df.iloc[0]['交易日期'])
         data_df.to_csv(file_path, encoding='utf-8')
         return file_path
 
@@ -171,6 +183,28 @@ class ConbondData(object):
         today_30_str = today_30.strftime("%Y-%m-%d")
         return today_30_str
 
+    # def special_dates(self, dates: [str]):
+    # 查询特殊日期的数据，不用暂时
+    #     self._login()
+    #     data_df = None
+    #     for query_code in self.codes:
+    #         df = self.days_conbond_df(query_code, dates)
+    #         if df is None:
+    #             continue
+    #         date_series = df.loc[df.index[-1]]
+    #         data = dict()
+    #         for date in dates:
+    #             data['%s-close' % date] = df[df['date'] == date].iloc[0]['close']
+    #             data['%s-open' % date] = df[df['date'] == date].iloc[0]['open']
+    #         date_series = date_series.append(pd.Series(data))
+    #         if data_df is None:
+    #             data_df = pd.DataFrame([date_series])
+    #         else:
+    #             data_df = data_df.append(date_series, ignore_index=True)
+    #     data_df.drop(columns=['date', 'open', 'close'], inplace=True)
+    #     logout()
+    #     return data_df
+
     def generate_preday_csv(self):
         self._login()
         data_df = None
@@ -180,7 +214,11 @@ class ConbondData(object):
             df = self.daily_conbond_df(
                 query_code=query_code, start_date_str=date_str)
             if df is None:
-                print("%s is cb data is empty", query_code)
+                print("cb: %s is empty" % query_code)
+                continue
+            # 排除 130 以上的
+            conbond_price = df.loc[df.index[-1]]['close']
+            if conbond_price >= 130:
                 continue
             # 获取波动数据
             data = self._conbond_margin_calculation(data_df=df)
@@ -188,16 +226,22 @@ class ConbondData(object):
             basic_info_df = self.conbond_basic_info(query_code)
             data['剩余规模(万元)'] = '无' if basic_info_df.empty \
                 else basic_info_df['actual_raise_fund'][0]
-            stock_df = self.stock_valuation(basic_info_df, df.iloc[0]['交易日期'])
+            company_code = basic_info_df.iloc[0]['company_code']
+            buy_date = str(df.iloc[0]['交易日期'])
+            stock_df = self.stock_valuation(company_code, buy_date)
+            data['溢价率(%)'] = self.bond_convert_stock_rate(
+                query_code, company_code, conbond_price)
             if not stock_df.empty:
                 stock_data = stock_df.iloc[0]
-                data['动态市盈率'] = stock_data['pe_ratio']
-                data['静态市盈率'] = stock_data['pe_ratio_lyr']
-                data['市净率'] = stock_data['pb_ratio']
-                data['市销率'] = stock_data['ps_ratio']
-                data['市现率'] = stock_data['pcf_ratio']
-                data['正股换手率'] = stock_data['turnover_ratio']
+                data['动态市盈率'] = round(stock_data['pe_ratio'], 4)
+                data['静态市盈率'] = round(stock_data['pe_ratio_lyr'], 4)
+                data['市净率'] = round(stock_data['pb_ratio'], 4)
+                data['市销率'] = round(stock_data['ps_ratio'], 4)
+                data['市现率'] = round(stock_data['pcf_ratio'], 4)
+                data['正股换手率'] = round(stock_data['turnover_ratio'], 4)
             # 合并成一个新的 series
+            df.drop(columns=['id', 'exchange_code',
+                             'money', 'deal_number'], inplace=True)
             today_series = df.loc[df.index[-1]]
             today_series = today_series.append(pd.Series(data))
             if data_df is None:
@@ -208,15 +252,15 @@ class ConbondData(object):
         return self._save_df_2_file(data_df=data_df)
 
     def interest_payment(self, query_code):
+        # 财务数据
         df = bond.run_query(query(bond.BOND_INTEREST_PAYMENT)
                             .filter(bond.BOND_INTEREST_PAYMENT.code == query_code))
         return df
 
-    def stock_valuation(self, cb_df, date):
+    def stock_valuation(self, company_code, date):
         """
         市值的数据
         """
-        company_code = cb_df.iloc[0]['company_code']
         if company_code is None:
             return None
         q = query(valuation) \
@@ -224,9 +268,22 @@ class ConbondData(object):
         df = get_fundamentals(q, date)
         return df
 
-    def bond_up_stack_price(self, query_code):
-        info_df = self.conbond_basic_info(query_code)
-        return info_df
+    def bond_convert_stock_rate(self, query_code, stock_code, conbond_price):
+        # 查看 code 转股价
+        df = bond.run_query(query(bond.CONBOND_CONVERT_PRICE_ADJUST)
+                            .filter(bond.CONBOND_CONVERT_PRICE_ADJUST.code == query_code))
+        convert_pricevert = float(df.iloc[[-1]]['new_convert_price'])
+        date = datetime.today().strftime("%Y-%m-%d")
+        stock_price = float(get_price(
+            stock_code, end_date=date, start_date=date)['close'])
+        # 1. 转股价值
+        # 转股价值 = 100 / 转股价 x 正股现价
+        # 2. 溢价率
+        # 溢价率 =（转债现价 - 转股价值）/ 转股价值
+        stock_value = 100.0 / convert_pricevert * stock_price
+        conver_rate = 100.0 * (float(conbond_price) -
+                               stock_value) / stock_value
+        return '%.2f' % conver_rate
 
 
 conbond_data = ConbondData()
@@ -234,12 +291,17 @@ conbond_data = ConbondData()
 if __name__ == "__main__":
     from wxpy import embed
     import pandas as pd
-    # conbond_data._login()
     filepath = conbond_data.generate_preday_csv()
+    # df = conbond_data.conbond_basic_info('128108')
+
+    # 筛选出 特殊日期的转债
+    # conbond_data._login()
+    # df = conbond_data.special_dates(['2020-06-30', '2020-07-13', '2020-07-14'])
 
     # df = bond.run_query(query(bond.)
     #                     .filter(bond.BOND_COUPON.code == '113508'))
-    embed()
+
+    # embed()
     # 溢价率啥的
     # last_third_day_str = (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d")
     # info_df = bond.run_query(query(bond.BOND_BASIC_INFO).filter(bond.BOND_BASIC_INFO.code == query_code))
